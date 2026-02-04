@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'Privacy Policy for HINX - Learn how we collect, use, and protect your data.',
+  description: 'Privacy Policy for ASAGUS - Learn how we collect, use, and protect your data.',
 }
 
 export default function PrivacyPolicy() {
@@ -12,7 +12,7 @@ export default function PrivacyPolicy() {
     {
       icon: FileText,
       title: 'Introduction',
-      content: 'HINX ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.'
+      content: 'ASAGUS ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.'
     },
     {
       icon: Eye,

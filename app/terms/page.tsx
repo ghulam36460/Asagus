@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: 'Terms of Service for HINX - Read our terms and conditions for using our services.',
+  description: 'Terms of Service for ASAGUS - Read our terms and conditions for using our services.',
 }
 
 export default function TermsOfService() {
@@ -26,7 +26,7 @@ export default function TermsOfService() {
           <section className="mb-8">
             <h2 className="font-display text-2xl text-black dark:text-white mb-4">Agreement to Terms</h2>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-              By accessing and using HINX's website and services, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using our services.
+              By accessing and using ASAGUS's website and services, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using our services.
             </p>
           </section>
 

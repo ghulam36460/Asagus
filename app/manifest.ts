@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'HINX - Web Development Agency',
-    short_name: 'HINX',
+    name: 'ASAGUS - Web Development Agency',
+    short_name: 'ASAGUS',
     description: 'We create brands that people want to talk about. Expert web development, digital marketing, and brand design services.',
     start_url: '/',
     display: 'standalone',

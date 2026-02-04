@@ -1,126 +1,121 @@
 "use client"
 
 import React from 'react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { Button } from './button'
 
 export function HeroSection() {
   return (
-    <section className="min-h-screen flex items-center justify-center relative overflow-hidden py-36 lg:py-48">
-      {/* Animated glow effect */}
-      <div className="absolute inset-0 overflow-hidden">
+    <section className="min-h-screen flex items-center justify-center relative overflow-hidden py-36 lg:py-48 mb-16 md:mb-24 lg:mb-32">
+      {/* Animated glow effect (responsive, accessible, and performance-minded) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* subtle contrast overlay to improve text legibility */}
+        <div className="absolute inset-0 bg-black/20 mix-blend-normal" />
+
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 parallax-item" data-parallax-depth="0.15">
-          <motion.div 
-            className="w-[800px] h-[800px] rounded-full bg-brand-blue/30 blur-[120px]"
-            animate={{ 
+          <motion.div
+            className="w-[clamp(240px,40vw,800px)] h-[clamp(240px,40vw,800px)] rounded-full bg-brand-blue/30 blur-[80px] sm:blur-[120px]"
+            animate={!useReducedMotion() ? {
               opacity: [0.3, 0.5, 0.3],
-              scale: [1, 1.2, 1]
-            }}
-            transition={{ 
-              duration: 8, 
+              scale: [1, 1.15, 1]
+            } : { opacity: 0.4, scale: 1 }}
+            transition={!useReducedMotion() ? {
+              duration: 8,
               repeat: Infinity,
-              ease: "easeInOut" 
-            }}
+              ease: "easeInOut"
+            } : { duration: 0 }}
+            style={{ willChange: 'transform, opacity' }}
           />
         </div>
+
         <div className="absolute top-20 right-20 parallax-item" data-parallax-depth="0.25">
-          <motion.div 
-            className="w-[400px] h-[400px] rounded-full bg-purple-500/20 blur-[100px]"
-            animate={{ 
+          <motion.div
+            className="w-[clamp(160px,25vw,400px)] h-[clamp(160px,25vw,400px)] rounded-full bg-purple-500/20 blur-[60px] sm:blur-[100px]"
+            animate={!useReducedMotion() ? {
               opacity: [0.2, 0.4, 0.2],
-              scale: [1, 1.1, 1]
-            }}
-            transition={{ 
-              duration: 6, 
+              scale: [1, 1.08, 1]
+            } : { opacity: 0.25, scale: 1 }}
+            transition={!useReducedMotion() ? {
+              duration: 6,
               repeat: Infinity,
               ease: "easeInOut",
               delay: 1
-            }}
+            } : { duration: 0 }}
+            style={{ willChange: 'transform, opacity' }}
           />
         </div>
-        
-        {/* Floating orbs on left side */}
-        <motion.div 
-          className="absolute left-10 top-1/4 w-32 h-32 rounded-full bg-blue-500/20 blur-[60px]"
-          animate={{ 
+
+        {/* Floating orbs (reduced size on small screens for better perf) */}
+        <motion.div
+          className="absolute left-10 top-1/4 w-24 h-24 rounded-full bg-blue-500/18 blur-[48px] sm:w-32 sm:h-32 sm:blur-[60px]"
+          animate={!useReducedMotion() ? {
             y: [-20, 20, -20],
             x: [-10, 10, -10],
             opacity: [0.3, 0.6, 0.3]
-          }}
-          transition={{ 
-            duration: 7, 
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          } : { opacity: 0.4 }}
+          transition={!useReducedMotion() ? { duration: 7, repeat: Infinity, ease: 'easeInOut' } : { duration: 0 }}
+          style={{ willChange: 'transform, opacity' }}
         />
-        <motion.div 
-          className="absolute left-20 bottom-1/3 w-48 h-48 rounded-full bg-cyan-500/15 blur-[70px]"
-          animate={{ 
+        <motion.div
+          className="absolute left-20 bottom-1/3 w-36 h-36 rounded-full bg-cyan-500/12 blur-[56px] sm:w-48 sm:h-48"
+          animate={!useReducedMotion() ? {
             y: [20, -20, 20],
             x: [10, -5, 10],
             opacity: [0.2, 0.5, 0.2]
-          }}
-          transition={{ 
-            duration: 9, 
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 0.5
-          }}
+          } : { opacity: 0.3 }}
+          transition={!useReducedMotion() ? { duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 0.5 } : { duration: 0 }}
+          style={{ willChange: 'transform, opacity' }}
         />
-        
+
         {/* Floating orbs on right side */}
-        <motion.div 
-          className="absolute right-10 top-1/3 w-40 h-40 rounded-full bg-purple-500/20 blur-[65px]"
-          animate={{ 
+        <motion.div
+          className="absolute right-10 top-1/3 w-32 h-32 rounded-full bg-purple-500/18 blur-[52px] sm:w-40 sm:h-40"
+          animate={!useReducedMotion() ? {
             y: [15, -15, 15],
             x: [5, -5, 5],
             opacity: [0.25, 0.55, 0.25]
-          }}
-          transition={{ 
-            duration: 8, 
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1.5
-          }}
+          } : { opacity: 0.35 }}
+          transition={!useReducedMotion() ? { duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1.5 } : { duration: 0 }}
+          style={{ willChange: 'transform, opacity' }}
         />
-        <motion.div 
-          className="absolute right-32 bottom-1/4 w-36 h-36 rounded-full bg-pink-500/15 blur-[60px]"
-          animate={{ 
+        <motion.div
+          className="absolute right-32 bottom-1/4 w-28 h-28 rounded-full bg-pink-500/12 blur-[48px] sm:w-36 sm:h-36"
+          animate={!useReducedMotion() ? {
             y: [-15, 15, -15],
             x: [-8, 8, -8],
             opacity: [0.2, 0.45, 0.2]
-          }}
-          transition={{ 
-            duration: 10, 
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2
-          }}
+          } : { opacity: 0.3 }}
+          transition={!useReducedMotion() ? { duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 } : { duration: 0 }}
+          style={{ willChange: 'transform, opacity' }}
         />
-        
-        {/* Animated particles */}
-        {[...Array(8)].map((_, i) => (
+
+        {/* Animated particles (reduced count & lighter weight for perf) */}
+        {[...Array(6)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 rounded-full bg-brand-blue/40"
+            className="absolute w-1.5 h-1.5 rounded-full bg-brand-blue/40"
             style={{
-              left: `${10 + i * 10}%`,
-              top: `${20 + (i % 3) * 20}%`,
+              left: `${8 + i * 14}%`,
+              top: `${18 + (i % 3) * 18}%`,
+              willChange: 'transform, opacity'
             }}
-            animate={{
-              y: [0, -30, 0],
+            animate={!useReducedMotion() ? {
+              y: [0, -20, 0],
               opacity: [0, 0.8, 0],
-              scale: [0, 1.5, 0],
-            }}
+              scale: [0, 1.2, 0],
+            } : { opacity: 0.4 }}
             transition={{
-              duration: 3 + i * 0.5,
+              duration: 3 + i * 0.4,
               repeat: Infinity,
               ease: "easeInOut",
-              delay: i * 0.8,
+              delay: i * 0.6,
             }}
           />
         ))}
+
+        {/* Subtle noise texture for richness */}
+        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'url("/noise.png")', mixBlendMode: 'overlay' }} />
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -130,7 +125,7 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.1 }}
         >
           <h1 className="font-display text-5xl sm:text-5xl md:text-6xl lg:text-7xl mb-8 leading-[0.95] tracking-tight">
-            <span className="block bg-gradient-to-r from-brand-blue via-blue-400 to-purple-500 bg-clip-text text-transparent">HINX</span>
+            <span className="block bg-gradient-to-r from-brand-blue via-blue-400 to-purple-500 bg-clip-text text-transparent">ASAGUS</span>
           </h1>
         </motion.div>
 

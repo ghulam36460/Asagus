@@ -83,7 +83,7 @@ export function ServicesSection() {
   }
 
   return (
-    <section id="services" className="relative overflow-hidden bg-gradient-to-b from-white via-gray-50 to-white dark:from-black dark:via-gray-950 dark:to-black py-48 lg:py-56 min-h-[120vh] flex items-center justify-center">
+    <section id="services" className="relative overflow-hidden bg-gradient-to-b from-white via-gray-50 to-white dark:from-black dark:via-gray-950 dark:to-black py-48 lg:py-56 min-h-[120vh] flex items-center justify-center mb-16 md:mb-24 lg:mb-32">
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 right-0 w-96 h-96 bg-brand-blue/10 rounded-full blur-[120px] animate-pulse parallax-item" data-parallax-depth="0.2"></div>

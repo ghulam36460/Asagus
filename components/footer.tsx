@@ -1,183 +1,275 @@
 "use client"
 
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Dribbble, Instagram, Linkedin, Twitter, Mail, MapPin, Phone } from 'lucide-react'
-
-const extraLinks = [
-  { label: 'Home', href: '/' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Services', href: '#services' },
-  { label: 'Our Team', href: '#about' },
-  { label: 'Contact', href: '#contact' },
-]
-
-const contactDetails = [
-  { icon: MapPin, text: '417 Mercer Street, New York, NY 10012' },
-  { icon: Mail, text: 'hello@brandalchemy.com', href: 'mailto:hello@brandalchemy.com' },
-  { icon: Phone, text: '+1 (646) 555-0199', href: 'tel:+16465550199' },
-]
-
-const socialLinks = [
-  { label: 'LinkedIn', href: 'https://linkedin.com', icon: Linkedin },
-  { label: 'Instagram', href: 'https://instagram.com', icon: Instagram },
-  { label: 'Twitter', href: 'https://twitter.com', icon: Twitter },
-  { label: 'Dribbble', href: 'https://dribbble.com', icon: Dribbble },
-]
+import { motion } from "framer-motion"
+import Link from "next/link"
+import { useState } from "react"
+import { Instagram, Linkedin, Twitter, ArrowRight, Check, Send, MapPin, Mail, Phone, Dribbble } from "lucide-react"
 
 export function Footer() {
-  const currentYear = new Date().getFullYear()
+  const [email, setEmail] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubscribed, setIsSubscribed] = useState(false)
+  const [error, setError] = useState("")
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const normalizedEmail = email.trim()
+    if (!normalizedEmail) return
+    setIsSubmitting(true)
+    setError("")
+
+    try {
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: normalizedEmail }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setIsSubscribed(true)
+        setEmail("")
+      } else {
+        setError(data?.error || "Something went wrong")
+      }
+    } catch {
+      setError("Failed to subscribe")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const socialLinks = [
+    { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
+    { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
+    { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
+    { icon: Dribbble, href: "https://dribbble.com", label: "Dribbble" },
+  ]
+
+  const navLinks = [
+    { name: "Home", href: "/" },
+    { name: "Projects", href: "/portfolio" },
+    { name: "Services", href: "/#services" },
+    { name: "About", href: "/#about" },
+    { name: "Contact", href: "/#contact" },
+  ]
+
+  const serviceLinks = [
+    { name: "Web Development", href: "/#services" },
+    { name: "UI/UX Design", href: "/#services" },
+    { name: "Brand Strategy", href: "/#services" },
+    { name: "Digital Marketing", href: "/#services" },
+    { name: "Consulting", href: "/#services" },
+  ]
 
   return (
-    <footer className="relative w-full bg-black text-white overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 opacity-[0.03]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(29,77,241,0.4),_transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_rgba(168,85,247,0.4),_transparent_50%)]" />
-      </div>
-      
-      {/* Grid Pattern Overlay */}
-      <div className="absolute inset-0 opacity-[0.02]">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-          backgroundSize: '50px 50px'
-        }} />
-      </div>
-
-      <div className="relative max-w-7xl mx-auto px-6 md:px-8 py-20 lg:py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-50px' }}
-          transition={{ duration: 0.6 }}
-          className="grid gap-12 md:gap-16 md:grid-cols-2 lg:grid-cols-12 mb-16"
-        >
-          {/* Brand Section */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 via-blue-500 to-pink-400 flex items-center justify-center shadow-lg shadow-purple-500/20">
-                  <span className="font-display text-lg font-bold text-white">H</span>
-                </div>
-                <h3 className="font-display text-3xl bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
-                  HINX
-                </h3>
-              </div>
-              <p className="text-base text-white/70 max-w-md leading-relaxed">
-                We create digital experiences that transform businesses into brands people love. Cutting-edge web solutions, innovative design, and results-driven strategies.
-              </p>
+    <footer className="site-footer relative bg-black text-white mt-32 md:mt-48 lg:mt-64">
+      {/* Newsletter Section */}
+      <div className="border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-20 mb-12 lg:mb-20">
+          <div className="flex flex-col items-center text-center">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-blue/10 border border-brand-blue/20 mb-10 md:mb-14 lg:mb-20">
+              <Send className="w-4 h-4 text-brand-blue" />
+              <span className="text-xs font-semibold uppercase tracking-widest text-brand-blue">Newsletter</span>
             </div>
-            
-            {/* Social Links */}
-            <div className="space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-widest text-white/50">Follow Us</p>
-              <div className="flex items-center gap-3">
-                {socialLinks.map(({ label, href, icon: Icon }) => (
-                  <motion.a
-                    key={label}
-                    href={href}
-                    aria-label={label}
-                    target="_blank"
-                    rel="noreferrer"
-                    whileHover={{ scale: 1.1, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="group relative flex h-11 w-11 items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white/60 hover:border-transparent overflow-hidden transition-all duration-300"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-blue-500 to-pink-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <Icon className="h-5 w-5 relative z-10 group-hover:text-white transition-colors" />
-                  </motion.a>
-                ))}
-              </div>
-            </div>
-          </div>
 
-          {/* Quick Links */}
-          <div className="lg:col-span-3">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-white/50 mb-6">Navigation</h4>
-            <ul className="space-y-3.5">
-              {extraLinks.map((link, index) => (
-                <motion.li 
-                  key={link.label}
-                  initial={{ opacity: 0, x: -10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Link 
-                    href={link.href} 
-                    className="group text-sm text-white/70 hover:text-white inline-flex items-center gap-2 transition-all duration-200"
-                  >
-                    <span className="w-0 h-px bg-gradient-to-r from-purple-500 to-pink-400 group-hover:w-4 transition-all duration-300" />
-                    {link.label}
-                  </Link>
-                </motion.li>
-              ))}
-            </ul>
-          </div>
+            {/* Heading */}
+            <h3 className="text-3xl md:text-4xl font-display font-bold mb-4">
+              Stay in the <span className="text-brand-blue">Loop</span>
+            </h3>
 
-          {/* Contact Info */}
-          <div className="lg:col-span-4">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-white/50 mb-6">Get In Touch</h4>
-            <ul className="space-y-5">
-              {contactDetails.map(({ icon: Icon, text, href }, index) => (
-                <motion.li 
-                  key={text} 
-                  className="flex items-start gap-4"
-                  initial={{ opacity: 0, x: -10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-gradient-to-br from-purple-600/10 to-pink-400/10 border border-white/5 flex items-center justify-center">
-                    <Icon className="w-4 h-4 text-purple-400" />
-                  </div>
-                  {href ? (
-                    <a 
-                      href={href} 
-                      className="text-sm text-white/70 hover:text-white transition-colors leading-relaxed pt-1.5"
-                    >
-                      {text}
-                    </a>
-                  ) : (
-                    <span className="text-sm text-white/70 leading-relaxed pt-1.5">{text}</span>
-                  )}
-                </motion.li>
-              ))}
-            </ul>
-          </div>
-        </motion.div>
-
-        {/* Bottom Bar */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3 }}
-          className="pt-8 border-t border-white/5"
-        >
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-white/40">
-              © {currentYear} <span className="text-white/60 font-medium">HINX</span>. All rights reserved.
+            {/* Description */}
+            <p className="text-white/60 mb-8 max-w-lg">
+              Get design trends, web dev tips, and exclusive insights delivered straight to your inbox.
             </p>
-            <div className="flex items-center gap-8">
-              <Link 
-                href="/privacy" 
-                className="text-sm text-white/40 hover:text-white transition-colors relative group"
+
+            {/* Newsletter Form */}
+            {isSubscribed ? (
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="flex items-center gap-3 px-6 py-4 rounded-full bg-emerald-500/10 border border-emerald-500/20"
               >
+                <Check className="w-5 h-5 text-emerald-400" />
+                <span className="text-sm text-emerald-400">Successfully Subscribed!</span>
+              </motion.div>
+            ) : (
+              <form onSubmit={handleSubmit} className="w-full max-w-md">
+                <div className="flex items-center bg-white/5 border border-white/10 rounded-full p-1.5">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    required
+                    disabled={isSubmitting}
+                    className="flex-1 h-10 px-4 bg-transparent text-sm text-white placeholder:text-white/40 focus:outline-none disabled:opacity-50"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="h-10 px-6 rounded-full bg-brand-blue hover:bg-brand-blue/90 text-sm font-semibold transition-colors disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {isSubmitting ? (
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        Subscribe
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </div>
+                
+                {error && (
+                  <p className="text-sm text-red-400 mt-3 text-center">{error}</p>
+                )}
+                
+                {!error && (
+                  <p className="text-xs text-white/40 mt-4 flex items-center justify-center gap-2">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                    </svg>
+                    We respect your privacy. Unsubscribe at any time.
+                  </p>
+                )}
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Footer */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-24 pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+          
+          {/* Brand Column */}
+          <div className="space-y-6">
+            {/* Logo */}
+            <Link href="/" className="inline-flex items-center gap-2">
+              <div className="w-9 h-9 rounded-lg bg-brand-blue flex items-center justify-center">
+                <span className="text-base font-black text-white">H</span>
+              </div>
+              <span className="text-lg font-bold">ASAGUS</span>
+            </Link>
+
+            {/* Tagline */}
+            <p className="text-sm text-white/60 leading-relaxed">
+              We create digital experiences that transform businesses into brands people love.
+            </p>
+
+            {/* Contact Info */}
+            <div className="space-y-3">
+              <a href="mailto:hello@asagus.com" className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors">
+                <Mail className="w-4 h-4" />
+                hello@asagus.com
+              </a>
+              <a href="tel:+16465550199" className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors">
+                <Phone className="w-4 h-4" />
+                +1 (646) 555-0199
+              </a>
+              <div className="flex items-center gap-2 text-sm text-white/60">
+                <MapPin className="w-4 h-4" />
+                417 Mercer Street, New York, NY 10012
+              </div>
+            </div>
+
+            {/* Social Links */}
+            <div className="flex items-center gap-2">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  aria-label={social.label}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all"
+                >
+                  <social.icon className="w-4 h-4" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-6">
+              Navigation
+            </h4>
+            <ul className="space-y-3">
+              {navLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-white/60 hover:text-white transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Services */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-6">
+              Services
+            </h4>
+            <ul className="space-y-3">
+              {serviceLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-white/60 hover:text-white transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Get in Touch */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-6">
+              Get in Touch
+            </h4>
+            <p className="text-sm text-white/60 leading-relaxed mb-4">
+              Ready to start your project? Let&apos;s create something amazing together.
+            </p>
+            <Link
+              href="/#contact"
+              className="inline-flex items-center gap-2 text-sm font-medium text-white hover:text-brand-blue transition-colors group"
+            >
+              Start a Project
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Bar */}
+      <div className="border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-white/40">
+              © {new Date().getFullYear()} <span className="text-white/60 font-medium">HINX</span>. All rights reserved.
+            </p>
+            <div className="flex items-center gap-6">
+              <Link href="/privacy" className="text-sm text-white/40 hover:text-white transition-colors">
                 Privacy Policy
-                <span className="absolute -bottom-1 left-0 w-0 h-px bg-gradient-to-r from-purple-500 to-pink-400 group-hover:w-full transition-all duration-300" />
               </Link>
-              <Link 
-                href="/terms" 
-                className="text-sm text-white/40 hover:text-white transition-colors relative group"
-              >
+              <Link href="/terms" className="text-sm text-white/40 hover:text-white transition-colors">
                 Terms of Service
-                <span className="absolute -bottom-1 left-0 w-0 h-px bg-gradient-to-r from-purple-500 to-pink-400 group-hover:w-full transition-all duration-300" />
               </Link>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </footer>
   )
 }
+
+export default Footer

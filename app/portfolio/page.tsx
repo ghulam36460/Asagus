@@ -5,7 +5,7 @@ import { Footer } from '@/components/footer'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Portfolio - HINX',
+  title: 'Portfolio - ASAGUS',
   description: 'Explore our complete portfolio of web development, mobile apps, brand design, and digital marketing projects.',
 }
 

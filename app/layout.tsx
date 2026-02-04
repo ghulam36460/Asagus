@@ -23,8 +23,8 @@ const ptSansCaption = PT_Sans_Caption({
 
 export const metadata: Metadata = {
   title: {
-    default: "HINX - Web Development Agency",
-    template: "%s | HINX"
+    default: "ASAGUS - Web Development Agency",
+    template: "%s | ASAGUS"
   },
   description: "We create brands that people want to talk about. Expert web development, digital marketing, and brand design services with 8+ years of experience.",
   keywords: ["web development", "brand design", "digital marketing", "web agency", "UI/UX design", "SEO", "brand strategy"],

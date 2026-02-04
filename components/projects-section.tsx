@@ -112,7 +112,7 @@ export function ProjectsSection() {
   }
 
   return (
-    <section id="projects" className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950 py-48 lg:py-56 min-h-[140vh] flex items-center justify-center">
+    <section id="projects" className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950 py-48 lg:py-56 min-h-[140vh] flex items-center justify-center mb-16 md:mb-24 lg:mb-32">
       {/* Decorative Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 right-0 w-96 h-96 bg-brand-blue/5 rounded-full blur-3xl parallax-item" data-parallax-depth="0.2"></div>

@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     const data = await resend.emails.send({
       from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
       to: email,
-      subject: 'Welcome to HINX Newsletter!',
+      subject: 'Welcome to ASAGUS Newsletter!',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background-color: #1D4DF1; padding: 40px; text-align: center; border-radius: 8px 8px 0 0;">

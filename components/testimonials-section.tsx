@@ -12,7 +12,7 @@ export function TestimonialsSection() {
       name: 'Sarah Johnson',
       role: 'CEO, TechStart Inc.',
       image: '/images/testimonials/client-1.jpg',
-      content: 'HINX transformed our online presence. Their creative approach and technical expertise delivered results beyond our expectations. Our conversion rate increased by 250%!',
+      content: 'ASAGUS transformed our online presence. Their creative approach and technical expertise delivered results beyond our expectations. Our conversion rate increased by 250%!',
       rating: 5,
     },
     {
@@ -20,7 +20,7 @@ export function TestimonialsSection() {
       name: 'Michael Chen',
       role: 'Marketing Director, GrowthCo',
       image: '/images/testimonials/client-2.jpg',
-      content: 'Working with HINX was a game-changer. They understood our vision and brought it to life with stunning design and flawless execution. Highly recommend!',
+      content: 'Working with ASAGUS was a game-changer. They understood our vision and brought it to life with stunning design and flawless execution. Highly recommend!',
       rating: 5,
     },
     {

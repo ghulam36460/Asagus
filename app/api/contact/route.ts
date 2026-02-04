@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
           </div>
           <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;" />
           <p style="font-size: 12px; color: #999;">
-            This message was sent from the HINX contact form.
+            This message was sent from the ASAGUS contact form.
           </p>
         </div>
       `,

@@ -10,7 +10,7 @@ export function AboutSection() {
   ]
 
   return (
-    <section id="about" className="relative bg-black text-white overflow-hidden" style={{ paddingTop: '120px', paddingBottom: '120px' }}>
+    <section id="about" className="relative bg-black text-white overflow-hidden mb-16 md:mb-24 lg:mb-32" style={{ paddingTop: '120px', paddingBottom: '120px' }}>
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -125,7 +125,7 @@ export function AboutSection() {
               color: 'rgba(255,255,255,0.7)',
               margin: '0'
             }}>
-              HINX is a forward-thinking software and development company founded in 2024 with a clear mission: to build smart, scalable, and impactful digital solutions.
+              ASAGUS is a forward-thinking software and development company founded in 2024 with a clear mission: to build smart, scalable, and impactful digital solutions.
             </p>
 
             <p style={{ 
@@ -152,7 +152,7 @@ export function AboutSection() {
               color: 'rgba(255,255,255,0.7)',
               margin: '0'
             }}>
-              At HINX, we believe technology should be intelligent, efficient, and future-ready. With every project we complete, we push boundaries, embrace new technologies, and aim to create lasting value.
+              At ASAGUS, we believe technology should be intelligent, efficient, and future-ready. With every project we complete, we push boundaries, embrace new technologies, and aim to create lasting value.
             </p>
           </motion.div>
         </div>

@@ -112,7 +112,7 @@ export function ContactSection() {
       )}
       <Section
         id="contact"
-        className="relative bg-black text-white py-32 lg:py-40 min-h-[100vh] flex items-center justify-center"
+        className="relative bg-black text-white py-24 lg:py-28 flex items-center justify-center"
       >
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_60%)]" />
@@ -180,7 +180,7 @@ export function ContactSection() {
               </div>
             </div>
 
-            <div className="flex flex-col items-center gap-4 pt-4">
+            <div className="flex flex-col items-center gap-4 pt-4 pb4 md:pb-12 lg:pb-16">
               <button
                 type="submit"
                 disabled={status === 'loading'}
@@ -198,7 +198,7 @@ export function ContactSection() {
                   </>
                 )}
               </button>
-              <p className="text-sm uppercase tracking-[0.4em] text-white/40">Response within 24 hours</p>
+              <p className="text-sm uppercase tracking-[0.4em] text-white/40 mb-16 md:mb-24 lg:mb-32">Response within 24 hours</p>
             </div>
           </form>
         </div>

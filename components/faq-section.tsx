@@ -17,7 +17,7 @@ export function FAQSection() {
   const faqs: FAQItem[] = [
     {
       id: 1,
-      question: 'What services does HINX offer?',
+      question: 'What services does ASAGUS offer?',
       answer: 'We offer comprehensive digital services including brand strategy, web development, UI/UX design, digital marketing, SEO, content creation, and ongoing support. Our team handles everything from initial concept to final deployment and beyond.',
     },
     {
@@ -37,7 +37,7 @@ export function FAQSection() {
     },
     {
       id: 5,
-      question: 'What makes HINX different from other agencies?',
+      question: 'What makes ASAGUS different from other agencies?',
       answer: 'Our unique blend of creative expertise and technical excellence sets us apart. We combine data-driven strategies with artistic vision, ensuring your brand not only looks great but performs exceptionally. Plus, our 98% client satisfaction rate speaks for itself.',
     },
     {

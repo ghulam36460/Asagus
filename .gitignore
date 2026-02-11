@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# admin panel
+admin-panel/node_modules/
+admin-panel/.next/
+admin-panel/**/*.log
+admin-panel/.env*
+admin-panel/services/*/dist/
+admin-panel/packages/*/dist/
+admin-panel/frontend/out/
+admin-panel/services/*/node_modules/
+admin-panel/frontend/node_modules/
+admin-panel/packages/*/node_modules/

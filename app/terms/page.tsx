@@ -33,14 +33,14 @@ export default function TermsOfService() {
           <section className="mb-8">
             <h2 className="font-display text-2xl text-black dark:text-white mb-4">Services Description</h2>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-              Brand Alchemy provides web development, brand design, digital marketing, and related services. The specific scope of work will be defined in individual project agreements or contracts.
+              ASAGUS provides web development, AI, cybersecurity, and related digital services. The specific scope of work will be defined in individual project agreements or contracts.
             </p>
           </section>
 
           <section className="mb-8">
             <h2 className="font-display text-2xl text-black dark:text-white mb-4">Intellectual Property</h2>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-              All content, designs, code, and materials created by Brand Alchemy remain our intellectual property until full payment is received. Upon full payment:
+              All content, designs, code, and materials created by ASAGUS remain our intellectual property until full payment is received. Upon full payment:
             </p>
             <ul className="list-disc pl-6 text-gray-700 dark:text-gray-300 space-y-2">
               <li>Clients receive ownership of final deliverables as specified in the project agreement</li>
@@ -99,7 +99,7 @@ export default function TermsOfService() {
           <section className="mb-8">
             <h2 className="font-display text-2xl text-black dark:text-white mb-4">Limitation of Liability</h2>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-              Brand Alchemy shall not be liable for any indirect, incidental, special, or consequential damages arising from the use of our services. Our total liability shall not exceed the amount paid for the specific service in question.
+              ASAGUS shall not be liable for any indirect, incidental, special, or consequential damages arising from the use of our services. Our total liability shall not exceed the amount paid for the specific service in question.
             </p>
           </section>
 

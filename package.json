@@ -6,7 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "start:admin": "cd admin-panel && pnpm start",
+    "start:all": "concurrently \"pnpm start\" \"pnpm start:admin\" --names \"MAIN,ADMIN\" --prefix-colors \"cyan,magenta\"",
+    "lint": "eslint",
+    "dev:admin": "cd admin-panel && pnpm dev",
+    "dev:all": "concurrently \"pnpm dev\" \"pnpm dev:admin\" --names \"MAIN,ADMIN\" --prefix-colors \"cyan,magenta\"",
+    "install:all": "pnpm install && cd admin-panel && pnpm install",
+    "build:all": "pnpm build && cd admin-panel && pnpm build",
+    "admin:install": "cd admin-panel && pnpm install",
+    "admin:create-db": "cd admin-panel && .\\create-database.bat",
+    "admin:db-setup": "cd admin-panel && pnpm db:setup",
+    "admin:setup": "pnpm admin:install && pnpm admin:create-db && pnpm admin:db-setup"
   },
   "dependencies": {
     "framer-motion": "^12.23.25",
@@ -25,6 +35,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
+    "concurrently": "^9.1.2",
     "eslint": "^9",
     "eslint-config-next": "16.0.7",
     "tailwindcss": "^4",

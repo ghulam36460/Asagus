@@ -6,6 +6,9 @@ import { ArrowRight, Sparkles } from 'lucide-react'
 import { Button } from './button'
 
 export function HeroSection() {
+  // useReducedMotion MUST be called at the top of the component (Rules of Hooks)
+  const prefersReducedMotion = useReducedMotion()
+
   return (
     <section className="min-h-screen flex items-center justify-center relative overflow-hidden py-36 lg:py-48 mb-16 md:mb-24 lg:mb-32">
       {/* Animated glow effect (responsive, accessible, and performance-minded) */}
@@ -16,11 +19,11 @@ export function HeroSection() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 parallax-item" data-parallax-depth="0.15">
           <motion.div
             className="w-[clamp(240px,40vw,800px)] h-[clamp(240px,40vw,800px)] rounded-full bg-brand-blue/30 blur-[80px] sm:blur-[120px]"
-            animate={!useReducedMotion() ? {
+            animate={!prefersReducedMotion ? {
               opacity: [0.3, 0.5, 0.3],
               scale: [1, 1.15, 1]
             } : { opacity: 0.4, scale: 1 }}
-            transition={!useReducedMotion() ? {
+            transition={!prefersReducedMotion ? {
               duration: 8,
               repeat: Infinity,
               ease: "easeInOut"
@@ -32,11 +35,11 @@ export function HeroSection() {
         <div className="absolute top-20 right-20 parallax-item" data-parallax-depth="0.25">
           <motion.div
             className="w-[clamp(160px,25vw,400px)] h-[clamp(160px,25vw,400px)] rounded-full bg-purple-500/20 blur-[60px] sm:blur-[100px]"
-            animate={!useReducedMotion() ? {
+            animate={!prefersReducedMotion ? {
               opacity: [0.2, 0.4, 0.2],
               scale: [1, 1.08, 1]
             } : { opacity: 0.25, scale: 1 }}
-            transition={!useReducedMotion() ? {
+            transition={!prefersReducedMotion ? {
               duration: 6,
               repeat: Infinity,
               ease: "easeInOut",
@@ -49,44 +52,44 @@ export function HeroSection() {
         {/* Floating orbs (reduced size on small screens for better perf) */}
         <motion.div
           className="absolute left-10 top-1/4 w-24 h-24 rounded-full bg-blue-500/18 blur-[48px] sm:w-32 sm:h-32 sm:blur-[60px]"
-          animate={!useReducedMotion() ? {
+          animate={!prefersReducedMotion ? {
             y: [-20, 20, -20],
             x: [-10, 10, -10],
             opacity: [0.3, 0.6, 0.3]
           } : { opacity: 0.4 }}
-          transition={!useReducedMotion() ? { duration: 7, repeat: Infinity, ease: 'easeInOut' } : { duration: 0 }}
+          transition={!prefersReducedMotion ? { duration: 7, repeat: Infinity, ease: 'easeInOut' } : { duration: 0 }}
           style={{ willChange: 'transform, opacity' }}
         />
         <motion.div
           className="absolute left-20 bottom-1/3 w-36 h-36 rounded-full bg-cyan-500/12 blur-[56px] sm:w-48 sm:h-48"
-          animate={!useReducedMotion() ? {
+          animate={!prefersReducedMotion ? {
             y: [20, -20, 20],
             x: [10, -5, 10],
             opacity: [0.2, 0.5, 0.2]
           } : { opacity: 0.3 }}
-          transition={!useReducedMotion() ? { duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 0.5 } : { duration: 0 }}
+          transition={!prefersReducedMotion ? { duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 0.5 } : { duration: 0 }}
           style={{ willChange: 'transform, opacity' }}
         />
 
         {/* Floating orbs on right side */}
         <motion.div
           className="absolute right-10 top-1/3 w-32 h-32 rounded-full bg-purple-500/18 blur-[52px] sm:w-40 sm:h-40"
-          animate={!useReducedMotion() ? {
+          animate={!prefersReducedMotion ? {
             y: [15, -15, 15],
             x: [5, -5, 5],
             opacity: [0.25, 0.55, 0.25]
           } : { opacity: 0.35 }}
-          transition={!useReducedMotion() ? { duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1.5 } : { duration: 0 }}
+          transition={!prefersReducedMotion ? { duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1.5 } : { duration: 0 }}
           style={{ willChange: 'transform, opacity' }}
         />
         <motion.div
           className="absolute right-32 bottom-1/4 w-28 h-28 rounded-full bg-pink-500/12 blur-[48px] sm:w-36 sm:h-36"
-          animate={!useReducedMotion() ? {
+          animate={!prefersReducedMotion ? {
             y: [-15, 15, -15],
             x: [-8, 8, -8],
             opacity: [0.2, 0.45, 0.2]
           } : { opacity: 0.3 }}
-          transition={!useReducedMotion() ? { duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 } : { duration: 0 }}
+          transition={!prefersReducedMotion ? { duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 } : { duration: 0 }}
           style={{ willChange: 'transform, opacity' }}
         />
 
@@ -100,7 +103,7 @@ export function HeroSection() {
               top: `${18 + (i % 3) * 18}%`,
               willChange: 'transform, opacity'
             }}
-            animate={!useReducedMotion() ? {
+            animate={!prefersReducedMotion ? {
               y: [0, -20, 0],
               opacity: [0, 0.8, 0],
               scale: [0, 1.2, 0],

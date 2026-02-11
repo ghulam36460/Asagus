@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { logger } from '@/lib/logger'
 
 // Initialize Resend with API key or placeholder for build time
 const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder')
+
+// Sanitize user input to prevent HTML injection in emails
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,23 +45,30 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Sanitize all user inputs before embedding in HTML
+    const safeName = escapeHtml(fullName)
+    const safeEmail = escapeHtml(email)
+    const safePhone = escapeHtml(phone || 'Not provided')
+    const safeService = escapeHtml(service || 'Not specified')
+    const safeMessage = escapeHtml(message)
+
     // Send email using Resend
     const data = await resend.emails.send({
       from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
-      to: 'mshahwar92@gmail.com',
-      subject: `New Contact Form Submission from ${fullName}`,
+      to: process.env.CONTACT_TO_EMAIL || 'mshahwar92@gmail.com',
+      subject: `New Contact Form Submission from ${safeName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #1D4DF1;">New Contact Form Submission</h2>
           <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>Name:</strong> ${fullName}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
-            <p><strong>Service Type:</strong> ${service || 'Not specified'}</p>
+            <p><strong>Name:</strong> ${safeName}</p>
+            <p><strong>Email:</strong> ${safeEmail}</p>
+            <p><strong>Phone:</strong> ${safePhone}</p>
+            <p><strong>Service Type:</strong> ${safeService}</p>
           </div>
           <div style="margin: 20px 0;">
             <h3 style="color: #333;">Message:</h3>
-            <p style="line-height: 1.6; color: #555;">${message}</p>
+            <p style="line-height: 1.6; color: #555;">${safeMessage}</p>
           </div>
           <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;" />
           <p style="font-size: 12px; color: #999;">
@@ -65,7 +83,7 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     )
   } catch (error) {
-    console.error('Error sending email:', error)
+    logger.error('Failed to send contact email', error, { context: 'ContactAPI' })
     return NextResponse.json(
       { error: 'Failed to send email. Please try again later.' },
       { status: 500 }

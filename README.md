@@ -1,6 +1,58 @@
-# Brand Alchemy - Web Development Agency Website
+# ASAGUS - AI, Cybersecurity & Web Development Solutions
 
-A production-ready, modern, responsive website built with Next.js 15, featuring dynamic project case studies, portfolio filtering, live chat, scroll progress, client logos, smooth animations, dark/light mode, and comprehensive features for a professional agency presence.
+A production-ready, modern Next.js platform with a complete microservices-based admin panel for managing content, analytics, users, and more.
+
+---
+
+## 🚀 Quick Start (Run from root)
+
+### ✅ Database is Ready!
+Your PostgreSQL database is already set up with:
+- All tables created
+- Roles & permissions configured
+- Admin user seeded
+
+### Run the Application
+```bash
+# Run everything together
+pnpm dev:all              # Main site + Admin panel + All services
+
+# OR run separately
+pnpm dev                  # Main site only → http://localhost:3000
+pnpm dev:admin            # Admin panel only → http://localhost:3001
+```
+
+### 🔑 Admin Login
+- **URL:** http://localhost:3001
+- **Email:** admin@asagus.com
+- **Password:** Admin@2026Secure!
+
+### All Commands
+| Command | What It Does |
+|---------|-------------|
+| `pnpm install:all` | Install all dependencies |
+| `pnpm dev` | Main website only (port 3000) |
+| `pnpm dev:all` | Everything together |
+| `pnpm admin:docker` | Start Docker containers |
+| `pnpm admin:db` | Setup database + seed |
+| `pnpm build:all` | Build for production |
+
+---
+
+## 🏗️ Project Structure
+
+```
+ASAGUS/
+├── app/                  # Main website (Next.js 16)
+├── components/           # UI components
+├── admin-panel/          # Microservices admin (separate)
+│   ├── services/         # Auth, Content, Analytics services
+│   ├── frontend/         # Admin dashboard (Next.js 15)
+│   └── packages/         # Shared DB & types
+└── README.md (you are here)
+```
+
+---
 
 ## 🎨 Design Features
 

@@ -1,0 +1,443 @@
+// Prisma Schema for ASAGUS Admin Panel
+// PostgreSQL Database
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Prisma looks for .env in schema dir and package root by default.
+  // The actual .env is at admin-panel root, so we load it explicitly.
+}
+
+// NOTE: Prisma CLI needs DATABASE_URL. It is loaded via the .env
+// symlink in packages/database/ or via the dotenv-cli wrapper.
+
+// ============================================
+// AUTH SERVICE MODELS
+// ============================================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  name          String
+  avatarUrl     String?   @map("avatar_url")
+  emailVerified Boolean   @default(false) @map("email_verified")
+  isActive      Boolean   @default(true) @map("is_active")
+  lastLogin     DateTime? @map("last_login")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  userRoles     UserRole[]
+  refreshTokens RefreshToken[]
+  apiKeys       ApiKey[]
+  auditLogs     AuditLog[]     @relation("AuditLogUser")
+  assignedRoles UserRole[]     @relation("AssignedBy")
+
+  @@map("users")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique // 'super_admin', 'admin', 'editor', 'viewer'
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          Int      @id @default(autoincrement())
+  resource    String   // 'projects', 'services', 'users', etc.
+  action      String   // 'create', 'read', 'update', 'delete'
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  rolePermissions RolePermission[]
+
+  @@unique([resource, action])
+  @@map("permissions")
+}
+
+model UserRole {
+  userId     String   @map("user_id")
+  roleId     Int      @map("role_id")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  assignedBy String?  @map("assigned_by")
+
+  user       User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  assigner   User? @relation("AssignedBy", fields: [assignedBy], references: [id])
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  roleId       Int @map("role_id")
+  permissionId Int @map("permission_id")
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model ApiKey {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  name        String
+  keyHash     String    @unique @map("key_hash")
+  permissions Json?
+  rateLimit   Int       @default(1000) @map("rate_limit")
+  isActive    Boolean   @default(true) @map("is_active")
+  lastUsedAt  DateTime? @map("last_used_at")
+  expiresAt   DateTime? @map("expires_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("api_keys")
+}
+
+model AuditLog {
+  id            BigInt   @id @default(autoincrement())
+  userId        String?  @map("user_id")
+  action        String   // 'login', 'logout', 'password_change', etc.
+  resource      String?  // 'project', 'service', etc.
+  resourceId    String?  @map("resource_id")
+  ipAddress     String?  @map("ip_address")
+  userAgent     String?  @map("user_agent")
+  success       Boolean  @default(true)
+  failureReason String?  @map("failure_reason")
+  metadata      Json?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user User? @relation("AuditLogUser", fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([action])
+  @@map("audit_logs")
+}
+
+// ============================================
+// CONTENT SERVICE MODELS
+// ============================================
+
+model Project {
+  id              String   @id @default(uuid())
+  title           String
+  slug            String   @unique
+  description     String
+  fullDescription String?  @map("full_description") @db.Text
+  category        String
+  clientName      String?  @map("client_name")
+  industry        String?
+  technologies    String[] // PostgreSQL array
+  heroImage       String?  @map("hero_image")
+  galleryImages   String[] @map("gallery_images")
+  challenge       String?  @db.Text
+  solution        String?  @db.Text
+  projectUrl      String?  @map("project_url")
+  githubUrl       String?  @map("github_url")
+  year            String?
+  duration        String?
+  teamSize        String?  @map("team_size")
+  featured        Boolean  @default(false)
+  published       Boolean  @default(false)
+  viewCount       Int      @default(0) @map("view_count")
+  orderIndex      Int      @default(0) @map("order_index")
+
+  // SEO
+  metaTitle       String? @map("meta_title")
+  metaDescription String? @map("meta_description")
+  ogImage         String? @map("og_image")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  metrics      ProjectMetric[]
+  testimonial  ProjectTestimonial?
+
+  @@index([category])
+  @@index([published])
+  @@index([featured])
+  @@index([createdAt])
+  @@map("projects")
+}
+
+model ProjectMetric {
+  id        Int    @id @default(autoincrement())
+  projectId String @map("project_id")
+  metric    String
+  value     String
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_metrics")
+}
+
+model ProjectTestimonial {
+  id        Int    @id @default(autoincrement())
+  projectId String @unique @map("project_id")
+  quote     String @db.Text
+  author    String
+  role      String
+  company   String
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_testimonials")
+}
+
+model Service {
+  id           String   @id @default(uuid())
+  title        String
+  slug         String   @unique
+  subtitle     String?
+  description  String   @db.Text
+  icon         String?
+  features     String[]
+  process      Json?    // JSON array of process steps
+  deliverables String[]
+  pricing      Json?    // { type: 'fixed'|'hourly', from: number, to: number }
+  isActive     Boolean  @default(true) @map("is_active")
+  featured     Boolean  @default(false)
+  orderIndex   Int      @default(0) @map("order_index")
+
+  // SEO
+  metaTitle       String? @map("meta_title")
+  metaDescription String? @map("meta_description")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([isActive])
+  @@index([orderIndex])
+  @@map("services")
+}
+
+model Testimonial {
+  id          String  @id @default(uuid())
+  clientName  String  @map("client_name")
+  clientRole  String? @map("client_role")
+  company     String?
+  content     String  @db.Text
+  rating      Int     @default(5) // 1-5
+  avatarUrl   String? @map("avatar_url")
+  featured    Boolean @default(false)
+  isActive    Boolean @default(true) @map("is_active")
+  approved    Boolean @default(false)
+  orderIndex  Int     @default(0) @map("order_index")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([isActive])
+  @@index([featured])
+  @@map("testimonials")
+}
+
+model FAQ {
+  id         String  @id @default(uuid())
+  question   String
+  answer     String  @db.Text
+  category   String?
+  isActive   Boolean @default(true) @map("is_active")
+  viewCount  Int     @default(0) @map("view_count")
+  helpful    Int     @default(0)
+  orderIndex Int     @default(0) @map("order_index")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@index([isActive])
+  @@map("faqs")
+}
+
+model ClientLogo {
+  id         String  @id @default(uuid())
+  name       String
+  logoUrl    String  @map("logo_url")
+  websiteUrl String? @map("website_url")
+  industry   String?
+  isActive   Boolean @default(true) @map("is_active")
+  orderIndex Int     @default(0) @map("order_index")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("client_logos")
+}
+
+model Stat {
+  id          String  @id @default(uuid())
+  label       String
+  value       String
+  suffix      String?
+  description String?
+  icon        String?
+  isActive    Boolean @default(true) @map("is_active")
+  orderIndex  Int     @default(0) @map("order_index")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("stats")
+}
+
+// ============================================
+// CONTACT & NEWSLETTER
+// ============================================
+
+model ContactSubmission {
+  id        String  @id @default(uuid())
+  name      String
+  email     String
+  subject   String?
+  message   String  @db.Text
+  phone     String?
+  company   String?
+  isRead    Boolean @default(false) @map("is_read")
+  isReplied Boolean @default(false) @map("is_replied")
+  repliedAt DateTime? @map("replied_at")
+  reply     String?   @db.Text
+  ipAddress String?   @map("ip_address")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("contact_submissions")
+}
+
+model NewsletterSubscriber {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  isActive      Boolean   @default(true) @map("is_active")
+  subscribedAt  DateTime  @default(now()) @map("subscribed_at")
+  unsubscribedAt DateTime? @map("unsubscribed_at")
+  source        String?   // 'website', 'admin', 'import'
+  ipAddress     String?   @map("ip_address")
+
+  @@index([isActive])
+  @@map("newsletter_subscribers")
+}
+
+// ============================================
+// MEDIA LIBRARY
+// ============================================
+
+model Media {
+  id          String  @id @default(uuid())
+  filename    String
+  originalName String @map("original_name")
+  mimeType    String  @map("mime_type")
+  size        Int     // bytes
+  url         String
+  thumbnailUrl String? @map("thumbnail_url")
+  altText     String? @map("alt_text")
+  folder      String? @default("general")
+  width       Int?
+  height      Int?
+  uploadedBy  String? @map("uploaded_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([folder])
+  @@index([mimeType])
+  @@index([createdAt])
+  @@map("media")
+}
+
+// ============================================
+// ANALYTICS
+// ============================================
+
+model PageView {
+  id        BigInt   @id @default(autoincrement())
+  path      String
+  referrer  String?
+  userAgent String?  @map("user_agent")
+  ipAddress String?  @map("ip_address")
+  country   String?
+  city      String?
+  device    String?  // 'desktop', 'mobile', 'tablet'
+  browser   String?
+  sessionId String?  @map("session_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([path])
+  @@index([createdAt])
+  @@index([sessionId])
+  @@map("page_views")
+}
+
+model AnalyticsEvent {
+  id        BigInt   @id @default(autoincrement())
+  name      String   // 'contact_form', 'newsletter_signup', 'project_view', etc.
+  category  String?
+  label     String?
+  value     Float?
+  metadata  Json?
+  sessionId String?  @map("session_id")
+  ipAddress String?  @map("ip_address")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([name])
+  @@index([createdAt])
+  @@map("analytics_events")
+}
+
+// ============================================
+// SETTINGS
+// ============================================
+
+model Setting {
+  id        String @id @default(uuid())
+  key       String @unique
+  value     Json
+  group     String @default("general") // 'general', 'seo', 'social', 'email', 'appearance'
+  label     String?
+  type      String @default("string") // 'string', 'number', 'boolean', 'json', 'image'
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([group])
+  @@map("settings")
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@asagus/database",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "generate": "dotenv -e ../../.env -- prisma generate",
+    "push": "dotenv -e ../../.env -- prisma db push",
+    "migrate": "dotenv -e ../../.env -- prisma migrate dev",
+    "migrate:prod": "dotenv -e ../../.env -- prisma migrate deploy",
+    "seed": "dotenv -e ../../.env -- tsx src/seed.ts",
+    "studio": "dotenv -e ../../.env -- prisma studio",
+    "clean": "rimraf node_modules"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.3.0",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "rimraf": "^6.0.0",
+    "bcryptjs": "^2.4.3",
+    "@types/bcryptjs": "^2.4.6",
+    "dotenv-cli": "^8.0.0"
+  }
+}

@@ -9,8 +9,8 @@ import { Menu, X } from 'lucide-react'
 // or replace it with an existing color like 'blue-600'
 const navLinks = [
   { label: 'Home', href: '/' },
-  { label: 'Project', href: '#projects' },
-  { label: 'Blog', href: '#blog' },
+  { label: 'Projects', href: '#projects' },
+  { label: 'Services', href: '#services' },
   { label: 'Contact', href: '#contact' },
 ]
 

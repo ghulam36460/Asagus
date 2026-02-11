@@ -2,6 +2,69 @@
 
 **Welcome to your enterprise microservices architecture documentation!**
 
+---
+
+## 🚀 SUPER SIMPLE QUICK START (Run from root directory)
+
+### ✅ You're All Set!
+
+Your database is configured and ready:
+- PostgreSQL database: `asagus_admin` ✓
+- All tables created ✓
+- Admin user seeded ✓
+- Sample data loaded ✓
+
+### Just Run It!
+
+```bash
+# Start everything (recommended)
+pnpm dev:all
+```
+
+That's it! Your app is running on:
+- **Main Site:** http://localhost:3000
+- **Admin Panel:** http://localhost:3001
+
+**Login credentials:**
+- Email: admin@asagus.com
+- Password: Admin@2026Secure!
+
+### Daily Development
+
+**Main Website Only:**
+```bash
+pnpm dev                  # → http://localhost:3000
+```
+
+**Full Stack (Main + Admin + Services):**
+```bash
+pnpm dev:all              # Everything together
+# Admin Login → http://localhost:3001
+# Email: admin@asagus.com / Password: Admin@2026Secure!
+```
+
+---
+
+## ⚠️ Troubleshooting
+
+**"Docker is not recognized"**
+- Docker Desktop is not installed
+- Download from: https://www.docker.com/products/docker-desktop
+- OR skip Docker and just run: `pnpm dev` (frontend only)
+
+**"tsx is not recognized" or "node_modules missing"**
+```bash
+pnpm install:all          # Install all dependencies
+```
+
+**"Port already in use"**
+- Another app is using port 3000, 3001, or 4000-4003
+- Close other apps or change ports in `.env` files
+
+---
+
+## 📚 DOCUMENTATION INDEX
+
 This guide will help you understand and implement the complete ASAGUS platform.
 
 ---

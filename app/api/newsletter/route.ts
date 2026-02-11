@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { logger } from '@/lib/logger'
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder')
 
@@ -41,12 +42,12 @@ export async function POST(req: NextRequest) {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background-color: #1D4DF1; padding: 40px; text-align: center; border-radius: 8px 8px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 32px;">Brand Alchemy</h1>
+            <h1 style="color: white; margin: 0; font-size: 32px;">ASAGUS</h1>
           </div>
           <div style="background-color: #f5f5f5; padding: 40px; border-radius: 0 0 8px 8px;">
             <h2 style="color: #333; margin-top: 0;">Welcome to Our Newsletter!</h2>
             <p style="color: #555; line-height: 1.6; font-size: 16px;">
-              Thank you for subscribing to Brand Alchemy's newsletter. You'll now receive:
+              Thank you for subscribing to ASAGUS newsletter. You'll now receive:
             </p>
             <ul style="color: #555; line-height: 1.8; font-size: 16px;">
               <li>Latest design trends and insights</li>
@@ -66,7 +67,7 @@ export async function POST(req: NextRequest) {
             </div>
           </div>
           <div style="text-align: center; padding: 20px; color: #999; font-size: 12px;">
-            <p>Brand Alchemy - We Create Brands That People Want Talk About</p>
+            <p>ASAGUS - Engineering the Future of Digital Innovation</p>
             <p>
               <a href="#" style="color: #999;">Unsubscribe</a> | 
               <a href="#" style="color: #999;">Privacy Policy</a>
@@ -95,7 +96,7 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     )
   } catch (error) {
-    console.error('Error subscribing to newsletter:', error)
+    logger.error('Failed to process newsletter subscription', error, { context: 'NewsletterAPI' })
     return NextResponse.json(
       { error: 'Failed to subscribe. Please try again later.' },
       { status: 500 }

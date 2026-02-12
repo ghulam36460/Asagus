@@ -6,6 +6,8 @@ import { DataTable, Column } from "@/components/data-table";
 import { formatDate } from "@/lib/utils";
 import { Search, Filter } from "lucide-react";
 
+type AnyRecord = Record<string, any>;
+
 interface AuditEntry {
   id: string;
   userId: string;
@@ -54,26 +56,26 @@ export default function AuditLogsPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const columns: Column[] = [
+  const columns: Column<AnyRecord>[] = [
     {
       key: "user", header: "User",
-      render: (r) => {
+      render: (r: AnyRecord) => {
         const user = r.user as AuditEntry["user"];
         return user ? `${user.firstName} ${user.lastName}` : "System";
       },
     },
     {
       key: "action", header: "Action",
-      render: (r) => (
+      render: (r: AnyRecord) => (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${ACTION_COLORS[r.action as string] || "bg-slate-100 text-slate-600"}`}>
           {r.action as string}
         </span>
       ),
     },
     { key: "resource", header: "Resource" },
-    { key: "resourceId", header: "Resource ID", render: (r) => <span className="font-mono text-xs">{(r.resourceId as string)?.slice(0, 8) || "—"}</span> },
-    { key: "ipAddress", header: "IP", render: (r) => <span className="font-mono text-xs">{r.ipAddress as string || "—"}</span> },
-    { key: "createdAt", header: "Time", render: (r) => formatDate(r.createdAt as string) },
+    { key: "resourceId", header: "Resource ID", render: (r: AnyRecord) => <span className="font-mono text-xs">{(r.resourceId as string)?.slice(0, 8) || "—"}</span> },
+    { key: "ipAddress", header: "IP", render: (r: AnyRecord) => <span className="font-mono text-xs">{r.ipAddress as string || "—"}</span> },
+    { key: "createdAt", header: "Time", render: (r: AnyRecord) => formatDate(r.createdAt as string) },
   ];
 
   const actions = ["All", "LOGIN", "LOGOUT", "CREATE", "UPDATE", "DELETE", "READ"];

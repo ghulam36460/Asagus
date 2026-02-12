@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api";
 import { DataTable, Column } from "@/components/data-table";
+
+type AnyRecord = Record<string, any>;
 import { formatDate } from "@/lib/utils";
 import { Plus, Pencil, Trash2, X, Save, Loader2, Star } from "lucide-react";
 
@@ -71,11 +73,11 @@ export default function TestimonialsPage() {
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this testimonial?")) return;
-    try { await api.delete(`/testimonials/${id}`); fetchData(); }
+    try { await api.del(`/testimonials/${id}`); fetchData(); }
     catch (err) { console.error(err); }
   }
 
-  const columns: Column[] = [
+  const columns: Column<AnyRecord>[] = [
     { key: "clientName", header: "Client" },
     { key: "clientCompany", header: "Company" },
     {

@@ -1,0 +1,53 @@
+name: Deploy Admin Frontend to Azure App Service
+
+# Auto-deploy when admin frontend code changes
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'admin-panel/frontend/**'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    name: Build and Deploy Admin Frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        working-directory: ./admin-panel/frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: ./admin-panel/frontend
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.asagus.com/api/v1
+
+      - name: Prepare standalone deployment
+        working-directory: ./admin-panel/frontend
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public 2>/dev/null || true
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'asagus-admin'
+          publish-profile: ${{ secrets.AZURE_ADMIN_PUBLISH_PROFILE }}
+          package: ./admin-panel/frontend/.next/standalone
+          startup-command: 'node server.js'

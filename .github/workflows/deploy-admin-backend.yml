@@ -1,0 +1,65 @@
+name: Deploy Admin Backend to Azure App Service
+
+# Auto-deploy when backend code changes
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'admin-panel/services/**'
+      - 'admin-panel/packages/**'
+      - 'admin-panel/startup.sh'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    name: Build and Deploy Backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        working-directory: ./admin-panel
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        working-directory: ./admin-panel
+        run: pnpm db:generate
+
+      - name: Build all services
+        working-directory: ./admin-panel
+        run: pnpm -r build
+
+      - name: Prepare deployment package
+        working-directory: ./admin-panel
+        run: |
+          mkdir -p deploy-package
+          cp -r services deploy-package/
+          cp -r packages deploy-package/
+          cp package.json deploy-package/
+          cp pnpm-lock.yaml deploy-package/
+          cp pnpm-workspace.yaml deploy-package/
+          cp startup.sh deploy-package/
+          # Remove source files, keep only dist
+          find deploy-package/services -name 'src' -type d -exec rm -rf {} + 2>/dev/null || true
+          find deploy-package -name '*.ts' ! -name '*.d.ts' -delete 2>/dev/null || true
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'asagus-api'
+          publish-profile: ${{ secrets.AZURE_BACKEND_PUBLISH_PROFILE }}
+          package: ./admin-panel/deploy-package
+          startup-command: 'bash startup.sh'

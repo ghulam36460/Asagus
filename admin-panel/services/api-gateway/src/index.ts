@@ -7,7 +7,7 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 import rateLimit from "express-rate-limit";
 
 const app = express();
-const PORT = process.env.GATEWAY_PORT || 4000;
+const PORT = process.env.PORT || process.env.GATEWAY_PORT || 4000;
 
 // ============================================
 // Middleware
@@ -24,6 +24,8 @@ app.use(
       "http://localhost:3000",
       "https://admin.asagus.com",
       "https://asagus.com",
+      "https://www.asagus.com",
+      "https://api.asagus.com",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],

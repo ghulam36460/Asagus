@@ -48,6 +48,15 @@ admin-panel/.env*
 admin-panel/services/*/dist/
 admin-panel/packages/*/dist/
 admin-panel/frontend/out/
+admin-panel/frontend/.next/
 admin-panel/services/*/node_modules/
 admin-panel/frontend/node_modules/
 admin-panel/packages/*/node_modules/
+
+# Azure deployment artifacts
+*.zip
+swa-cli.config.json
+
+# Temp / misc files
+tmp_*
+ss/

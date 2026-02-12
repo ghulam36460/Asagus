@@ -30,9 +30,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen" style={{ backgroundColor: "var(--background)" }}>
       <Sidebar />
-      <div className="ml-64 transition-all duration-300">
+      <div className="lg:ml-64 transition-all duration-300">
         <Header />
-        <main className="p-6">{children}</main>
+        <main className="p-4 md:p-6">{children}</main>
       </div>
     </div>
   );

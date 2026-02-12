@@ -56,8 +56,8 @@ model Role {
 
 model Permission {
   id          Int      @id @default(autoincrement())
-  resource    String   // 'projects', 'services', 'users', etc.
-  action      String   // 'create', 'read', 'update', 'delete'
+  resource    String // 'projects', 'services', 'users', etc.
+  action      String // 'create', 'read', 'update', 'delete'
   description String?
   createdAt   DateTime @default(now()) @map("created_at")
 
@@ -74,9 +74,9 @@ model UserRole {
   assignedAt DateTime @default(now()) @map("assigned_at")
   assignedBy String?  @map("assigned_by")
 
-  user       User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role       Role  @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  assigner   User? @relation("AssignedBy", fields: [assignedBy], references: [id])
+  user     User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role     Role  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  assigner User? @relation("AssignedBy", fields: [assignedBy], references: [id])
 
   @@id([userId, roleId])
   @@map("user_roles")
@@ -130,8 +130,8 @@ model ApiKey {
 model AuditLog {
   id            BigInt   @id @default(autoincrement())
   userId        String?  @map("user_id")
-  action        String   // 'login', 'logout', 'password_change', etc.
-  resource      String?  // 'project', 'service', etc.
+  action        String // 'login', 'logout', 'password_change', etc.
+  resource      String? // 'project', 'service', etc.
   resourceId    String?  @map("resource_id")
   ipAddress     String?  @map("ip_address")
   userAgent     String?  @map("user_agent")
@@ -185,8 +185,8 @@ model Project {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  metrics      ProjectMetric[]
-  testimonial  ProjectTestimonial?
+  metrics     ProjectMetric[]
+  testimonial ProjectTestimonial?
 
   @@index([category])
   @@index([published])
@@ -227,9 +227,9 @@ model Service {
   description  String   @db.Text
   icon         String?
   features     String[]
-  process      Json?    // JSON array of process steps
+  process      Json? // JSON array of process steps
   deliverables String[]
-  pricing      Json?    // { type: 'fixed'|'hourly', from: number, to: number }
+  pricing      Json? // { type: 'fixed'|'hourly', from: number, to: number }
   isActive     Boolean  @default(true) @map("is_active")
   featured     Boolean  @default(false)
   orderIndex   Int      @default(0) @map("order_index")
@@ -247,17 +247,17 @@ model Service {
 }
 
 model Testimonial {
-  id          String  @id @default(uuid())
-  clientName  String  @map("client_name")
-  clientRole  String? @map("client_role")
-  company     String?
-  content     String  @db.Text
-  rating      Int     @default(5) // 1-5
-  avatarUrl   String? @map("avatar_url")
-  featured    Boolean @default(false)
-  isActive    Boolean @default(true) @map("is_active")
-  approved    Boolean @default(false)
-  orderIndex  Int     @default(0) @map("order_index")
+  id         String  @id @default(uuid())
+  clientName String  @map("client_name")
+  clientRole String? @map("client_role")
+  company    String?
+  content    String  @db.Text
+  rating     Int     @default(5) // 1-5
+  avatarUrl  String? @map("avatar_url")
+  featured   Boolean @default(false)
+  isActive   Boolean @default(true) @map("is_active")
+  approved   Boolean @default(false)
+  orderIndex Int     @default(0) @map("order_index")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -321,15 +321,15 @@ model Stat {
 // ============================================
 
 model ContactSubmission {
-  id        String  @id @default(uuid())
+  id        String    @id @default(uuid())
   name      String
   email     String
   subject   String?
-  message   String  @db.Text
+  message   String    @db.Text
   phone     String?
   company   String?
-  isRead    Boolean @default(false) @map("is_read")
-  isReplied Boolean @default(false) @map("is_replied")
+  isRead    Boolean   @default(false) @map("is_read")
+  isReplied Boolean   @default(false) @map("is_replied")
   repliedAt DateTime? @map("replied_at")
   reply     String?   @db.Text
   ipAddress String?   @map("ip_address")
@@ -342,14 +342,14 @@ model ContactSubmission {
 }
 
 model NewsletterSubscriber {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  name          String?
-  isActive      Boolean   @default(true) @map("is_active")
-  subscribedAt  DateTime  @default(now()) @map("subscribed_at")
+  id             String    @id @default(uuid())
+  email          String    @unique
+  name           String?
+  isActive       Boolean   @default(true) @map("is_active")
+  subscribedAt   DateTime  @default(now()) @map("subscribed_at")
   unsubscribedAt DateTime? @map("unsubscribed_at")
-  source        String?   // 'website', 'admin', 'import'
-  ipAddress     String?   @map("ip_address")
+  source         String? // 'website', 'admin', 'import'
+  ipAddress      String?   @map("ip_address")
 
   @@index([isActive])
   @@map("newsletter_subscribers")
@@ -360,18 +360,18 @@ model NewsletterSubscriber {
 // ============================================
 
 model Media {
-  id          String  @id @default(uuid())
-  filename    String
-  originalName String @map("original_name")
-  mimeType    String  @map("mime_type")
-  size        Int     // bytes
-  url         String
+  id           String  @id @default(uuid())
+  filename     String
+  originalName String  @map("original_name")
+  mimeType     String  @map("mime_type")
+  size         Int // bytes
+  url          String
   thumbnailUrl String? @map("thumbnail_url")
-  altText     String? @map("alt_text")
-  folder      String? @default("general")
-  width       Int?
-  height      Int?
-  uploadedBy  String? @map("uploaded_by")
+  altText      String? @map("alt_text")
+  folder       String? @default("general")
+  width        Int?
+  height       Int?
+  uploadedBy   String? @map("uploaded_by")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -387,16 +387,16 @@ model Media {
 // ============================================
 
 model PageView {
-  id        BigInt   @id @default(autoincrement())
+  id        BigInt  @id @default(autoincrement())
   path      String
   referrer  String?
-  userAgent String?  @map("user_agent")
-  ipAddress String?  @map("ip_address")
+  userAgent String? @map("user_agent")
+  ipAddress String? @map("ip_address")
   country   String?
   city      String?
-  device    String?  // 'desktop', 'mobile', 'tablet'
+  device    String? // 'desktop', 'mobile', 'tablet'
   browser   String?
-  sessionId String?  @map("session_id")
+  sessionId String? @map("session_id")
 
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -407,14 +407,14 @@ model PageView {
 }
 
 model AnalyticsEvent {
-  id        BigInt   @id @default(autoincrement())
-  name      String   // 'contact_form', 'newsletter_signup', 'project_view', etc.
+  id        BigInt  @id @default(autoincrement())
+  name      String // 'contact_form', 'newsletter_signup', 'project_view', etc.
   category  String?
   label     String?
   value     Float?
   metadata  Json?
-  sessionId String?  @map("session_id")
-  ipAddress String?  @map("ip_address")
+  sessionId String? @map("session_id")
+  ipAddress String? @map("ip_address")
 
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -428,16 +428,164 @@ model AnalyticsEvent {
 // ============================================
 
 model Setting {
-  id        String @id @default(uuid())
-  key       String @unique
-  value     Json
-  group     String @default("general") // 'general', 'seo', 'social', 'email', 'appearance'
-  label     String?
-  type      String @default("string") // 'string', 'number', 'boolean', 'json', 'image'
+  id    String  @id @default(uuid())
+  key   String  @unique
+  value Json
+  group String  @default("general") // 'general', 'seo', 'social', 'email', 'appearance'
+  label String?
+  type  String  @default("string") // 'string', 'number', 'boolean', 'json', 'image'
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([group])
   @@map("settings")
+}
+
+// ============================================
+// TEAM MEMBERS
+// ============================================
+
+model TeamMember {
+  id         String   @id @default(uuid())
+  name       String
+  slug       String   @unique
+  role       String
+  department String?
+  bio        String?  @db.Text
+  expertise  String[] // Array of skills/expertise areas
+  avatarUrl  String?  @map("avatar_url")
+
+  // Social links
+  email       String?
+  phone       String?
+  linkedinUrl String? @map("linkedin_url")
+  twitterUrl  String? @map("twitter_url")
+  githubUrl   String? @map("github_url")
+  websiteUrl  String? @map("website_url")
+
+  // Status
+  isActive   Boolean @default(true) @map("is_active")
+  featured   Boolean @default(false)
+  orderIndex Int     @default(0) @map("order_index")
+
+  // Dates
+  joinedAt  DateTime? @map("joined_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@index([isActive])
+  @@index([featured])
+  @@index([department])
+  @@map("team_members")
+}
+
+// ============================================
+// BLOG
+// ============================================
+
+model BlogPost {
+  id            String  @id @default(uuid())
+  title         String
+  slug          String  @unique
+  excerpt       String? @db.Text
+  content       String  @db.Text
+  featuredImage String? @map("featured_image")
+
+  // Author (can be linked to User or just a name)
+  authorId   String? @map("author_id")
+  authorName String  @map("author_name")
+
+  // Categorization
+  category String
+  tags     String[] // Array of tags
+
+  // Status
+  status      String    @default("draft") // 'draft', 'published', 'archived'
+  publishedAt DateTime? @map("published_at")
+  featured    Boolean   @default(false)
+
+  // Engagement
+  viewCount Int  @default(0) @map("view_count")
+  readTime  Int? @map("read_time") // in minutes
+
+  // SEO
+  metaTitle       String? @map("meta_title")
+  metaDescription String? @map("meta_description")
+  ogImage         String? @map("og_image")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([category])
+  @@index([publishedAt])
+  @@index([featured])
+  @@index([createdAt])
+  @@map("blog_posts")
+}
+
+model BlogCategory {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  slug        String  @unique
+  description String? @db.Text
+  color       String? // Hex color for UI
+  isActive    Boolean @default(true) @map("is_active")
+  orderIndex  Int     @default(0) @map("order_index")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([isActive])
+  @@map("blog_categories")
+}
+
+// ============================================
+// RESEARCH & DEVELOPMENT
+// ============================================
+
+model ResearchProject {
+  id          String @id @default(uuid())
+  title       String
+  slug        String @unique
+  description String @db.Text
+
+  // Project details
+  status       String   @default("ongoing") // 'ongoing', 'completed', 'paused', 'planned'
+  category     String // 'AI', 'Cybersecurity', 'Web3', etc.
+  technologies String[] // Tech stack
+  teamMembers  String[] @map("team_members") // Array of team member IDs or names
+
+  // Media
+  thumbnailUrl  String?  @map("thumbnail_url")
+  galleryImages String[] @map("gallery_images")
+
+  // Content
+  objectives   String? @db.Text
+  methodology  String? @db.Text
+  results      String? @db.Text
+  publications Json? // Array of publication links
+
+  // Dates
+  startDate DateTime? @map("start_date")
+  endDate   DateTime? @map("end_date")
+
+  // Visibility
+  isPublic   Boolean @default(false) @map("is_public")
+  featured   Boolean @default(false)
+  orderIndex Int     @default(0) @map("order_index")
+
+  // SEO
+  metaTitle       String? @map("meta_title")
+  metaDescription String? @map("meta_description")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([category])
+  @@index([isPublic])
+  @@index([featured])
+  @@map("research_projects")
 }

@@ -10,6 +10,9 @@ import { faqsRouter } from "./routes/faqs.routes";
 import { contactsRouter } from "./routes/contacts.routes";
 import { dashboardRouter } from "./routes/dashboard.routes";
 import { settingsRouter } from "./routes/settings.routes";
+import teamRouter from "./routes/team.routes";
+import blogRouter from "./routes/blog.routes";
+import researchRouter from "./routes/research.routes";
 
 const app = express();
 const PORT = process.env.CONTENT_SERVICE_PORT || 4002;
@@ -39,6 +42,9 @@ app.use("/api/v1/content/services", servicesRouter);
 app.use("/api/v1/content/testimonials", testimonialsRouter);
 app.use("/api/v1/content/faqs", faqsRouter);
 app.use("/api/v1/content/contacts", contactsRouter);
+app.use("/api/v1/content/team", teamRouter);
+app.use("/api/v1/content/blog", blogRouter);
+app.use("/api/v1/content/research", researchRouter);
 app.use("/api/v1/dashboard", dashboardRouter);
 app.use("/api/v1/settings", settingsRouter);
 

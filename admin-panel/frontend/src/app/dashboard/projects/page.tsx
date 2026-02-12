@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api";
 import { DataTable, Column } from "@/components/data-table";
 import { formatDate } from "@/lib/utils";
+
+type AnyRecord = Record<string, any>;
 import {
   Plus, Search, Pencil, Trash2, Eye, EyeOff,
   X, Save, Loader2
@@ -129,7 +131,7 @@ export default function ProjectsPage() {
   async function handleDelete(id: string) {
     if (!confirm("Are you sure you want to delete this project?")) return;
     try {
-      await api.delete(`/projects/${id}`);
+      await api.del(`/projects/${id}`);
       fetchProjects();
     } catch (err) {
       console.error("Failed to delete project:", err);
@@ -145,12 +147,12 @@ export default function ProjectsPage() {
     }
   }
 
-  const columns: Column[] = [
+  const columns: Column<AnyRecord>[] = [
     { key: "title", header: "Title" },
     { key: "category", header: "Category" },
     {
       key: "published", header: "Status",
-      render: (row) => (
+      render: (row: AnyRecord) => (
         <button onClick={() => togglePublished(row as unknown as Project)}
           className={`px-2 py-1 rounded-full text-xs font-medium cursor-pointer ${
             row.published ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
@@ -161,21 +163,21 @@ export default function ProjectsPage() {
     },
     {
       key: "featured", header: "Featured",
-      render: (row) => row.featured ? (
+      render: (row: AnyRecord) => row.featured ? (
         <span className="text-yellow-500">★</span>
       ) : <span className="text-slate-300">☆</span>,
     },
     {
       key: "viewCount", header: "Views",
-      render: (row) => <span>{row.viewCount ?? 0}</span>,
+      render: (row: AnyRecord) => <span>{row.viewCount ?? 0}</span>,
     },
     {
       key: "createdAt", header: "Created",
-      render: (row) => formatDate(row.createdAt as string),
+      render: (row: AnyRecord) => formatDate(row.createdAt as string),
     },
     {
       key: "actions", header: "Actions",
-      render: (row) => (
+      render: (row: AnyRecord) => (
         <div className="flex items-center gap-2">
           <button onClick={() => openEdit(row as unknown as Project)}
             className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600"><Pencil size={15} /></button>

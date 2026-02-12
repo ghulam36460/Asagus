@@ -5,6 +5,8 @@ import { api } from "@/lib/api";
 import { DataTable, Column } from "@/components/data-table";
 import { Plus, Pencil, Trash2, X, Save, Loader2, ChevronUp, ChevronDown } from "lucide-react";
 
+type AnyRecord = Record<string, any>;
+
 interface FAQ {
   id: string;
   question: string;
@@ -61,7 +63,7 @@ export default function FAQsPage() {
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this FAQ?")) return;
-    try { await api.delete(`/faqs/${id}`); fetchData(); } catch (err) { console.error(err); }
+    try { await api.del(`/faqs/${id}`); fetchData(); } catch (err) { console.error(err); }
   }
 
   async function handleReorder(id: string, direction: "up" | "down") {
@@ -75,12 +77,12 @@ export default function FAQsPage() {
     } catch (err) { console.error(err); }
   }
 
-  const columns: Column[] = [
+  const columns: Column<AnyRecord>[] = [
     { key: "question", header: "Question" },
     { key: "category", header: "Category" },
     {
       key: "published", header: "Status",
-      render: (r) => (
+      render: (r: AnyRecord) => (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${r.published ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
           {r.published ? "Published" : "Draft"}
         </span>
@@ -89,7 +91,7 @@ export default function FAQsPage() {
     { key: "sortOrder", header: "Order" },
     {
       key: "actions", header: "Actions",
-      render: (r) => (
+      render: (r: AnyRecord) => (
         <div className="flex items-center gap-1">
           <button onClick={() => handleReorder(r.id as string, "up")} className="p-1 rounded hover:bg-slate-100"><ChevronUp size={14} /></button>
           <button onClick={() => handleReorder(r.id as string, "down")} className="p-1 rounded hover:bg-slate-100"><ChevronDown size={14} /></button>

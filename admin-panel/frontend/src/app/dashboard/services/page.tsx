@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api";
 import { DataTable, Column } from "@/components/data-table";
+
+type AnyRecord = Record<string, any>;
 import { Plus, Search, Pencil, Trash2, X, Save, Loader2 } from "lucide-react";
 
 interface Service {
@@ -80,11 +82,11 @@ export default function ServicesPage() {
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this service?")) return;
-    try { await api.delete(`/services/${id}`); fetchServices(); }
+    try { await api.del(`/services/${id}`); fetchServices(); }
     catch (err) { console.error("Delete failed:", err); }
   }
 
-  const columns: Column[] = [
+  const columns: Column<AnyRecord>[] = [
     { key: "title", header: "Title" },
     { key: "icon", header: "Icon" },
     {

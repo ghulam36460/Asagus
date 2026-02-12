@@ -5,6 +5,8 @@ import { api } from "@/lib/api";
 import { formatDate, formatNumber } from "@/lib/utils";
 import { StatsCard } from "@/components/stats-card";
 import { DataTable, Column } from "@/components/data-table";
+
+type AnyRecord = Record<string, any>;
 import { Eye, Users, Monitor, Globe, Calendar, TrendingUp } from "lucide-react";
 
 interface AnalyticsOverview {
@@ -42,19 +44,19 @@ export default function AnalyticsPage() {
     );
   }
 
-  const topPagesColumns: Column[] = [
+  const topPagesColumns: Column<AnyRecord>[] = [
     { key: "path", header: "Page" },
-    { key: "count", header: "Views", render: (r) => formatNumber(r.count as number) },
+    { key: "count", header: "Views", render: (r: AnyRecord) => formatNumber(r.count as number) },
   ];
 
-  const deviceColumns: Column[] = [
+  const deviceColumns: Column<AnyRecord>[] = [
     { key: "device", header: "Device" },
-    { key: "count", header: "Visits", render: (r) => formatNumber(r.count as number) },
+    { key: "count", header: "Visits", render: (r: AnyRecord) => formatNumber(r.count as number) },
   ];
 
-  const browserColumns: Column[] = [
+  const browserColumns: Column<AnyRecord>[] = [
     { key: "browser", header: "Browser" },
-    { key: "count", header: "Visits", render: (r) => formatNumber(r.count as number) },
+    { key: "count", header: "Visits", render: (r: AnyRecord) => formatNumber(r.count as number) },
   ];
 
   return (

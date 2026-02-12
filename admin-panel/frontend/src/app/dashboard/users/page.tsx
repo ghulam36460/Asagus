@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api";
 import { DataTable, Column } from "@/components/data-table";
+
+type AnyRecord = Record<string, any>;
 import { formatDate } from "@/lib/utils";
 import {
   Plus, Search, Pencil, Trash2, X, Save, Loader2,
@@ -98,10 +100,10 @@ export default function UsersPage() {
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this user? This action cannot be undone.")) return;
-    try { await api.delete(`/auth/users/${id}`); fetchData(); } catch (err) { console.error(err); }
+    try { await api.del(`/auth/users/${id}`); fetchData(); } catch (err) { console.error(err); }
   }
 
-  const columns: Column[] = [
+  const columns: Column<AnyRecord>[] = [
     {
       key: "name", header: "User",
       render: (r) => (

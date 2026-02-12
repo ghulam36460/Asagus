@@ -6,6 +6,8 @@ import { DataTable, Column } from "@/components/data-table";
 import { formatDate } from "@/lib/utils";
 import { Search, Mail, MailOpen, Trash2, Eye, X, Reply, Loader2 } from "lucide-react";
 
+type AnyRecord = Record<string, any>;
+
 interface Contact {
   id: string;
   name: string;
@@ -77,15 +79,15 @@ export default function ContactsPage() {
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this contact?")) return;
-    try { await api.delete(`/contacts/${id}`); fetchData(); } catch (err) { console.error(err); }
+    try { await api.del(`/contacts/${id}`); fetchData(); } catch (err) { console.error(err); }
   }
 
   const unreadCount = contacts.filter(c => !c.isRead).length;
 
-  const columns: Column[] = [
+  const columns: Column<AnyRecord>[] = [
     {
       key: "name", header: "From",
-      render: (r) => (
+      render: (r: AnyRecord) => (
         <div className="flex items-center gap-2">
           {!r.isRead && <div className="w-2 h-2 rounded-full bg-blue-500" />}
           <span className={!r.isRead ? "font-semibold" : ""}>{r.name as string}</span>
@@ -96,7 +98,7 @@ export default function ContactsPage() {
     { key: "subject", header: "Subject" },
     {
       key: "isRead", header: "Status",
-      render: (r) => (
+      render: (r: AnyRecord) => (
         <div className="flex items-center gap-1">
           {r.isReplied ? (
             <span className="flex items-center gap-1 text-xs text-green-600"><Reply size={12} /> Replied</span>
@@ -108,10 +110,10 @@ export default function ContactsPage() {
         </div>
       ),
     },
-    { key: "createdAt", header: "Received", render: (r) => formatDate(r.createdAt as string) },
+    { key: "createdAt", header: "Received", render: (r: AnyRecord) => formatDate(r.createdAt as string) },
     {
       key: "actions", header: "Actions",
-      render: (r) => (
+      render: (r: AnyRecord) => (
         <div className="flex items-center gap-2">
           <button onClick={() => openView(r as unknown as Contact)} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600"><Eye size={15} /></button>
           <button onClick={() => handleDelete(r.id as string)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-600"><Trash2 size={15} /></button>

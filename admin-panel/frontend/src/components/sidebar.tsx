@@ -17,13 +17,18 @@ import {
   LogOut,
   ChevronLeft,
   Menu,
+  X,
 } from "lucide-react";
 import { useState } from "react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Projects", href: "/dashboard/projects", icon: FolderKanban },
   { name: "Services", href: "/dashboard/services", icon: Briefcase },
+  { name: "Team", href: "/dashboard/team", icon: Users },
+  { name: "Blog", href: "/dashboard/blog", icon: MessageSquareQuote },
+  { name: "Research", href: "/dashboard/research", icon: FolderKanban },
   { name: "Testimonials", href: "/dashboard/testimonials", icon: MessageSquareQuote },
   { name: "FAQs", href: "/dashboard/faqs", icon: HelpCircle },
   { name: "Contacts", href: "/dashboard/contacts", icon: Mail },
@@ -33,33 +38,12 @@ const navigation = [
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
-export function Sidebar() {
+// Navigation content component (reusable for both desktop and mobile)
+function SidebarContent({ collapsed = false, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <aside
-      className={cn(
-        "fixed left-0 top-0 z-40 h-screen transition-all duration-300",
-        collapsed ? "w-16" : "w-64"
-      )}
-      style={{ backgroundColor: "var(--sidebar-bg)", color: "var(--sidebar-fg)" }}
-    >
-      {/* Logo */}
-      <div className="flex h-16 items-center justify-between px-4 border-b border-white/10">
-        {!collapsed && (
-          <Link href="/dashboard" className="text-xl font-bold text-white">
-            ASAGUS
-          </Link>
-        )}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="p-1.5 rounded-lg hover:bg-white/10 transition-colors text-white"
-        >
-          {collapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
-        </button>
-      </div>
-
+    <>
       {/* Navigation */}
       <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto" style={{ maxHeight: "calc(100vh - 8rem)" }}>
         {navigation.map((item) => {
@@ -68,6 +52,7 @@ export function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
+              onClick={onNavigate}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
                 isActive
@@ -84,7 +69,7 @@ export function Sidebar() {
       </nav>
 
       {/* Logout */}
-      <div className="absolute bottom-0 left-0 right-0 p-2 border-t border-white/10">
+      <div className="p-2 border-t border-white/10">
         <button
           onClick={() => {
             localStorage.removeItem("accessToken");
@@ -98,6 +83,61 @@ export function Sidebar() {
           {!collapsed && <span>Logout</span>}
         </button>
       </div>
-    </aside>
+    </>
+  );
+}
+
+export function Sidebar() {
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  return (
+    <>
+      {/* Mobile Sidebar - Sheet */}
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetTrigger asChild>
+          <button
+            className="fixed top-4 left-4 z-50 p-2 rounded-lg lg:hidden"
+            style={{ backgroundColor: "var(--sidebar-bg)", color: "var(--sidebar-fg)" }}
+          >
+            <Menu size={20} />
+          </button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-64 p-0" style={{ backgroundColor: "var(--sidebar-bg)", color: "var(--sidebar-fg)" }}>
+          <div className="flex h-16 items-center justify-between px-4 border-b border-white/10">
+            <Link href="/dashboard" className="text-xl font-bold text-white">
+              ASAGUS
+            </Link>
+          </div>
+          <SidebarContent onNavigate={() => setMobileOpen(false)} />
+        </SheetContent>
+      </Sheet>
+
+      {/* Desktop Sidebar */}
+      <aside
+        className={cn(
+          "hidden lg:fixed left-0 top-0 z-40 h-screen transition-all duration-300",
+          collapsed ? "w-16" : "w-64"
+        )}
+        style={{ backgroundColor: "var(--sidebar-bg)", color: "var(--sidebar-fg)" }}
+      >
+        {/* Logo */}
+        <div className="flex h-16 items-center justify-between px-4 border-b border-white/10">
+          {!collapsed && (
+            <Link href="/dashboard" className="text-xl font-bold text-white">
+              ASAGUS
+            </Link>
+          )}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors text-white"
+          >
+            {collapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
+          </button>
+        </div>
+
+        <SidebarContent collapsed={collapsed} />
+      </aside>
+    </>
   );
 }

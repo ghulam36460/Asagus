@@ -63,9 +63,15 @@ jobs:
           cp -r .next/static .next/standalone/.next/static
           cp -r public .next/standalone/public
 
+      - name: Create deployment zip
+        run: |
+          cd .next/standalone
+          zip -r ../../deploy.zip . -x "*.git*"
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'asagus-main'
           publish-profile: ${{ secrets.AZURE_MAIN_PUBLISH_PROFILE }}
-          package: .next/standalone
+          package: deploy.zip
+          type: zip

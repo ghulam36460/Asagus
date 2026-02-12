@@ -1,33 +1,46 @@
-#!/bin/bash
+#!/bin/bash  
 set -e
 
 cd /home/site/wwwroot
 
 # ============================================================
-# FIX ORYX DAMAGE
-# Oryx's startup wrapper runs BEFORE this script and:
-#   1. Extracts node_modules.tar.gz to /node_modules (broken pnpm symlinks)
-#   2. Moves ./node_modules to ./_del_node_modules
-#   3. Creates symlink ./node_modules -> /node_modules (broken)
-# We undo this by restoring the real node_modules from _del_node_modules.
+# HANDLE ORYX NODE_MODULES TAR.GZ
+# If Azure created node_modules.tar.gz during deployment:
+#   - node_modules directory was deleted by Azure
+#   - tar.gz exists and needs to be extracted to restore modules
+# With WEBSITE_RUN_FROM_PACKAGE=0, Oryx should not interfere,
+# so we extract to a real directory ourselves.
 # ============================================================
 
-if [ -L node_modules ]; then
-    echo "[startup] Detected Oryx symlink at node_modules, restoring real modules..."
-    rm -f node_modules
-    if [ -d _del_node_modules ]; then
-        mv _del_node_modules node_modules
-        echo "[startup] Restored node_modules from _del_node_modules"
-    fi
+if [ -f node_modules.tar.gz ] && [ ! -d node_modules ]; then
+    echo "[startup] Found node_modules.tar.gz but no node_modules dir, extracting..."
+    mkdir -p node_modules
+    tar -xzf node_modules.tar.gz -C node_modules
+    echo "[startup] Extracted node_modules from tar.gz"
+    # Clean up artifacts
+    rm -f node_modules.tar.gz oryx-manifest.toml
 fi
 
-# Prevent Oryx from re-creating the tarball/extracting on next restart
-rm -f node_modules.tar.gz oryx-manifest.toml 2>/dev/null || true
+# If Oryx already ran and created a symlink (shouldn't happen with RUN_FROM_PACKAGE=0 but just in case)
+if [ -L node_modules ]; then
+    echo "[startup] Detected Oryx symlink, removing and extracting tar.gz..."
+    rm -f node_modules
+    if [ -f node_modules.tar.gz ]; then
+        mkdir -p node_modules
+        tar -xzf node_modules.tar.gz -C node_modules
+        rm -f node_modules.tar.gz oryx-manifest.toml
+    elif [ -d _del_node_modules ]; then
+        mv _del_node_modules node_modules
+    fi
+fi
 
 # Verify critical module exists
 if [ ! -f node_modules/next/package.json ]; then
     echo "[startup] ERROR: node_modules/next/package.json not found!"
-    ls -la node_modules/ 2>/dev/null | head -20
+    echo "[startup] Listing wwwroot contents:"
+    ls -la /home/site/wwwroot/
+    echo "[startup] Listing node_modules (if exists):"
+    ls -la node_modules/ 2>/dev/null | head -20 || echo "node_modules does not exist"
     exit 1
 fi
 

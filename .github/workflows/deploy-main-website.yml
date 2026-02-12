@@ -114,48 +114,5 @@ jobs:
           app-name: 'asagus-main'
           publish-profile: ${{ secrets.AZURE_MAIN_PUBLISH_PROFILE }}
           package: .next/standalone
-
-      - name: Post-deploy cleanup (remove Oryx artifacts)
-        run: |
-          # Extract SCM credentials from publish profile
-          PUBLISH_PROFILE='${{ secrets.AZURE_MAIN_PUBLISH_PROFILE }}'
-          SCM_USER=$(echo "$PUBLISH_PROFILE" | grep -oP 'userName="\$[^"]*"' | head -1 | sed 's/userName="//;s/"//')
-          SCM_PASS=$(echo "$PUBLISH_PROFILE" | grep -oP 'userPWD="[^"]*"' | head -1 | sed 's/userPWD="//;s/"//')
-          
-          echo "Cleaning up Oryx artifacts via Kudu API..."
-          
-          # Delete node_modules.tar.gz (Oryx creates this and breaks pnpm modules)
-          curl -s -X DELETE \
-            -u "${SCM_USER}:${SCM_PASS}" \
-            -H "If-Match: *" \
-            "https://asagus-main.scm.azurewebsites.net/api/vfs/site/wwwroot/node_modules.tar.gz" \
-            -w "tar.gz delete: HTTP %{http_code}\n" -o /dev/null || true
-          
-          # Delete oryx-manifest.toml (prevents Oryx startup wrapper from extracting tar.gz)
-          curl -s -X DELETE \
-            -u "${SCM_USER}:${SCM_PASS}" \
-            -H "If-Match: *" \
-            "https://asagus-main.scm.azurewebsites.net/api/vfs/site/wwwroot/oryx-manifest.toml" \
-            -w "manifest delete: HTTP %{http_code}\n" -o /dev/null || true
-            
-          # Delete _del_node_modules leftover from Oryx
-          curl -s -X DELETE \
-            -u "${SCM_USER}:${SCM_PASS}" \
-            -H "If-Match: *" \
-            "https://asagus-main.scm.azurewebsites.net/api/vfs/site/wwwroot/_del_node_modules/?recursive=true" \
-            -w "_del cleanup: HTTP %{http_code}\n" -o /dev/null || true
-          
-          echo "Post-deploy cleanup complete"
-
-      - name: Restart App Service
-        run: |
-          PUBLISH_PROFILE='${{ secrets.AZURE_MAIN_PUBLISH_PROFILE }}'
-          SCM_USER=$(echo "$PUBLISH_PROFILE" | grep -oP 'userName="\$[^"]*"' | head -1 | sed 's/userName="//;s/"//')
-          SCM_PASS=$(echo "$PUBLISH_PROFILE" | grep -oP 'userPWD="[^"]*"' | head -1 | sed 's/userPWD="//;s/"//')
-          
-          echo "Restarting app service..."
-          curl -s -X POST \
-            -u "${SCM_USER}:${SCM_PASS}" \
-            "https://asagus-main.scm.azurewebsites.net/api/restart" \
-            -w "Restart: HTTP %{http_code}\n" -o /dev/null || true
-          echo "Restart triggered"
+        # Note: Azure will create node_modules.tar.gz and oryx-manifest.toml during deployment.
+        # Our startup.sh will extract the tar.gz to a real directory and clean up artifacts.

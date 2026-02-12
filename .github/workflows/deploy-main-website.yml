@@ -75,7 +75,8 @@ jobs:
           if [ -d .next/standalone/node_modules ]; then
             echo "Dereferencing pnpm symlinks in node_modules (rsync -aL)..."
             mkdir -p .next/standalone/node_modules_deref
-            rsync -aL .next/standalone/node_modules/ .next/standalone/node_modules_deref/
+            # Exclude .pnpm dir (contains broken internal symlinks, will be deleted anyway)
+            rsync -aL --exclude='.pnpm' .next/standalone/node_modules/ .next/standalone/node_modules_deref/
             rm -rf .next/standalone/node_modules
             mv .next/standalone/node_modules_deref .next/standalone/node_modules
             

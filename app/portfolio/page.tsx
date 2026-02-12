@@ -7,6 +7,15 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Portfolio - ASAGUS',
   description: 'Explore our complete portfolio of web development, mobile apps, brand design, and digital marketing projects.',
+  alternates: {
+    canonical: '/portfolio',
+  },
+  openGraph: {
+    title: 'Portfolio - ASAGUS',
+    description: 'Explore our complete portfolio of web development, mobile apps, brand design, and digital marketing projects.',
+    url: 'https://asagus.com/portfolio',
+    type: 'website',
+  },
 }
 
 export default function PortfolioPage() {

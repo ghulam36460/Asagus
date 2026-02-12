@@ -6,6 +6,12 @@ import { SmoothScroll } from "@/components/smooth-scroll";
 import { ScrollRevealProvider } from "@/components/scroll-reveal-provider";
 import { FloatingNavbar } from "@/components/floating-navbar";
 import { AnimatedBackground } from "@/components/animated-background";
+import { StructuredData } from "./structured-data";
+import { ComprehensiveSEO } from "./comprehensive-seo";
+import { GEOSchema } from "./geo-schema";
+import { AIMetaTags } from "./ai-meta";
+import { CitationGuide } from "./citation-guide";
+import { ConversationalContent } from "./conversational-content";
 
 const audiowide = Audiowide({
   weight: "400",
@@ -22,13 +28,31 @@ const ptSansCaption = PT_Sans_Caption({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://asagus.com'),
   title: {
-    default: "ASAGUS - Web Development Agency",
+    default: "ASAGUS - AI, Web Development & Custom Software Solutions",
     template: "%s | ASAGUS"
   },
-  description: "We create brands that people want to talk about. Expert web development, digital marketing, and brand design services with 8+ years of experience.",
-  keywords: ["web development", "brand design", "digital marketing", "web agency", "UI/UX design", "SEO", "brand strategy"],
-  authors: [{ name: "ASAGUS" }],
+  description: "ASAGUS is a leading software development company specializing in AI solutions, custom web applications, mobile apps, and intelligent systems. Founded in 2024, we build scalable, high-performance digital products that solve real-world problems.",
+  keywords: [
+    "ASAGUS",
+    "software development company",
+    "AI development",
+    "web development",
+    "mobile app development",
+    "custom software solutions",
+    "artificial intelligence",
+    "machine learning",
+    "API development",
+    "backend engineering",
+    "Next.js development",
+    "React development",
+    "MERN stack",
+    "scalable applications",
+    "intelligent systems",
+    "digital solutions"
+  ],
+  authors: [{ name: "ASAGUS", url: "https://asagus.com" }],
   creator: "ASAGUS",
   publisher: "ASAGUS",
   formatDetection: {
@@ -36,18 +60,41 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
+  alternates: {
+    canonical: '/',
+    languages: {
+      'en-US': '/en-US',
+      'en-GB': '/en-GB',
+      'en-AU': '/en-AU',
+      'en-CA': '/en-CA',
+      'en-IN': '/en-IN',
+      'en-SG': '/en-SG',
+      'en-AE': '/en-AE',
+      'en-NZ': '/en-NZ',
+    },
+  },
   openGraph: {
-    title: "ASAGUS - AI, Cybersecurity & Web Development",
-    description: "Engineering the future of digital innovation",
+    title: "ASAGUS - AI, Web Development & Custom Software Solutions",
+    description: "Build smart, scalable, and impactful digital solutions with ASAGUS. We specialize in AI-based systems, modern websites, custom software, and intelligent AI tools.",
     type: "website",
     locale: "en_US",
+    url: 'https://asagus.com',
     siteName: "ASAGUS",
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'ASAGUS - Software Development Company',
+      }
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ASAGUS - AI, Cybersecurity & Web Development",
-    description: "Engineering the future of digital innovation",
+    title: "ASAGUS - AI, Web Development & Custom Software Solutions",
+    description: "Build smart, scalable, and impactful digital solutions with ASAGUS. We specialize in AI-based systems, modern websites, custom software, and intelligent AI tools.",
     creator: "@asagus",
+    images: ['/opengraph-image'],
   },
   robots: {
     index: true,
@@ -74,6 +121,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <StructuredData />
+        <ComprehensiveSEO />
+        <GEOSchema />
+        <AIMetaTags />
+        <CitationGuide />
+        <ConversationalContent />
+      </head>
       <body
         className={`${audiowide.variable} ${ptSansCaption.variable} font-body antialiased overflow-x-hidden`}
         suppressHydrationWarning

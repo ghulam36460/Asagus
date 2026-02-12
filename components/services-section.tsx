@@ -101,11 +101,11 @@ export function ServicesSection() {
             </span>
           </div>
           <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl mb-6 leading-tight">
-            <span className="block text-gray-900 dark:text-white mb-2">OUR</span>
+            <span className="block text-gray-900 dark:text-white mb-2">SOFTWARE DEVELOPMENT</span>
             <span className="block bg-gradient-to-r from-brand-blue via-blue-500 to-purple-600 bg-clip-text text-transparent">SERVICES</span>
           </h2>
           <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Comprehensive digital solutions to elevate your brand and drive growth
+            AI Development, Web Applications, Mobile Apps, API Solutions & Data Automation
           </p>
         </div>
 

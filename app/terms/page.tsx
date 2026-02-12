@@ -5,6 +5,15 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Terms of Service',
   description: 'Terms of Service for ASAGUS - Read our terms and conditions for using our services.',
+  alternates: {
+    canonical: '/terms',
+  },
+  openGraph: {
+    title: 'Terms of Service - ASAGUS',
+    description: 'Terms of Service for ASAGUS - Read our terms and conditions for using our services.',
+    url: 'https://asagus.com/terms',
+    type: 'website',
+  },
 }
 
 export default function TermsOfService() {

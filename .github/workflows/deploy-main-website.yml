@@ -86,5 +86,5 @@ jobs:
           app-name: 'asagus-main'
           publish-profile: ${{ secrets.AZURE_MAIN_PUBLISH_PROFILE }}
           package: .next/standalone
-        # Note: Azure will create node_modules.tar.gz and oryx-manifest.toml during deployment.
-        # Our startup.sh will extract the tar.gz to a real directory and clean up artifacts.
+          startup-command: 'bash startup.sh'
+        # Note: startup.sh will install dependencies at runtime and start the Next.js server

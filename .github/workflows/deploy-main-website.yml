@@ -72,11 +72,14 @@ jobs:
           # Dereference pnpm symlinks in standalone node_modules.
           # pnpm uses symlinks which break when Oryx tar.gz's and extracts them on Azure.
           if [ -d .next/standalone/node_modules ]; then
-            echo "Dereferencing pnpm symlinks in node_modules..."
-            cp -rL .next/standalone/node_modules .next/standalone/node_modules_real
+            echo "Dereferencing pnpm symlinks in node_modules (rsync -aL)..."
+            # rsync -aL will recursively copy and follow symlinks so top-level
+            # packages become real directories instead of symlinks to .pnpm
+            mkdir -p .next/standalone/node_modules_deref
+            rsync -aL .next/standalone/node_modules/ .next/standalone/node_modules_deref/
             rm -rf .next/standalone/node_modules
-            mv .next/standalone/node_modules_real .next/standalone/node_modules
-            echo "Symlinks dereferenced successfully"
+            mv .next/standalone/node_modules_deref .next/standalone/node_modules
+            echo "Symlinks dereferenced successfully (rsync)"
           fi
 
           # If next is missing from standalone (pnpm tracing issue), install with npm

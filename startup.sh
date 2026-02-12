@@ -45,6 +45,9 @@ fi
 if [ ! -f node_modules/styled-jsx/package.json ]; then
     echo "[startup] ERROR: styled-jsx module not found after install!"
     ls -la node_modules/ | head -20
+    exit 1
+fi
+
 export PORT="${PORT:-8080}"
 
 echo "[startup] Starting Next.js server on ${HOSTNAME}:${PORT}..."

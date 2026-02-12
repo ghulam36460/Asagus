@@ -65,14 +65,30 @@ jobs:
           cp -r .next/static .next/standalone/.next/static
           cp -r public .next/standalone/public
 
-      - name: Create deployment zip
-        run: |
+          # pnpm uses symlinks in node_modules — resolve them for deployment
+          # by copying real files over symlinks
           cd .next/standalone
-          zip -r ../../deploy.zip . -x "*.git*"
+          if [ -d node_modules ]; then
+            find node_modules -type l | while read link; do
+              target=$(readlink -f "$link")
+              rm "$link"
+              if [ -d "$target" ]; then
+                cp -r "$target" "$link"
+              elif [ -f "$target" ]; then
+                cp "$target" "$link"
+              fi
+            done
+          fi
+
+          # Verify the build output
+          echo "=== Standalone directory contents ==="
+          ls -la
+          echo "=== Checking for next module ==="
+          ls node_modules/next/package.json && echo "OK: next module found" || echo "ERROR: next module missing!"
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'asagus-main'
           publish-profile: ${{ secrets.AZURE_MAIN_PUBLISH_PROFILE }}
-          package: deploy.zip
+          package: .next/standalone

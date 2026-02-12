@@ -69,27 +69,32 @@ jobs:
           cp startup.sh .next/standalone/startup.sh
           chmod +x .next/standalone/startup.sh
           
-          # Next.js standalone traces and bundles its own node_modules.
-          # Do NOT overwrite with the full pnpm node_modules (symlinks break on deploy).
-          # Only install production deps if standalone node_modules is missing critical packages.
-          echo "=== Standalone directory contents ==="
-          ls -la .next/standalone/
-          echo "=== Checking standalone node_modules ==="
+          # Dereference pnpm symlinks in standalone node_modules.
+          # pnpm uses symlinks which break when Oryx tar.gz's and extracts them on Azure.
           if [ -d .next/standalone/node_modules ]; then
-            echo "Standalone node_modules exists"
-            ls .next/standalone/node_modules/ | head -20
-          else
-            echo "WARNING: No node_modules in standalone output"
+            echo "Dereferencing pnpm symlinks in node_modules..."
+            cp -rL .next/standalone/node_modules .next/standalone/node_modules_real
+            rm -rf .next/standalone/node_modules
+            mv .next/standalone/node_modules_real .next/standalone/node_modules
+            echo "Symlinks dereferenced successfully"
           fi
-          echo "=== Checking for next module ==="
-          ls .next/standalone/node_modules/next/package.json 2>/dev/null && echo "OK: next module found" || echo "WARNING: next module missing in standalone, copying..."
-          # If next is missing from standalone (pnpm issue), copy only the next package
+
+          # If next is missing from standalone (pnpm tracing issue), install with npm
           if [ ! -f .next/standalone/node_modules/next/package.json ]; then
-            echo "Installing production dependencies in standalone..."
+            echo "next module missing, installing production dependencies..."
             cd .next/standalone
             npm install --production --no-package-lock 2>/dev/null || true
             cd ../..
           fi
+
+          # Verify the build output
+          echo "=== Standalone directory contents ==="
+          ls -la .next/standalone/
+          echo "=== node_modules contents ==="
+          ls .next/standalone/node_modules/ | head -20
+          echo "=== Verify next is a real directory (not symlink) ==="
+          file .next/standalone/node_modules/next
+          ls .next/standalone/node_modules/next/package.json && echo "OK: next module found"
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3

@@ -65,21 +65,30 @@ jobs:
           cp -r .next/static .next/standalone/.next/static
           cp -r public .next/standalone/public
           
-          # Copy node_modules into standalone (required for Next.js standalone with pnpm)
-          echo "Copying node_modules to standalone..."
-          cp -r node_modules .next/standalone/
-
-          # Verify the build output
+          # Copy startup script
+          cp startup.sh .next/standalone/startup.sh
+          chmod +x .next/standalone/startup.sh
+          
+          # Next.js standalone traces and bundles its own node_modules.
+          # Do NOT overwrite with the full pnpm node_modules (symlinks break on deploy).
+          # Only install production deps if standalone node_modules is missing critical packages.
           echo "=== Standalone directory contents ==="
           ls -la .next/standalone/
-          echo "=== Is node_modules present? ==="
-          [ -d .next/standalone/node_modules ] && echo "YES - node_modules exists" || echo "NO - node_modules missing!"
-          
+          echo "=== Checking standalone node_modules ==="
           if [ -d .next/standalone/node_modules ]; then
-            echo "=== node_modules top-level packages ==="
+            echo "Standalone node_modules exists"
             ls .next/standalone/node_modules/ | head -20
-            echo "=== Checking for next module ==="
-            ls .next/standalone/node_modules/next/package.json && echo "OK: next module found" || echo "ERROR: next module missing!"
+          else
+            echo "WARNING: No node_modules in standalone output"
+          fi
+          echo "=== Checking for next module ==="
+          ls .next/standalone/node_modules/next/package.json 2>/dev/null && echo "OK: next module found" || echo "WARNING: next module missing in standalone, copying..."
+          # If next is missing from standalone (pnpm issue), copy only the next package
+          if [ ! -f .next/standalone/node_modules/next/package.json ]; then
+            echo "Installing production dependencies in standalone..."
+            cd .next/standalone
+            npm install --production --no-package-lock 2>/dev/null || true
+            cd ../..
           fi
 
       - name: Deploy to Azure Web App
@@ -88,3 +97,4 @@ jobs:
           app-name: 'asagus-main'
           publish-profile: ${{ secrets.AZURE_MAIN_PUBLISH_PROFILE }}
           package: .next/standalone
+          startup-command: 'HOSTNAME=0.0.0.0 node server.js'

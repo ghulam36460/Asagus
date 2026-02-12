@@ -70,28 +70,15 @@ jobs:
           cp startup.sh .next/standalone/startup.sh
           chmod +x .next/standalone/startup.sh
           
-          # Copy package.json to standalone (needed for npm install)
+          # Copy package.json to standalone (needed for runtime npm install)
           cp package.json .next/standalone/package.json
           
-          # DELETE the incomplete pnpm node_modules created by Next.js standalone
-          # (only has 4 packages, missing styled-jsx and others)
-          echo "Removing incomplete pnpm node_modules..."
+          # DELETE node_modules entirely - we'll install at runtime to avoid Azure tar.gz issues
+          echo "Removing node_modules (will install at runtime on Azure)..."
           rm -rf .next/standalone/node_modules
-          
-          # Install ALL production dependencies using npm (avoids pnpm symlinks and tracing issues)
-          echo "Installing complete production dependencies with npm..."
-          cd .next/standalone
-          npm install --production --no-package-lock --ignore-scripts --legacy-peer-deps
-          cd ../..
           
           echo "=== Standalone directory contents ==="
           ls -la .next/standalone/
-          echo "=== node_modules package count ==="
-          ls .next/standalone/node_modules/ | wc -l
-          echo "=== Verify critical modules ==="
-          ls .next/standalone/node_modules/next/package.json && echo "✓ next"
-          ls .next/standalone/node_modules/styled-jsx/package.json && echo "✓ styled-jsx"
-          ls .next/standalone/node_modules/react/package.json && echo "✓ react"
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3

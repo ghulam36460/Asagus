@@ -3,49 +3,48 @@ set -e
 
 cd /home/site/wwwroot
 
+echo "[startup] Starting deployment script..."
+
 # ============================================================
-# HANDLE ORYX NODE_MODULES TAR.GZ
-# If Azure created node_modules.tar.gz during deployment:
-#   - node_modules directory was deleted by Azure
-#   - tar.gz exists and needs to be extracted to restore modules
-# With WEBSITE_RUN_FROM_PACKAGE=0, Oryx should not interfere,
-# so we extract to a real directory ourselves.
+# INSTALL DEPENDENCIES AT RUNTIME (ONCE)
+# This completely bypasses Azure/Oryx's tar.gz behavior.
+# We install with npm (no symlinks) and cache the result.
 # ============================================================
 
-if [ -f node_modules.tar.gz ] && [ ! -d node_modules ]; then
-    echo "[startup] Found node_modules.tar.gz but no node_modules dir, extracting..."
-    mkdir -p node_modules
-    tar -xzf node_modules.tar.gz -C node_modules
-    echo "[startup] Extracted node_modules from tar.gz"
-    # Clean up artifacts
-    rm -f node_modules.tar.gz oryx-manifest.toml
-fi
+# Remove any Oryx artifacts
+rm -f node_modules.tar.gz oryx-manifest.toml 2>/dev/null || true
 
-# If Oryx already ran and created a symlink (shouldn't happen with RUN_FROM_PACKAGE=0 but just in case)
+# If Oryx created a symlink, remove it
 if [ -L node_modules ]; then
-    echo "[startup] Detected Oryx symlink, removing and extracting tar.gz..."
+    echo "[startup] Removing Oryx symlink..."
     rm -f node_modules
-    if [ -f node_modules.tar.gz ]; then
-        mkdir -p node_modules
-        tar -xzf node_modules.tar.gz -C node_modules
-        rm -f node_modules.tar.gz oryx-manifest.toml
-    elif [ -d _del_node_modules ]; then
-        mv _del_node_modules node_modules
-    fi
 fi
 
-# Verify critical module exists
+# Install dependencies if not already installed (or if incomplete)
+if [ ! -f node_modules/next/package.json ] || [ ! -f node_modules/styled-jsx/package.json ]; then
+    echo "[startup] Installing production dependencies with npm (this may take 2-3 minutes on first run)..."
+    
+  # Remove incomplete node_modules
+    rm -rf node_modules _del_node_modules
+    
+    # Install with npm (no symlinks, unlike pnpm)
+    npm install --production --no-package-lock --ignore-scripts --legacy-peer-deps 
+    
+    echo "[startup] ✓ Dependencies installed"
+else
+    echo "[startup] ✓ Dependencies already installed ($(ls node_modules | wc -l) packages)"
+fi
+
+# Verify critical modules exist
 if [ ! -f node_modules/next/package.json ]; then
-    echo "[startup] ERROR: node_modules/next/package.json not found!"
-    echo "[startup] Listing wwwroot contents:"
-    ls -la /home/site/wwwroot/
-    echo "[startup] Listing node_modules (if exists):"
-    ls -la node_modules/ 2>/dev/null | head -20 || echo "node_modules does not exist"
+    echo "[startup] ERROR: next module not found after install!"
+    ls -la node_modules/ | head -20
     exit 1
 fi
 
-# Ensure Next.js listens on all interfaces (required for Azure App Service)
-export HOSTNAME="0.0.0.0"
+if [ ! -f node_modules/styled-jsx/package.json ]; then
+    echo "[startup] ERROR: styled-jsx module not found after install!"
+    ls -la node_modules/ | head -20
 export PORT="${PORT:-8080}"
 
 echo "[startup] Starting Next.js server on ${HOSTNAME}:${PORT}..."

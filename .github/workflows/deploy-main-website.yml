@@ -86,5 +86,5 @@ jobs:
           app-name: 'asagus-main'
           publish-profile: ${{ secrets.AZURE_MAIN_PUBLISH_PROFILE }}
           package: .next/standalone
-          startup-command: 'bash startup.sh'
-        # Note: startup.sh will install dependencies at runtime and start the Next.js server
+        # Note: Startup command must be configured in Azure Portal under Configuration > General Settings
+        # Set: bash startup.sh

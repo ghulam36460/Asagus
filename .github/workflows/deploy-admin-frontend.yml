@@ -50,4 +50,5 @@ jobs:
           app-name: 'asagus-admin'
           publish-profile: ${{ secrets.AZURE_ADMIN_PUBLISH_PROFILE }}
           package: ./admin-panel/frontend/.next/standalone
-          startup-command: 'node server.js'
+        # Note: Startup command must be configured in Azure Portal under Configuration > General Settings
+        # Set: node server.js

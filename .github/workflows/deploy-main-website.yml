@@ -62,6 +62,7 @@ jobs:
         run: |
           cp -r .next/static .next/standalone/.next/static
           cp -r public .next/standalone/public
+          cp startup.sh .next/standalone/startup.sh
 
       - name: Create deployment zip
         run: |

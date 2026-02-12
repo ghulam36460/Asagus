@@ -61,34 +61,25 @@ jobs:
 
       - name: Prepare standalone package
         run: |
-          # Copy static assets and public files into standalone
-          cp -r .next/static .next/standalone/.next/static
-          cp -r public .next/standalone/public
+          # Copy standalone output with all symlinks dereferenced (resolved to real files)
+          # This is critical for pnpm which uses symlinks in node_modules
+          cp -rL .next/standalone deploy-package
 
-          # pnpm uses symlinks in node_modules — resolve them for deployment
-          # by copying real files over symlinks
-          cd .next/standalone
-          if [ -d node_modules ]; then
-            find node_modules -type l | while read link; do
-              target=$(readlink -f "$link")
-              rm "$link"
-              if [ -d "$target" ]; then
-                cp -r "$target" "$link"
-              elif [ -f "$target" ]; then
-                cp "$target" "$link"
-              fi
-            done
-          fi
+          # Copy static assets and public files
+          cp -r .next/static deploy-package/.next/static
+          cp -r public deploy-package/public
 
           # Verify the build output
-          echo "=== Standalone directory contents ==="
-          ls -la
+          echo "=== Deploy package contents ==="
+          ls -la deploy-package/
+          echo "=== node_modules top-level ==="
+          ls deploy-package/node_modules/ | head -20
           echo "=== Checking for next module ==="
-          ls node_modules/next/package.json && echo "OK: next module found" || echo "ERROR: next module missing!"
+          ls deploy-package/node_modules/next/package.json && echo "OK: next module found" || echo "ERROR: next module missing!"
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'asagus-main'
           publish-profile: ${{ secrets.AZURE_MAIN_PUBLISH_PROFILE }}
-          package: .next/standalone
+          package: deploy-package

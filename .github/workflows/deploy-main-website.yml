@@ -70,43 +70,23 @@ jobs:
           cp startup.sh .next/standalone/startup.sh
           chmod +x .next/standalone/startup.sh
           
-          # Dereference pnpm symlinks in standalone node_modules.
-          # pnpm uses symlinks which break when Oryx tar.gz's and extracts them on Azure.
-          if [ -d .next/standalone/node_modules ]; then
-            echo "Dereferencing pnpm symlinks in node_modules (rsync -aL)..."
-            mkdir -p .next/standalone/node_modules_deref
-            # Exclude .pnpm dir (contains broken internal symlinks, will be deleted anyway)
-            rsync -aL --exclude='.pnpm' .next/standalone/node_modules/ .next/standalone/node_modules_deref/
-            rm -rf .next/standalone/node_modules
-            mv .next/standalone/node_modules_deref .next/standalone/node_modules
-            
-            # Remove the .pnpm store directory (no longer needed after dereference)
-            rm -rf .next/standalone/node_modules/.pnpm
-            echo "Symlinks dereferenced and .pnpm cleaned"
-          fi
-
-          # If next is missing from standalone (pnpm tracing issue), install with npm
-          if [ ! -f .next/standalone/node_modules/next/package.json ]; then
-            echo "next module missing, installing production dependencies..."
-            cd .next/standalone
-            npm install --production --no-package-lock 2>/dev/null || true
-            cd ../..
-          fi
-
-          # Verify no symlinks remain in top-level node_modules
-          echo "=== Checking for remaining symlinks ==="
-          find .next/standalone/node_modules -maxdepth 1 -type l 2>/dev/null && echo "WARNING: symlinks found!" || echo "OK: no symlinks"
+          # Copy package.json to standalone (needed for npm install)
+          cp package.json .next/standalone/package.json
           
-          # Verify the build output
+          # Install ALL production dependencies using npm (avoids pnpm symlinks)
+          echo "Installing production dependencies with npm..."
+          cd .next/standalone
+          npm install --production --no-package-lock --ignore-scripts
+          cd ../..
+          
           echo "=== Standalone directory contents ==="
           ls -la .next/standalone/
-          echo "=== Top-level node_modules ==="
-          ls .next/standalone/node_modules/ | head -20
-          echo "=== Verify next module ==="
-          file .next/standalone/node_modules/next
-          ls .next/standalone/node_modules/next/package.json && echo "OK: next module found"
-          echo "=== node_modules size ==="
-          du -sh .next/standalone/node_modules
+          echo "=== node_modules package count ==="
+          ls .next/standalone/node_modules/ | wc -l
+          echo "=== Verify critical modules ==="
+          ls .next/standalone/node_modules/next/package.json && echo "✓ next"
+          ls .next/standalone/node_modules/styled-jsx/package.json && echo "✓ styled-jsx"
+          ls .next/standalone/node_modules/react/package.json && echo "✓ react"
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3

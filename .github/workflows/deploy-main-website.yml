@@ -14,6 +14,7 @@ on:
       - 'next.config.ts'
       - 'tailwind.config.js'
       - 'tsconfig.json'
+      - 'startup.sh'
       - '.github/workflows/deploy-main-website.yml'
   workflow_dispatch:
 
@@ -73,13 +74,14 @@ jobs:
           # pnpm uses symlinks which break when Oryx tar.gz's and extracts them on Azure.
           if [ -d .next/standalone/node_modules ]; then
             echo "Dereferencing pnpm symlinks in node_modules (rsync -aL)..."
-            # rsync -aL will recursively copy and follow symlinks so top-level
-            # packages become real directories instead of symlinks to .pnpm
             mkdir -p .next/standalone/node_modules_deref
             rsync -aL .next/standalone/node_modules/ .next/standalone/node_modules_deref/
             rm -rf .next/standalone/node_modules
             mv .next/standalone/node_modules_deref .next/standalone/node_modules
-            echo "Symlinks dereferenced successfully (rsync)"
+            
+            # Remove the .pnpm store directory (no longer needed after dereference)
+            rm -rf .next/standalone/node_modules/.pnpm
+            echo "Symlinks dereferenced and .pnpm cleaned"
           fi
 
           # If next is missing from standalone (pnpm tracing issue), install with npm
@@ -90,14 +92,20 @@ jobs:
             cd ../..
           fi
 
+          # Verify no symlinks remain in top-level node_modules
+          echo "=== Checking for remaining symlinks ==="
+          find .next/standalone/node_modules -maxdepth 1 -type l 2>/dev/null && echo "WARNING: symlinks found!" || echo "OK: no symlinks"
+          
           # Verify the build output
           echo "=== Standalone directory contents ==="
           ls -la .next/standalone/
-          echo "=== node_modules contents ==="
+          echo "=== Top-level node_modules ==="
           ls .next/standalone/node_modules/ | head -20
-          echo "=== Verify next is a real directory (not symlink) ==="
+          echo "=== Verify next module ==="
           file .next/standalone/node_modules/next
           ls .next/standalone/node_modules/next/package.json && echo "OK: next module found"
+          echo "=== node_modules size ==="
+          du -sh .next/standalone/node_modules
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
@@ -105,3 +113,48 @@ jobs:
           app-name: 'asagus-main'
           publish-profile: ${{ secrets.AZURE_MAIN_PUBLISH_PROFILE }}
           package: .next/standalone
+
+      - name: Post-deploy cleanup (remove Oryx artifacts)
+        run: |
+          # Extract SCM credentials from publish profile
+          PUBLISH_PROFILE='${{ secrets.AZURE_MAIN_PUBLISH_PROFILE }}'
+          SCM_USER=$(echo "$PUBLISH_PROFILE" | grep -oP 'userName="\$[^"]*"' | head -1 | sed 's/userName="//;s/"//')
+          SCM_PASS=$(echo "$PUBLISH_PROFILE" | grep -oP 'userPWD="[^"]*"' | head -1 | sed 's/userPWD="//;s/"//')
+          
+          echo "Cleaning up Oryx artifacts via Kudu API..."
+          
+          # Delete node_modules.tar.gz (Oryx creates this and breaks pnpm modules)
+          curl -s -X DELETE \
+            -u "${SCM_USER}:${SCM_PASS}" \
+            -H "If-Match: *" \
+            "https://asagus-main.scm.azurewebsites.net/api/vfs/site/wwwroot/node_modules.tar.gz" \
+            -w "tar.gz delete: HTTP %{http_code}\n" -o /dev/null || true
+          
+          # Delete oryx-manifest.toml (prevents Oryx startup wrapper from extracting tar.gz)
+          curl -s -X DELETE \
+            -u "${SCM_USER}:${SCM_PASS}" \
+            -H "If-Match: *" \
+            "https://asagus-main.scm.azurewebsites.net/api/vfs/site/wwwroot/oryx-manifest.toml" \
+            -w "manifest delete: HTTP %{http_code}\n" -o /dev/null || true
+            
+          # Delete _del_node_modules leftover from Oryx
+          curl -s -X DELETE \
+            -u "${SCM_USER}:${SCM_PASS}" \
+            -H "If-Match: *" \
+            "https://asagus-main.scm.azurewebsites.net/api/vfs/site/wwwroot/_del_node_modules/?recursive=true" \
+            -w "_del cleanup: HTTP %{http_code}\n" -o /dev/null || true
+          
+          echo "Post-deploy cleanup complete"
+
+      - name: Restart App Service
+        run: |
+          PUBLISH_PROFILE='${{ secrets.AZURE_MAIN_PUBLISH_PROFILE }}'
+          SCM_USER=$(echo "$PUBLISH_PROFILE" | grep -oP 'userName="\$[^"]*"' | head -1 | sed 's/userName="//;s/"//')
+          SCM_PASS=$(echo "$PUBLISH_PROFILE" | grep -oP 'userPWD="[^"]*"' | head -1 | sed 's/userPWD="//;s/"//')
+          
+          echo "Restarting app service..."
+          curl -s -X POST \
+            -u "${SCM_USER}:${SCM_PASS}" \
+            "https://asagus-main.scm.azurewebsites.net/api/restart" \
+            -w "Restart: HTTP %{http_code}\n" -o /dev/null || true
+          echo "Restart triggered"

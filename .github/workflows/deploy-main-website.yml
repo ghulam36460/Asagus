@@ -73,10 +73,15 @@ jobs:
           # Copy package.json to standalone (needed for npm install)
           cp package.json .next/standalone/package.json
           
-          # Install ALL production dependencies using npm (avoids pnpm symlinks)
-          echo "Installing production dependencies with npm..."
+          # DELETE the incomplete pnpm node_modules created by Next.js standalone
+          # (only has 4 packages, missing styled-jsx and others)
+          echo "Removing incomplete pnpm node_modules..."
+          rm -rf .next/standalone/node_modules
+          
+          # Install ALL production dependencies using npm (avoids pnpm symlinks and tracing issues)
+          echo "Installing complete production dependencies with npm..."
           cd .next/standalone
-          npm install --production --no-package-lock --ignore-scripts
+          npm install --production --no-package-lock --ignore-scripts --legacy-peer-deps
           cd ../..
           
           echo "=== Standalone directory contents ==="

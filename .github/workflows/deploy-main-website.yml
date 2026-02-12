@@ -64,6 +64,10 @@ jobs:
           # Copy static assets and public files into standalone
           cp -r .next/static .next/standalone/.next/static
           cp -r public .next/standalone/public
+          
+          # Copy node_modules into standalone (required for Next.js standalone with pnpm)
+          echo "Copying node_modules to standalone..."
+          cp -r node_modules .next/standalone/
 
           # Verify the build output
           echo "=== Standalone directory contents ==="

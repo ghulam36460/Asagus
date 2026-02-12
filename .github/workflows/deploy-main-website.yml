@@ -97,4 +97,3 @@ jobs:
           app-name: 'asagus-main'
           publish-profile: ${{ secrets.AZURE_MAIN_PUBLISH_PROFILE }}
           package: .next/standalone
-          startup-command: 'HOSTNAME=0.0.0.0 node server.js'

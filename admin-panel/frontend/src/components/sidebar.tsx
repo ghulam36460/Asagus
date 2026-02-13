@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   FolderKanban,
@@ -17,18 +16,18 @@ import {
   LogOut,
   ChevronLeft,
   Menu,
-  X,
+  FileText,
+  Search as SearchIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Projects", href: "/dashboard/projects", icon: FolderKanban },
   { name: "Services", href: "/dashboard/services", icon: Briefcase },
   { name: "Team", href: "/dashboard/team", icon: Users },
-  { name: "Blog", href: "/dashboard/blog", icon: MessageSquareQuote },
-  { name: "Research", href: "/dashboard/research", icon: FolderKanban },
+  { name: "Blog", href: "/dashboard/blog", icon: FileText },
+  { name: "Research", href: "/dashboard/research", icon: SearchIcon },
   { name: "Testimonials", href: "/dashboard/testimonials", icon: MessageSquareQuote },
   { name: "FAQs", href: "/dashboard/faqs", icon: HelpCircle },
   { name: "Contacts", href: "/dashboard/contacts", icon: Mail },
@@ -43,33 +42,64 @@ function SidebarContent({ collapsed = false, onNavigate }: { collapsed?: boolean
   const pathname = usePathname();
 
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Navigation */}
-      <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto" style={{ maxHeight: "calc(100vh - 8rem)" }}>
-        {navigation.map((item) => {
-          const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              onClick={onNavigate}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
-                isActive
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                  : "text-slate-300 hover:bg-white/10 hover:text-white"
-              )}
-              title={collapsed ? item.name : undefined}
-            >
-              <item.icon size={20} />
-              {!collapsed && <span>{item.name}</span>}
-            </Link>
-          );
-        })}
+      <nav style={{ 
+        flex: 1, 
+        padding: collapsed ? '16px 8px' : '16px 12px', 
+        overflowY: 'auto',
+        overflowX: 'hidden'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          {navigation.map((item) => {
+            const isActive = pathname === item.href || (item.href !== "/dashboard" &&  pathname.startsWith(item.href));
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                onClick={onNavigate}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: collapsed ? '0' : '12px',
+                  padding: collapsed ? '12px 8px' : '12px 16px',
+                  borderRadius: '10px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s',
+                  background: isActive ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                  color: isActive ? '#ffffff' : '#94a3b8',
+                  boxShadow: isActive ? '0 4px 12px rgba(102, 126, 234, 0.25)' : 'none',
+                  justifyContent: collapsed ? 'center' : 'flex-start',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                    e.currentTarget.style.color = '#ffffff';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = '#94a3b8';
+                  }
+                }}
+                title={collapsed ? item.name : undefined}
+              >
+                <item.icon size={20} style={{ flexShrink: 0 }} />
+                {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>{item.name}</span>}
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
       {/* Logout */}
-      <div className="p-2 border-t border-white/10">
+      <div style={{ 
+        padding: collapsed ? '12px 8px' : '12px',
+        borderTop: '1px solid rgba(255, 255, 255, 0.08)'
+      }}>
         <button
           onClick={() => {
             localStorage.removeItem("accessToken");
@@ -77,13 +107,34 @@ function SidebarContent({ collapsed = false, onNavigate }: { collapsed?: boolean
             localStorage.removeItem("user");
             window.location.href = "/login";
           }}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-red-500/20 hover:text-red-400 transition-all w-full"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: collapsed ? '0' : '12px',
+            padding: collapsed ? '12px 8px' : '12px 16px',
+            borderRadius: '10px',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#f87171',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            width: '100%',
+            transition: 'all 0.2s',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background =  'rgba(248, 113, 113, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+          }}
         >
-          <LogOut size={20} />
+          <LogOut size={20} style={{ flexShrink: 0 }} />
           {!collapsed && <span>Logout</span>}
         </button>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -93,44 +144,147 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile Sidebar - Sheet */}
-      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetTrigger asChild>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setMobileOpen(!mobileOpen)}
+        style={{
+          position: 'fixed',
+          top: '16px',
+          left: '16px',
+          zIndex: 60,
+          padding: '10px',
+          borderRadius: '10px',
+          background: '#1e293b',
+          color: '#ffffff',
+          border: 'none',
+          cursor: 'pointer',
+          display: mobileOpen ? 'none' : 'block',
+        }}
+        className="lg:hidden"
+      >
+        <Menu size={20} />
+      </button>
+
+      {/* Mobile Sidebar Overlay */}
+      {mobileOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 50,
+          }}
+          onClick={() => setMobileOpen(false)}
+          className="lg:hidden"
+        />
+      )}
+
+      {/* Mobile Sidebar */}
+      <aside
+        style={{
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: '280px',
+          background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)',
+          transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.3s',
+          zIndex: 55,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+        className="lg:hidden"
+      >
+        {/* Logo */}
+        <div style={{
+          height: '64px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 20px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+        }}>
+          <Link href="/dashboard" style={{ 
+            fontSize: '20px', 
+            fontWeight: '700', 
+            color: '#ffffff',
+            textDecoration: 'none',
+            letterSpacing: '1px'
+          }}>
+            ASAGUS
+          </Link>
           <button
-            className="fixed top-4 left-4 z-50 p-2 rounded-lg lg:hidden"
-            style={{ backgroundColor: "var(--sidebar-bg)", color: "var(--sidebar-fg)" }}
+            onClick={() => setMobileOpen(false)}
+            style={{
+              padding: '8px',
+              borderRadius: '8px',
+              background: 'transparent',
+              color: '#ffffff',
+              border: 'none',
+              cursor: 'pointer',
+            }}
           >
-            <Menu size={20} />
+            <ChevronLeft size={20} />
           </button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0" style={{ backgroundColor: "var(--sidebar-bg)", color: "var(--sidebar-fg)" }}>
-          <div className="flex h-16 items-center justify-between px-4 border-b border-white/10">
-            <Link href="/dashboard" className="text-xl font-bold text-white">
-              ASAGUS
-            </Link>
-          </div>
-          <SidebarContent onNavigate={() => setMobileOpen(false)} />
-        </SheetContent>
-      </Sheet>
+        </div>
+        <SidebarContent onNavigate={() => setMobileOpen(false)} />
+      </aside>
 
       {/* Desktop Sidebar */}
       <aside
-        className={cn(
-          "hidden lg:fixed left-0 top-0 z-40 h-screen transition-all duration-300",
-          collapsed ? "w-16" : "w-64"
-        )}
-        style={{ backgroundColor: "var(--sidebar-bg)", color: "var(--sidebar-fg)" }}
+        style={{
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: collapsed ? '80px' : '280px',
+          background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)',
+          transition: 'width 0.3s',
+          zIndex: 40,
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: '4px 0 24px rgba(0, 0, 0, 0.12)',
+        }}
+        className="hidden lg:flex"
       >
         {/* Logo */}
-        <div className="flex h-16 items-center justify-between px-4 border-b border-white/10">
+        <div style={{
+          height: '64px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: collapsed ? '0 16px' : '0 20px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+        }}>
           {!collapsed && (
-            <Link href="/dashboard" className="text-xl font-bold text-white">
+            <Link href="/dashboard" style={{ 
+              fontSize: '20px', 
+              fontWeight: '700', 
+              color: '#ffffff',
+              textDecoration: 'none',
+              letterSpacing: '1px'
+            }}>
               ASAGUS
             </Link>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors text-white"
+            style={{
+              padding: '8px',
+              borderRadius: '8px',
+              background: 'rgba(255, 255, 255, 0.05)',
+              color: '#ffffff',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'background 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+            }}
           >
             {collapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
           </button>

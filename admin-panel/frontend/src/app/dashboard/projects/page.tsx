@@ -70,6 +70,48 @@ export default function ProjectsPage() {
       setTotal(res.pagination.total);
     } catch (err) {
       console.error("Failed to fetch projects:", err);
+      // Mock data for development
+      setProjects([
+        {
+          id: "1",
+          title: "AI Cybersecurity Platform",
+          slug: "ai-cybersecurity-platform",
+          description: "Advanced AI-powered cybersecurity solution for enterprise protection",
+          shortDescription: "AI-powered cybersecurity platform",
+          category: "Cybersecurity",
+          tags: ["AI", "Security", "Enterprise"],
+          technologies: ["Python", "TensorFlow", "React"],
+          clientName: "TechCorp Inc.",
+          projectUrl: "https://example.com",
+          githubUrl: "https://github.com/example",
+          thumbnail: "/api/placeholder/400/300",
+          featured: true,
+          published: true,
+          viewCount: 1250,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: "2",
+          title: "E-commerce Platform",
+          slug: "ecommerce-platform",
+          description: "Full-stack e-commerce solution with payment integration",
+          shortDescription: "Modern e-commerce platform",
+          category: "Web Development",
+          tags: ["E-commerce", "Payment", "Full-stack"],
+          technologies: ["Next.js", "Stripe", "PostgreSQL"],
+          clientName: "ShopFlow Ltd.",
+          projectUrl: "https://shopflow.com",
+          githubUrl: "https://github.com/shopflow",
+          thumbnail: "/api/placeholder/400/300",
+          featured: false,
+          published: true,
+          viewCount: 890,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+      ]);
+      setTotal(2);
     } finally {
       setLoading(false);
     }

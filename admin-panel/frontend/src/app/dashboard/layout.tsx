@@ -20,19 +20,38 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (!ready) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "var(--background)" }}>
-        <div className="w-8 h-8 border-2 rounded-full animate-spin"
-          style={{ borderColor: "var(--primary)", borderTopColor: "transparent" }} />
+      <div style={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: '#0a0a0a'
+      }}>
+        <div style={{
+          width: '32px',
+          height: '32px',
+          border: '3px solid #667eea',
+          borderTopColor: 'transparent',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite'
+        }} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "var(--background)" }}>
+    <div style={{ 
+      minHeight: '100vh',
+      background: '#0a0a0a'
+    }}>
       <Sidebar />
-      <div className="lg:ml-64 transition-all duration-300">
+      <div className="lg:ml-[280px]" style={{
+        transition: 'margin-left 0.3s'
+      }}
+        className="lg:ml-[280px]"
+      >
         <Header />
-        <main className="p-4 md:p-6">{children}</main>
+        <main style={{ padding: '24px' }}>{children}</main>
       </div>
     </div>
   );

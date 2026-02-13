@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import type { ProjectRecord } from '@/lib/projects-api'
 
@@ -62,44 +63,10 @@ export function PortfolioFilter({ initialProjects }: PortfolioFilterProps) {
           paddingRight: '24px',
         }}
       >
-        {/* Header */}
-        <header style={{ textAlign: 'center', marginBottom: '64px' }}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1
-              style={{
-                fontSize: '56px',
-                fontWeight: '800',
-                marginBottom: '16px',
-                lineHeight: '1.1',
-                letterSpacing: '-0.02em',
-              }}
-              className="text-black dark:text-white"
-            >
-              Projects
-            </h1>
-            <p
-              style={{
-                fontSize: '20px',
-                maxWidth: '640px',
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                lineHeight: '1.6',
-              }}
-              className="text-black/60 dark:text-white/60"
-            >
-              Discover our portfolio of innovative digital solutions
-            </p>
-          </motion.div>
-        </header>
-
         {/* Filters */}
-        <div style={{ marginBottom: '48px' }}>
+        <div style={{ marginBottom: '48px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           {/* Search */}
-          <div style={{ marginBottom: '24px', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
+          <div style={{ marginBottom: '20px', maxWidth: '760px', width: '100%', marginLeft: 'auto', marginRight: 'auto' }}>
             <input
               type="text"
               placeholder="Search by title, description, or technology..."
@@ -107,13 +74,16 @@ export function PortfolioFilter({ initialProjects }: PortfolioFilterProps) {
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
                 width: '100%',
-                padding: '14px 20px',
-                fontSize: '16px',
-                borderRadius: '12px',
-                border: '1px solid',
+                padding: '16px 24px',
+                fontSize: '18px',
+                borderRadius: '14px',
+                border: '1px solid rgba(255,255,255,0.06)',
                 outline: 'none',
+                boxShadow: '0 6px 24px rgba(2,6,23,0.45)',
+                background: 'rgba(255,255,255,0.02)',
+                color: 'inherit',
               }}
-              className="border-black/20 bg-white text-black placeholder:text-black/40 dark:border-white/20 dark:bg-black dark:text-white dark:placeholder:text-white/40"
+              className="placeholder:text-black/40 dark:placeholder:text-white/40"
             />
           </div>
 
@@ -125,6 +95,7 @@ export function PortfolioFilter({ initialProjects }: PortfolioFilterProps) {
               gap: '12px',
               marginBottom: '16px',
               justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
             {/* Featured Toggle */}
@@ -132,18 +103,20 @@ export function PortfolioFilter({ initialProjects }: PortfolioFilterProps) {
               type="button"
               onClick={() => setShowFeaturedOnly(!showFeaturedOnly)}
               style={{
-                padding: '10px 20px',
+                padding: '10px 18px',
                 fontSize: '14px',
-                fontWeight: '500',
+                fontWeight: 600,
                 borderRadius: '9999px',
                 cursor: 'pointer',
-                transition: 'all 0.2s',
-                border: 'none',
+                transition: 'all 0.18s',
+                border: '1px solid rgba(255,255,255,0.04)',
+                boxShadow: showFeaturedOnly ? '0 6px 18px rgba(37,99,235,0.14)' : 'none',
+                background: showFeaturedOnly ? '#2563eb' : 'rgba(255,255,255,0.03)'
               }}
               className={
                 showFeaturedOnly
-                  ? 'bg-blue-600 text-white dark:bg-blue-500'
-                  : 'bg-black/10 text-black/70 hover:bg-black/15 dark:bg-white/10 dark:text-white/70 dark:hover:bg-white/15'
+                  ? 'text-white'
+                  : 'text-black/80 dark:text-white/80'
               }
             >
               ⭐ Featured
@@ -156,18 +129,19 @@ export function PortfolioFilter({ initialProjects }: PortfolioFilterProps) {
                 type="button"
                 onClick={() => setSelectedCategory(cat)}
                 style={{
-                  padding: '10px 20px',
-                  fontSize: '14px',
-                  fontWeight: '500',
+                  padding: '8px 16px',
+                  fontSize: '13px',
+                  fontWeight: 600,
                   borderRadius: '9999px',
                   cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  border: 'none',
+                  transition: 'all 0.15s',
+                  border: selectedCategory === cat ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.04)',
+                  background: selectedCategory === cat ? 'rgba(255,255,255,0.06)' : 'transparent'
                 }}
                 className={
                   selectedCategory === cat
-                    ? 'bg-black text-white dark:bg-white dark:text-black'
-                    : 'bg-black/10 text-black/70 hover:bg-black/15 dark:bg-white/10 dark:text-white/70 dark:hover:bg-white/15'
+                    ? 'text-white'
+                    : 'text-black/70 dark:text-white/70'
                 }
               >
                 {cat}
@@ -178,7 +152,7 @@ export function PortfolioFilter({ initialProjects }: PortfolioFilterProps) {
           {/* Results Count */}
           {(searchQuery || selectedCategory !== 'All' || showFeaturedOnly) && (
             <p
-              style={{ fontSize: '14px', textAlign: 'center' }}
+              style={{ fontSize: '14px' }}
               className="text-black/50 dark:text-white/50"
             >
               Showing {filteredProjects.length} of {initialProjects.length} projects
@@ -260,7 +234,7 @@ export function PortfolioFilter({ initialProjects }: PortfolioFilterProps) {
 // Project Card Component
 function ProjectCard({ project, index }: { project: ProjectRecord; index: number }) {
   const image = project.heroImage || project.galleryImages?.[0] || ''
-  const year = project.year || new Date(project.createdAt || Date.now()).getFullYear()
+  const year = project.year ?? (project.createdAt ? new Date(project.createdAt).getFullYear() : undefined)
 
   return (
     <motion.article
@@ -299,20 +273,15 @@ function ProjectCard({ project, index }: { project: ProjectRecord; index: number
             className="bg-black/5 dark:bg-white/5"
           >
             {image ? (
-              <img
+              <Image
                 src={image}
                 alt={project.title}
+                fill
                 style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
                   objectFit: 'cover',
                   transition: 'transform 0.5s',
                 }}
                 className="project-card-image"
-                loading="lazy"
               />
             ) : (
               <div

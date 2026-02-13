@@ -24,16 +24,42 @@ export function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 h-16 border-b flex items-center justify-between px-4 md:px-6 lg:pl-6"
-      style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}>
+    <header style={{
+      position: 'sticky',
+      top: 0,
+      zIndex: 30,
+      height: '64px',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '0 24px',
+      background: '#000000',
+      backdropFilter: 'blur(10px)'
+    }}>
       {/* Search - Hidden on mobile, shown on tablet+ */}
-      <div className="hidden md:flex items-center gap-2 max-w-md flex-1 lg:ml-0 ml-12">
-        <Search size={18} style={{ color: "var(--muted-foreground)" }} />
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        maxWidth: '480px',
+        flex: 1,
+        marginLeft: 0
+      }}
+        className="hidden md:flex lg:ml-0 ml-12"
+      >
+        <Search size={18} style={{ color: '#64748b' }} />
         <input
           type="text"
           placeholder="Search..."
-          className="bg-transparent border-none outline-none text-sm flex-1"
-          style={{ color: "var(--foreground)" }}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            outline: 'none',
+            fontSize: '14px',
+            flex: 1,
+            color: '#ffffff'
+          }}
         />
       </div>
 
@@ -41,26 +67,65 @@ export function Header() {
       <div className="md:hidden flex-1 ml-12"></div>
 
       {/* Right side */}
-      <div className="flex items-center gap-2 md:gap-4">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         {/* Notifications */}
-        <button className="relative p-2 rounded-lg hover:bg-black/5 transition-colors">
-          <Bell size={20} style={{ color: "var(--muted-foreground)" }} />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+        <button style={{
+          position: 'relative',
+          padding: '10px',
+          borderRadius: '10px',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          transition: 'background 0.2s'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'transparent';
+        }}
+        >
+          <Bell size={20} style={{ color: '#64748b' }} />
+          <span style={{
+            position: 'absolute',
+            top: '8px',
+            right: '8px',
+            width: '8px',
+            height: '8px',
+            background: '#ef4444',
+            borderRadius: '50%'
+          }}></span>
         </button>
 
         {/* User menu */}
-        <div className="flex items-center gap-2 md:gap-3">
-          <div className="text-right hidden sm:block">
-            <p className="text-sm font-medium" style={{ color: "var(--foreground)" }}>
-              {user?.name || "Admin"}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ textAlign: 'right' }} className="hidden sm:block">
+            <p style={{ 
+              fontSize: '14px', 
+              fontWeight: '600',
+              color: '#ffffff',
+              marginBottom: '2px'
+            }}>
+              {user?.name || "Super Admin"}
             </p>
-            <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-              {user?.roles?.[0]?.replace("_", " ") || "User"}
+            <p style={{ 
+              fontSize: '12px',
+              color: '#64748b'
+            }}>
+              {user?.roles?.[0]?.replace("_", " ") || "super admin"}
             </p>
           </div>
-          <div className="w-9 h-9 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: "var(--primary)", color: "var(--primary-foreground)" }}>
-            <User size={18} />
+          <div style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: '#ffffff'
+          }}>
+            <User size={20} />
           </div>
         </div>
       </div>

@@ -44,7 +44,15 @@ router.get("/", async (req, res) => {
     const [projects, total] = await Promise.all([
       prisma.project.findMany({
         where: where as any,
-        include: { metrics: true, testimonial: true },
+        include: { 
+          metrics: true, 
+          testimonial: true,
+          projectTechnologies: {
+            include: {
+              technology: true
+            }
+          }
+        },
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { [sortBy]: sortOrder },
@@ -70,7 +78,15 @@ router.get("/:slug", async (req, res) => {
   try {
     const project = await prisma.project.findUnique({
       where: { slug: req.params.slug },
-      include: { metrics: true, testimonial: true },
+      include: { 
+        metrics: true, 
+        testimonial: true,
+        projectTechnologies: {
+          include: {
+            technology: true
+          }
+        }
+      },
     });
 
     if (!project) {
@@ -96,18 +112,9 @@ router.get("/:slug", async (req, res) => {
 // ============================================
 router.post("/", authenticate, authorize("projects:create"), async (req: AuthRequest, res: Response) => {
   try {
-    const parsed = projectSchema.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({
-        success: false,
-        error: "Validation failed",
-        details: parsed.error.flatten().fieldErrors,
-      });
-      return;
-    }
-
-    const data = parsed.data;
-    const slug = data.slug || slugify(data.title);
+    const { technologyIds, ...projectData } = req.body;
+    
+    const slug = projectData.slug || slugify(projectData.title);
 
     // Check slug uniqueness
     const existing = await prisma.project.findUnique({ where: { slug } });
@@ -117,11 +124,45 @@ router.post("/", authenticate, authorize("projects:create"), async (req: AuthReq
     }
 
     const project = await prisma.project.create({
-      data: { ...data, slug },
-      include: { metrics: true, testimonial: true },
+      data: { ...projectData, slug },
+      include: { 
+        metrics: true, 
+        testimonial: true,
+        projectTechnologies: {
+          include: {
+            technology: true
+          }
+        }
+      },
     });
 
-    res.status(201).json({ success: true, data: project });
+    // Link technologies if provided
+    if (technologyIds && Array.isArray(technologyIds)) {
+      for (const techId of technologyIds) {
+        await prisma.projectTechnology.create({
+          data: {
+            projectId: project.id,
+            technologyId: techId,
+          },
+        });
+      }
+    }
+
+    // Fetch the updated project with technologies
+    const updatedProject = await prisma.project.findUnique({
+      where: { id: project.id },
+      include: {
+        metrics: true,
+        testimonial: true,
+        projectTechnologies: {
+          include: {
+            technology: true
+          }
+        }
+      },
+    });
+
+    res.status(201).json({ success: true, data: updatedProject });
   } catch (error) {
     console.error("[Content] Create project error:", error);
     res.status(500).json({ success: false, error: "Internal server error" });
@@ -133,13 +174,58 @@ router.post("/", authenticate, authorize("projects:create"), async (req: AuthReq
 // ============================================
 router.put("/:id", authenticate, authorize("projects:update"), async (req: AuthRequest, res: Response) => {
   try {
+    const { technologyIds, ...projectData } = req.body;
+    
+    // Update project
     const project = await prisma.project.update({
       where: { id: req.params.id },
-      data: req.body,
-      include: { metrics: true, testimonial: true },
+      data: projectData,
+      include: { 
+        metrics: true, 
+        testimonial: true,
+        projectTechnologies: {
+          include: {
+            technology: true
+          }
+        }
+      },
     });
 
-    res.json({ success: true, data: project });
+    // Update technologies if provided
+    if (technologyIds !== undefined && Array.isArray(technologyIds)) {
+      // Delete existing relationships
+      await prisma.projectTechnology.deleteMany({
+        where: { projectId: req.params.id },
+      });
+
+      // Create new relationships
+      for (const techId of technologyIds) {
+        await prisma.projectTechnology.create({
+          data: {
+            projectId: req.params.id,
+            technologyId: techId,
+          },
+        });
+      }
+
+      // Fetch updated project with technologies
+      const updatedProject = await prisma.project.findUnique({
+        where: { id: req.params.id },
+        include: {
+          metrics: true,
+          testimonial: true,
+          projectTechnologies: {
+            include: {
+              technology: true
+            }
+          }
+        },
+      });
+
+      res.json({ success: true, data: updatedProject });
+    } else {
+      res.json({ success: true, data: project });
+    }
   } catch (error) {
     console.error("[Content] Update project error:", error);
     res.status(500).json({ success: false, error: "Internal server error" });

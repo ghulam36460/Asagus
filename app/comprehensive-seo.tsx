@@ -100,8 +100,7 @@ export function ComprehensiveSEO() {
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       
       {/* Verification Tags Placeholders */}
-      {/* Google */}
-      <meta name="google-site-verification" content="your-google-verification-code" />
+      {/* Google - Verified via domain provider, no HTML tag needed */}
       {/* Bing */}
       <meta name="msvalidate.01" content="your-bing-verification-code" />
       {/* Yandex */}

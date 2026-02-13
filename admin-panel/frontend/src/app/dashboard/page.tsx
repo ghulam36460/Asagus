@@ -57,54 +57,16 @@ export default function DashboardPage() {
         console.error("Failed to fetch dashboard stats:", error);
         // Set mock data if API fails
         setStats({
-          totalProjects: 12,
-          publishedProjects: 8,
-          totalServices: 6,
-          totalTestimonials: 15,
-          totalContacts: 47,
-          unreadContacts: 3,
-          totalSubscribers: 234,
-          totalPageViews: 15420,
-          recentContacts: [
-            {
-              id: "1",
-              name: "John Smith",
-              email: "john@example.com",
-              subject: "Project Inquiry",
-              message: "Interested in AI cybersecurity solutions",
-              isRead: false,
-              createdAt: new Date().toISOString(),
-            },
-            {
-              id: "2",
-              name: "Sarah Johnson",
-              email: "sarah@techcorp.com",
-              subject: "Partnership Opportunity",
-              message: "Looking to collaborate on enterprise solutions",
-              isRead: true,
-              createdAt: new Date(Date.now() - 86400000).toISOString(),
-            }
-          ],
-          recentProjects: [
-            {
-              id: "1",
-              title: "AI Cybersecurity Platform",
-              slug: "ai-cybersecurity-platform",
-              category: "Cybersecurity",
-              published: true,
-              viewCount: 1250,
-              createdAt: new Date().toISOString(),
-            },
-            {
-              id: "2",
-              title: "E-commerce Platform",
-              slug: "ecommerce-platform",
-              category: "Web Development",
-              published: true,
-              viewCount: 890,
-              createdAt: new Date(Date.now() - 86400000).toISOString(),
-            }
-          ],
+          totalProjects: 0,
+          publishedProjects: 0,
+          totalServices: 0,
+          totalTestimonials: 0,
+          totalContacts: 0,
+          unreadContacts: 0,
+          totalSubscribers: 0,
+          totalPageViews: 0,
+          recentContacts: [],
+          recentProjects: [],
         });
       } finally {
         setLoading(false);

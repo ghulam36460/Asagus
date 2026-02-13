@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api";
 import { DataTable, Column } from "@/components/data-table";
 import { formatDate } from "@/lib/utils";
+import { ImageUpload, MultiImageUpload } from "@/components/ui/image-upload";
+import { TechnologySelector, Technology } from "@/components/ui/technology-selector";
 
 type AnyRecord = Record<string, any>;
 import {
@@ -52,9 +54,10 @@ export default function ProjectsPage() {
   const limit = 10;
 
   const [form, setForm] = useState({
-    title: "", description: "", shortDescription: "", category: "Web Development",
-    tags: "", technologies: "", clientName: "", projectUrl: "", githubUrl: "",
-    thumbnail: "", featured: false, published: false
+    title: "", description: "", fullDescription: "", category: "Web Development",
+    challenge: "", solution: "",
+    tags: "", technologies: [] as Technology[], clientName: "", projectUrl: "", githubUrl: "",
+    thumbnail: "", images: [] as string[], featured: false, published: false
   });
 
   const fetchProjects = useCallback(async () => {
@@ -70,48 +73,6 @@ export default function ProjectsPage() {
       setTotal(res.pagination.total);
     } catch (err) {
       console.error("Failed to fetch projects:", err);
-      // Mock data for development
-      setProjects([
-        {
-          id: "1",
-          title: "AI Cybersecurity Platform",
-          slug: "ai-cybersecurity-platform",
-          description: "Advanced AI-powered cybersecurity solution for enterprise protection",
-          shortDescription: "AI-powered cybersecurity platform",
-          category: "Cybersecurity",
-          tags: ["AI", "Security", "Enterprise"],
-          technologies: ["Python", "TensorFlow", "React"],
-          clientName: "TechCorp Inc.",
-          projectUrl: "https://example.com",
-          githubUrl: "https://github.com/example",
-          thumbnail: "/api/placeholder/400/300",
-          featured: true,
-          published: true,
-          viewCount: 1250,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        {
-          id: "2",
-          title: "E-commerce Platform",
-          slug: "ecommerce-platform",
-          description: "Full-stack e-commerce solution with payment integration",
-          shortDescription: "Modern e-commerce platform",
-          category: "Web Development",
-          tags: ["E-commerce", "Payment", "Full-stack"],
-          technologies: ["Next.js", "Stripe", "PostgreSQL"],
-          clientName: "ShopFlow Ltd.",
-          projectUrl: "https://shopflow.com",
-          githubUrl: "https://github.com/shopflow",
-          thumbnail: "/api/placeholder/400/300",
-          featured: false,
-          published: true,
-          viewCount: 890,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }
-      ]);
-      setTotal(2);
     } finally {
       setLoading(false);
     }
@@ -122,9 +83,10 @@ export default function ProjectsPage() {
   function openCreate() {
     setEditing(null);
     setForm({
-      title: "", description: "", shortDescription: "", category: "Web Development",
-      tags: "", technologies: "", clientName: "", projectUrl: "", githubUrl: "",
-      thumbnail: "", featured: false, published: false
+      title: "", description: "", fullDescription: "", category: "Web Development",
+      challenge: "", solution: "",
+      tags: "", technologies: [], clientName: "", projectUrl: "", githubUrl: "",
+      thumbnail: "", images: [], featured: false, published: false
     });
     setShowModal(true);
   }
@@ -134,14 +96,17 @@ export default function ProjectsPage() {
     setForm({
       title: project.title,
       description: project.description,
-      shortDescription: project.shortDescription || "",
+      fullDescription: (project as any).fullDescription || "",
       category: project.category,
+      challenge: (project as any).challenge || "",
+      solution: (project as any).solution || "",
       tags: project.tags?.join(", ") || "",
-      technologies: project.technologies?.join(", ") || "",
+      technologies: (project as any).projectTechnologies?.map((pt: any) => pt.technology) || [],
       clientName: project.clientName || "",
       projectUrl: project.projectUrl || "",
       githubUrl: project.githubUrl || "",
       thumbnail: project.thumbnail || "",
+      images: project.images || [],
       featured: project.featured,
       published: project.published,
     });
@@ -154,8 +119,11 @@ export default function ProjectsPage() {
       const payload = {
         ...form,
         tags: form.tags.split(",").map(t => t.trim()).filter(Boolean),
-        technologies: form.technologies.split(",").map(t => t.trim()).filter(Boolean),
+        technologyIds: form.technologies.map(t => t.id),
       };
+      // Remove technologies from payload since we send technologyIds instead
+      delete (payload as any).technologies;
+      
       if (editing) {
         await api.put(`/projects/${editing.id}`, payload);
       } else {
@@ -304,16 +272,34 @@ export default function ProjectsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: "var(--foreground)" }}>Short Description</label>
-                <input value={form.shortDescription} onChange={e => setForm({ ...form, shortDescription: e.target.value })}
+                <label className="block text-sm font-medium mb-1" style={{ color: "var(--foreground)" }}>Short Description *</label>
+                <input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
+                  placeholder="Brief summary of the project"
                   className="w-full px-4 py-2 rounded-xl border text-sm"
                   style={{ backgroundColor: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }} />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: "var(--foreground)" }}>Description *</label>
-                <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
-                  rows={4} className="w-full px-4 py-2 rounded-xl border text-sm resize-none"
+                <label className="block text-sm font-medium mb-1" style={{ color: "var(--foreground)" }}>Full Description</label>
+                <textarea value={form.fullDescription} onChange={e => setForm({ ...form, fullDescription: e.target.value })}
+                  rows={4} placeholder="Detailed description of the project"
+                  className="w-full px-4 py-2 rounded-xl border text-sm resize-none"
+                  style={{ backgroundColor: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1" style={{ color: "var(--foreground)" }}>Challenge</label>
+                <textarea value={form.challenge} onChange={e => setForm({ ...form, challenge: e.target.value })}
+                  rows={3} placeholder="Describe the main challenge or problem this project addressed"
+                  className="w-full px-4 py-2 rounded-xl border text-sm resize-none"
+                  style={{ backgroundColor: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1" style={{ color: "var(--foreground)" }}>Solution</label>
+                <textarea value={form.solution} onChange={e => setForm({ ...form, solution: e.target.value })}
+                  rows={3} placeholder="Describe how this project solved the challenge"
+                  className="w-full px-4 py-2 rounded-xl border text-sm resize-none"
                   style={{ backgroundColor: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }} />
               </div>
 
@@ -343,11 +329,11 @@ export default function ProjectsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: "var(--foreground)" }}>Technologies (comma separated)</label>
-                <input value={form.technologies} onChange={e => setForm({ ...form, technologies: e.target.value })}
-                  placeholder="e.g. Next.js, PostgreSQL, Docker"
-                  className="w-full px-4 py-2 rounded-xl border text-sm"
-                  style={{ backgroundColor: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }} />
+                <label className="block text-sm font-medium mb-1" style={{ color: "var(--foreground)" }}>Technologies</label>
+                <TechnologySelector
+                  selectedTechnologies={form.technologies}
+                  onChange={(technologies) => setForm({ ...form, technologies })}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -366,10 +352,23 @@ export default function ProjectsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: "var(--foreground)" }}>Thumbnail URL</label>
-                <input value={form.thumbnail} onChange={e => setForm({ ...form, thumbnail: e.target.value })}
-                  className="w-full px-4 py-2 rounded-xl border text-sm"
-                  style={{ backgroundColor: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }} />
+                <label className="block text-sm font-medium mb-1" style={{ color: "var(--foreground)" }}>Thumbnail Image</label>
+                <ImageUpload 
+                  value={form.thumbnail}
+                  onChange={(url) => setForm({ ...form, thumbnail: url })}
+                  onRemove={() => setForm({ ...form, thumbnail: "" })}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1" style={{ color: "var(--foreground)" }}>
+                  Gallery Images (up to 10)
+                </label>
+                <MultiImageUpload 
+                  value={form.images}
+                  onChange={(urls) => setForm({ ...form, images: urls })}
+                  maxImages={10}
+                />
               </div>
 
               <div className="flex items-center gap-6">

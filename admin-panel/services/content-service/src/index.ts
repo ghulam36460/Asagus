@@ -10,6 +10,7 @@ import { faqsRouter } from "./routes/faqs.routes";
 import { contactsRouter } from "./routes/contacts.routes";
 import { dashboardRouter } from "./routes/dashboard.routes";
 import { settingsRouter } from "./routes/settings.routes";
+import { technologiesRouter } from "./routes/technologies.routes";
 import teamRouter from "./routes/team.routes";
 import blogRouter from "./routes/blog.routes";
 import researchRouter from "./routes/research.routes";
@@ -38,6 +39,7 @@ app.get("/health", (_req, res) => {
 
 // Routes
 app.use("/api/v1/content/projects", projectsRouter);
+app.use("/api/v1/content/technologies", technologiesRouter);
 app.use("/api/v1/content/services", servicesRouter);
 app.use("/api/v1/content/testimonials", testimonialsRouter);
 app.use("/api/v1/content/faqs", faqsRouter);

@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
   // Prisma looks for .env in schema dir and package root by default.
   // The actual .env is at admin-panel root, so we load it explicitly.
@@ -185,8 +185,9 @@ model Project {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  metrics     ProjectMetric[]
-  testimonial ProjectTestimonial?
+  metrics         ProjectMetric[]
+  testimonial     ProjectTestimonial?
+  projectTechnologies ProjectTechnology[]
 
   @@index([category])
   @@index([published])
@@ -217,6 +218,41 @@ model ProjectTestimonial {
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("project_testimonials")
+}
+
+model Technology {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  icon        String?  // URL to icon or icon code (e.g., devicon class)
+  iconType    String   @default("devicon") @map("icon_type") // "devicon", "url", "svg"
+  color       String?  // Hex color for the technology
+  category    String?  // e.g., "Frontend", "Backend", "Database", "DevOps"
+  description String?  @db.Text
+  orderIndex  Int      @default(0) @map("order_index")
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  projects ProjectTechnology[]
+
+  @@index([category])
+  @@map("technologies")
+}
+
+model ProjectTechnology {
+  id           String   @id @default(uuid())
+  projectId    String   @map("project_id")
+  technologyId String   @map("technology_id")
+  
+  project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  technology Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, technologyId])
+  @@index([projectId])
+  @@index([technologyId])
+  @@map("project_technologies")
 }
 
 model Service {

@@ -94,18 +94,17 @@ export function ServicesSection() {
       <div className="relative w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center reveal-stagger">
         {/* Header */}
         <div className="text-center mb-16 reveal-fade" data-stagger-child>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-brand-blue/10 to-purple-500/10 border border-brand-blue/20 mb-4">
-            <div className="w-1.5 h-1.5 rounded-full bg-brand-blue animate-pulse"></div>
-            <span className="text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-brand-blue to-purple-600 bg-clip-text text-transparent">
-              What We Do
-            </span>
+          <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-black/40 border border-purple-500/30 backdrop-blur-sm mb-4">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-purple-300">WHAT WE DO</span>
           </div>
-          <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl mb-6 leading-tight">
-            <span className="block text-gray-900 dark:text-white mb-2">SOFTWARE DEVELOPMENT</span>
+
+          <h2 className="font-display text-5xl sm:text-6xl lg:text-[96px] font-extrabold mb-6 leading-tight">
+            <span className="block text-white/95">OUR</span>
             <span className="block bg-gradient-to-r from-brand-blue via-blue-500 to-purple-600 bg-clip-text text-transparent">SERVICES</span>
           </h2>
-          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            AI Development, Web Applications, Mobile Apps, API Solutions & Data Automation
+
+          <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            Comprehensive digital solutions to elevate your brand and drive growth
           </p>
         </div>
 
@@ -121,7 +120,7 @@ export function ServicesSection() {
               >
                 <div 
                   onClick={() => handleServiceClick(service)}
-                  className="relative h-[280px] rounded-2xl overflow-hidden border border-white/10 hover:border-brand-blue/30 transition-all duration-500 cursor-pointer shadow-2xl"
+                  className="relative h-[360px] rounded-3xl overflow-hidden border border-white/8 hover:border-purple-400/30 transition-all duration-500 cursor-pointer shadow-[0_20px_50px_rgba(2,6,23,0.6)]"
                 >
                   {/* Background Image with Blur */}
                   <div className="absolute inset-0">
@@ -154,7 +153,7 @@ export function ServicesSection() {
                       </div>
 
                       {/* Number */}
-                      <span className="text-5xl font-bold text-white/10">0{index + 1}</span>
+                      <span className="text-[72px] font-extrabold text-white/8 opacity-30 leading-none">0{index + 1}</span>
                     </div>
 
                     {/* Bottom Section */}

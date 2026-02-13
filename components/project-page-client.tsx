@@ -3,9 +3,25 @@
 import { motion } from 'framer-motion'
 import { ExternalLink } from 'lucide-react'
 import { Button } from '@/components/button'
-import type { Project } from '@/data/projects'
+import type { ProjectRecord } from '@/lib/projects-api'
 
-export function ProjectPageClient({ project }: { project: Project }) {
+const getHeroImage = (project: ProjectRecord) => {
+  if (project.heroImage) return project.heroImage
+  if (project.galleryImages?.length) return project.galleryImages[0]
+  return ''
+}
+
+const getGalleryImages = (project: ProjectRecord) => {
+  const hero = getHeroImage(project)
+  const gallery = project.galleryImages || []
+  const images = [hero, ...gallery].filter(Boolean)
+  return images.length ? images : ['']
+}
+
+export function ProjectPageClient({ project }: { project: ProjectRecord }) {
+  const heroImage = getHeroImage(project)
+  const galleryImages = getGalleryImages(project)
+
   return (
     <main className="min-h-screen relative">
       <div className="flex flex-col lg:flex-row min-h-screen">
@@ -31,7 +47,7 @@ export function ProjectPageClient({ project }: { project: Project }) {
 
             {/* Description */}
             <p className="text-lg sm:text-xl text-black/90 leading-relaxed mb-12">
-              {project.fullDescription}
+              {project.fullDescription || project.description}
             </p>
 
             <div className="border-t-2 border-black/20 pt-8 mb-12"></div>
@@ -54,12 +70,15 @@ export function ProjectPageClient({ project }: { project: Project }) {
             </div>
 
             {/* Button */}
-            <Button 
-              className="bg-black text-white hover:bg-black/80 px-10 py-5 text-base"
-              icon={<ExternalLink className="w-5 h-5" />}
-            >
-              Visit Website
-            </Button>
+            {project.projectUrl ? (
+              <Button 
+                className="bg-black text-white hover:bg-black/80 px-10 py-5 text-base"
+                icon={<ExternalLink className="w-5 h-5" />}
+                onClick={() => window.open(project.projectUrl, '_blank', 'noopener,noreferrer')}
+              >
+                Visit Website
+              </Button>
+            ) : null}
           </div>
         </motion.div>
 
@@ -83,13 +102,19 @@ export function ProjectPageClient({ project }: { project: Project }) {
               }}
             >
               {/* Display project image multiple times for scrolling effect */}
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="relative w-full aspect-square max-w-lg mx-auto rounded-2xl overflow-hidden shadow-2xl">
-                  <img
-                    src={project.images.hero}
-                    alt={`${project.title} - View ${i + 1}`}
-                    className="w-full h-full object-cover"
-                  />
+              {galleryImages.slice(0, 3).map((image, i) => (
+                <div key={`${project.slug}-${i}`} className="relative w-full aspect-square max-w-lg mx-auto rounded-2xl overflow-hidden shadow-2xl">
+                  {image ? (
+                    <img
+                      src={image}
+                      alt={`${project.title} - View ${i + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-white/5 text-white/60">
+                      {project.title}
+                    </div>
+                  )}
                 </div>
               ))}
             </motion.div>

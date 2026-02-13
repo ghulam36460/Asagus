@@ -54,14 +54,7 @@ export function AboutSection() {
               marginBottom: '60px',
               lineHeight: '1.1'
             }}>
-              <span style={{ display: 'block', marginBottom: '8px' }}>About ASAGUS</span>
-              <span style={{ 
-                display: 'block',
-                background: 'linear-gradient(135deg, #A855F7 0%, #EC4899 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}>SOFTWARE COMPANY</span>
+              <span style={{ display: 'block', marginBottom: '8px' }}>About Us</span>
             </h2>
 
             {/* Stats */}

@@ -1,200 +1,484 @@
 "use client"
 
-import React, { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Search, X, ArrowRight } from 'lucide-react'
-import { Section } from './section'
-import { projects, projectCategories } from '@/data/projects'
+import { motion } from 'framer-motion'
+import type { ProjectRecord } from '@/lib/projects-api'
 
-export function PortfolioFilter() {
+interface PortfolioFilterProps {
+  initialProjects: ProjectRecord[]
+}
+
+export function PortfolioFilter({ initialProjects }: PortfolioFilterProps) {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
+  const [showFeaturedOnly, setShowFeaturedOnly] = useState(false)
 
-  const filteredProjects = projects.filter(project => {
-    const matchesCategory = selectedCategory === 'All' || project.category === selectedCategory
-    const matchesSearch = searchQuery === '' || 
-      project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      project.technologies.some(tech => tech.toLowerCase().includes(searchQuery.toLowerCase()))
-    
-    return matchesCategory && matchesSearch
-  })
+  // Extract unique categories
+  const categories = useMemo(() => {
+    const cats = new Set<string>(['All'])
+    initialProjects.forEach((p) => {
+      if (p.category) cats.add(p.category)
+    })
+    return Array.from(cats)
+  }, [initialProjects])
+
+  // Filter projects based on search, category, and featured
+  const filteredProjects = useMemo(() => {
+    return initialProjects.filter((project) => {
+      // Category filter
+      if (selectedCategory !== 'All' && project.category !== selectedCategory) {
+        return false
+      }
+
+      // Featured filter
+      if (showFeaturedOnly && !project.featured) {
+        return false
+      }
+
+      // Search filter
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase()
+        const matchesTitle = project.title.toLowerCase().includes(query)
+        const matchesDesc = project.description.toLowerCase().includes(query)
+        const matchesTech = project.technologies.some((t) =>
+          t.toLowerCase().includes(query)
+        )
+        return matchesTitle || matchesDesc || matchesTech
+      }
+
+      return true
+    })
+  }, [initialProjects, selectedCategory, showFeaturedOnly, searchQuery])
 
   return (
-    <Section id="portfolio" className="bg-white dark:bg-black">
-      <motion.div
-        className="text-center mb-12"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+    <div style={{ minHeight: '100vh', paddingTop: '120px' }}>
+      <div
+        style={{
+          maxWidth: '1280px',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          paddingLeft: '24px',
+          paddingRight: '24px',
+        }}
       >
-        <h2 className="font-display text-4xl sm:text-5xl md:text-6xl mb-4">
-          <span className="text-brand-blue">FULL PORTFOLIO</span>
-        </h2>
-        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          Explore our complete collection of projects
-        </p>
-      </motion.div>
-
-      {/* Search Bar */}
-      <motion.div
-        className="max-w-2xl mx-auto mb-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1, duration: 0.5 }}
-      >
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search projects, technologies..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-12 py-4 rounded-full border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-black dark:text-white focus:border-brand-blue dark:focus:border-brand-blue outline-none transition-colors"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+        {/* Header */}
+        <header style={{ textAlign: 'center', marginBottom: '64px' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1
+              style={{
+                fontSize: '56px',
+                fontWeight: '800',
+                marginBottom: '16px',
+                lineHeight: '1.1',
+                letterSpacing: '-0.02em',
+              }}
+              className="text-black dark:text-white"
             >
-              <X className="w-5 h-5" />
+              Projects
+            </h1>
+            <p
+              style={{
+                fontSize: '20px',
+                maxWidth: '640px',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                lineHeight: '1.6',
+              }}
+              className="text-black/60 dark:text-white/60"
+            >
+              Discover our portfolio of innovative digital solutions
+            </p>
+          </motion.div>
+        </header>
+
+        {/* Filters */}
+        <div style={{ marginBottom: '48px' }}>
+          {/* Search */}
+          <div style={{ marginBottom: '24px', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
+            <input
+              type="text"
+              placeholder="Search by title, description, or technology..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '14px 20px',
+                fontSize: '16px',
+                borderRadius: '12px',
+                border: '1px solid',
+                outline: 'none',
+              }}
+              className="border-black/20 bg-white text-black placeholder:text-black/40 dark:border-white/20 dark:bg-black dark:text-white dark:placeholder:text-white/40"
+            />
+          </div>
+
+          {/* Category & Featured Filters */}
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '12px',
+              marginBottom: '16px',
+              justifyContent: 'center',
+            }}
+          >
+            {/* Featured Toggle */}
+            <button
+              type="button"
+              onClick={() => setShowFeaturedOnly(!showFeaturedOnly)}
+              style={{
+                padding: '10px 20px',
+                fontSize: '14px',
+                fontWeight: '500',
+                borderRadius: '9999px',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                border: 'none',
+              }}
+              className={
+                showFeaturedOnly
+                  ? 'bg-blue-600 text-white dark:bg-blue-500'
+                  : 'bg-black/10 text-black/70 hover:bg-black/15 dark:bg-white/10 dark:text-white/70 dark:hover:bg-white/15'
+              }
+            >
+              ⭐ Featured
             </button>
+
+            {/* Category Buttons */}
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setSelectedCategory(cat)}
+                style={{
+                  padding: '10px 20px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  borderRadius: '9999px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  border: 'none',
+                }}
+                className={
+                  selectedCategory === cat
+                    ? 'bg-black text-white dark:bg-white dark:text-black'
+                    : 'bg-black/10 text-black/70 hover:bg-black/15 dark:bg-white/10 dark:text-white/70 dark:hover:bg-white/15'
+                }
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Results Count */}
+          {(searchQuery || selectedCategory !== 'All' || showFeaturedOnly) && (
+            <p
+              style={{ fontSize: '14px', textAlign: 'center' }}
+              className="text-black/50 dark:text-white/50"
+            >
+              Showing {filteredProjects.length} of {initialProjects.length} projects
+            </p>
           )}
         </div>
-      </motion.div>
 
-      {/* Category Filter */}
-      <motion.div
-        className="flex flex-wrap justify-center gap-3 mb-12"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-      >
-        {projectCategories.map((category) => (
-          <button
-            key={category}
-            onClick={() => setSelectedCategory(category)}
-            className={`px-6 py-2 rounded-full font-medium transition-all ${
-              selectedCategory === category
-                ? 'bg-brand-blue text-white shadow-lg scale-105'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-            }`}
-          >
-            {category}
-          </button>
-        ))}
-      </motion.div>
-
-      {/* Results Count */}
-      <motion.div
-        className="text-center mb-8"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-      >
-        <p className="text-gray-600 dark:text-gray-400">
-          Showing <span className="font-bold text-brand-blue">{filteredProjects.length}</span> project{filteredProjects.length !== 1 ? 's' : ''}
-        </p>
-      </motion.div>
-
-      {/* Projects Grid */}
-      <AnimatePresence mode="wait">
+        {/* Projects Grid */}
         {filteredProjects.length > 0 ? (
-          <motion.div
-            key="projects-grid"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+          <div
+            style={{
+              display: 'grid',
+              gap: '32px',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+              paddingBottom: '80px',
+            }}
           >
-            {filteredProjects.map((project, index) => (
-              <motion.div
-                key={project.slug}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ delay: index * 0.05, duration: 0.3 }}
-              >
-                <Link href={`/projects/${project.slug}`}>
-                  <div className="group relative overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-900 p-6 transition-all duration-300 hover:shadow-glow cursor-pointer h-full flex flex-col">
-                    {/* Project Image Placeholder */}
-                    <div className="aspect-video w-full rounded-xl bg-gradient-to-br from-brand-blue/20 to-purple-500/20 dark:from-brand-blue/30 dark:to-purple-500/30 mb-4 flex items-center justify-center overflow-hidden">
-                      <span className="text-4xl font-display text-brand-blue/50">
-                        {project.title.split(' ').map(w => w[0]).join('').slice(0, 2)}
-                      </span>
-                    </div>
-
-                    <div className="flex-1">
-                      <p className="text-xs uppercase tracking-wider text-brand-blue mb-2 font-bold">
-                        {project.category}
-                      </p>
-                      <h3 className="font-display text-xl sm:text-2xl mb-3 text-black dark:text-white group-hover:text-brand-blue transition-colors">
-                        {project.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-                        {project.description}
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {project.technologies.slice(0, 3).map((tech, i) => (
-                        <span
-                          key={i}
-                          className="text-xs px-2 py-1 rounded-md bg-brand-blue/10 text-brand-blue"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                      {project.technologies.length > 3 && (
-                        <span className="text-xs px-2 py-1 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
-                          +{project.technologies.length - 3} more
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center text-brand-blue text-sm font-medium group-hover:gap-2 transition-all">
-                      View Details
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </div>
-
-                    <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                  </div>
-                </Link>
-              </motion.div>
+            {filteredProjects.map((project, idx) => (
+              <ProjectCard key={project.slug} project={project} index={idx} />
             ))}
-          </motion.div>
+          </div>
         ) : (
-          <motion.div
-            key="no-results"
-            className="text-center py-20"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.3 }}
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '80px 20px',
+            }}
           >
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
-              <Search className="w-10 h-10 text-gray-400" />
+            <div
+              style={{
+                fontSize: '48px',
+                marginBottom: '16px',
+              }}
+            >
+              🔍
             </div>
-            <h3 className="font-display text-2xl text-black dark:text-white mb-2">
+            <h3
+              style={{
+                fontSize: '20px',
+                fontWeight: '600',
+                marginBottom: '8px',
+              }}
+              className="text-black dark:text-white"
+            >
               No projects found
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Try adjusting your search or filter criteria
+            <p
+              style={{ fontSize: '14px', marginBottom: '24px' }}
+              className="text-black/60 dark:text-white/60"
+            >
+              Try adjusting your filters or search terms
             </p>
             <button
+              type="button"
               onClick={() => {
                 setSearchQuery('')
                 setSelectedCategory('All')
+                setShowFeaturedOnly(false)
               }}
-              className="px-6 py-3 rounded-full bg-brand-blue text-white hover:bg-blue-600 transition-colors"
+              style={{
+                padding: '12px 24px',
+                fontSize: '14px',
+                fontWeight: '500',
+                borderRadius: '9999px',
+                cursor: 'pointer',
+                border: 'none',
+              }}
+              className="bg-black/10 text-black hover:bg-black/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
             >
-              Clear Filters
+              Reset Filters
             </button>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
-    </Section>
+      </div>
+    </div>
+  )
+}
+
+// Project Card Component
+function ProjectCard({ project, index }: { project: ProjectRecord; index: number }) {
+  const image = project.heroImage || project.galleryImages?.[0] || ''
+  const year = project.year || new Date(project.createdAt || Date.now()).getFullYear()
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.05 }}
+    >
+      <Link
+        href={`/projects/${project.slug}`}
+        style={{
+          display: 'block',
+          height: '100%',
+          textDecoration: 'none',
+        }}
+      >
+        <div
+          style={{
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            borderRadius: '16px',
+            border: '1px solid',
+            transition: 'all 0.3s',
+          }}
+          className="border-black/10 hover:border-black/20 hover:shadow-lg dark:border-white/10 dark:hover:border-white/20 project-card"
+        >
+          {/* Image */}
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              paddingTop: '60%',
+              overflow: 'hidden',
+            }}
+            className="bg-black/5 dark:bg-white/5"
+          >
+            {image ? (
+              <img
+                src={image}
+                alt={project.title}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  transition: 'transform 0.5s',
+                }}
+                className="project-card-image"
+                loading="lazy"
+              />
+            ) : (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '48px',
+                  fontWeight: '700',
+                }}
+                className="text-black/10 dark:text-white/10"
+              >
+                {project.title.substring(0, 2).toUpperCase()}
+              </div>
+            )}
+
+            {/* Badges */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '12px',
+                left: '12px',
+                display: 'flex',
+                gap: '8px',
+              }}
+            >
+              {project.featured && (
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '6px 12px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    borderRadius: '9999px',
+                    backgroundColor: '#2563eb',
+                    color: 'white',
+                  }}
+                >
+                  ⭐ Featured
+                </span>
+              )}
+              {year && (
+                <span
+                  style={{
+                    padding: '6px 12px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    borderRadius: '9999px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    color: 'white',
+                  }}
+                >
+                  {year}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Content */}
+          <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
+            {/* Category */}
+            <span
+              style={{
+                fontSize: '12px',
+                fontWeight: '600',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
+              className="text-blue-600 dark:text-blue-400"
+            >
+              {project.category}
+            </span>
+
+            {/* Title */}
+            <h3
+              style={{
+                fontSize: '20px',
+                fontWeight: '700',
+                lineHeight: '1.3',
+              }}
+              className="text-black dark:text-white project-card-title"
+            >
+              {project.title}
+            </h3>
+
+            {/* Description */}
+            <p
+              style={{
+                fontSize: '14px',
+                lineHeight: '1.6',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }}
+              className="text-black/60 dark:text-white/60"
+            >
+              {project.description}
+            </p>
+
+            {/* Technologies */}
+            {project.technologies.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {project.technologies.slice(0, 3).map((tech) => (
+                  <span
+                    key={tech}
+                    style={{
+                      padding: '4px 10px',
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      borderRadius: '6px',
+                    }}
+                    className="bg-black/5 text-black/60 dark:bg-white/5 dark:text-white/60"
+                  >
+                    {tech}
+                  </span>
+                ))}
+                {project.technologies.length > 3 && (
+                  <span
+                    style={{
+                      padding: '4px 10px',
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      borderRadius: '6px',
+                    }}
+                    className="bg-black/5 text-black/40 dark:bg-white/5 dark:text-white/40"
+                  >
+                    +{project.technologies.length - 3}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* View Link */}
+            <div
+              style={{
+                marginTop: 'auto',
+                fontSize: '14px',
+                fontWeight: '500',
+              }}
+              className="text-black/50 dark:text-white/50 project-card-link"
+            >
+              View Project →
+            </div>
+          </div>
+        </div>
+      </Link>
+
+      <style jsx>{`
+        .project-card:hover .project-card-image {
+          transform: scale(1.05);
+        }
+        .project-card:hover .project-card-title {
+          color: #2563eb;
+        }
+        .project-card:hover .project-card-link {
+          color: #2563eb;
+        }
+      `}</style>
+    </motion.article>
   )
 }

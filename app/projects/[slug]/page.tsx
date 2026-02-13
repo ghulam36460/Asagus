@@ -1,12 +1,13 @@
 import { notFound } from 'next/navigation'
-import { projects } from '@/data/projects'
 import { ProjectPageClient } from '../../../components/project-page-client'
+import { fetchProject } from '@/lib/projects-api'
 
-export default function ProjectPage({ params }: { params: { slug: string } }) {
-  const { slug } = params
-  const project = projects.find(p => p.slug === slug)
+export const revalidate = 60
 
-  if (!project) {
+export default async function ProjectPage({ params }: { params: { slug: string } }) {
+  const project = await fetchProject(params.slug)
+
+  if (!project || !project.published) {
     notFound()
   }
 

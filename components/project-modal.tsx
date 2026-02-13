@@ -65,7 +65,7 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
             <div className="flex flex-col lg:flex-row h-full">
               {/* Left Side - Content */}
               <div 
-                className="w-full lg:w-1/2 relative bg-black px-8 sm:px-12 lg:px-16 py-12 sm:py-16 lg:py-20 flex items-start justify-center overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                className="w-full lg:w-1/2 relative bg-black px-8 sm:px-12 lg:px-16 py-12 sm:py-16 lg:py-20 flex items-start justify-center overflow-y-auto"
                 style={{
                   scrollBehavior: 'smooth'
                 }}

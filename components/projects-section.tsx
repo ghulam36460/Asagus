@@ -305,10 +305,10 @@ export function ProjectsSection() {
           transition={{ duration: 0.5, delay: 0.4 }}
         >
           <Link
-            href="/portfolio"
+            href="/projects"
             className="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-brand-blue text-white hover:bg-blue-600 transition-colors duration-300 font-semibold text-base"
           >
-            View Full Portfolio
+            View All Projects
             <ArrowRight className="w-5 h-5" />
           </Link>
         </motion.div>

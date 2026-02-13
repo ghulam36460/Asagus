@@ -128,7 +128,7 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.1 }}
         >
           <h1 className="font-display text-5xl sm:text-5xl md:text-6xl lg:text-7xl mb-8 leading-[0.95] tracking-tight">
-            <span className="block bg-gradient-to-r from-brand-blue via-blue-400 to-purple-500 bg-clip-text text-transparent">ASAGUS - Software Development Company</span>
+            <span className="block bg-gradient-to-r from-brand-blue via-blue-400 to-purple-500 bg-clip-text text-transparent">ASAGUS</span>
           </h1>
         </motion.div>
 
@@ -138,9 +138,9 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.3 }}
         >
           <h2 className="font-display text-lg sm:text-xl md:text-2xl lg:text-3xl mb-10 leading-tight">
-            <span className="block text-gray-400">AI DEVELOPMENT, WEB APPS & CUSTOM SOFTWARE</span>
-            <span className="block text-white mt-1.5">SMART, SCALABLE & IMPACTFUL</span>
-            <span className="block text-brand-blue mt-1.5">DIGITAL SOLUTIONS</span>
+            <span className="block text-gray-400">ENGINEERING THE</span>
+            <span className="block text-white mt-1.5">FUTURE OF DIGITAL</span>
+            <span className="block text-brand-blue mt-1.5">INNOVATION</span>
           </h2>
         </motion.div>
 

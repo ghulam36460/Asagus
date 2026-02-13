@@ -69,7 +69,7 @@ export function ServiceModal({ service, isOpen, onClose }: ServiceModalProps) {
 
             {/* Content */}
             <div 
-              className="h-full relative bg-black px-8 sm:px-12 lg:px-16 py-12 sm:py-16 lg:py-20 flex items-start justify-center overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              className="h-full relative bg-black px-8 sm:px-12 lg:px-16 py-12 sm:py-16 lg:py-20 flex items-start justify-center overflow-y-auto"
               style={{
                 scrollBehavior: 'smooth'
               }}

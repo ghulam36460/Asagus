@@ -1,30 +1,25 @@
-import { projects } from '@/data/projects'
 import type { Metadata } from 'next'
+import { fetchProject } from '@/lib/projects-api'
 
-export async function generateStaticParams() {
-  return projects.map((project) => ({
-    slug: project.slug,
-  }))
-}
+export const revalidate = 60
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const { slug } = params
-  const project = projects.find(p => p.slug === slug)
+  const project = await fetchProject(params.slug)
   
-  if (!project) {
+  if (!project || !project.published) {
     return {
       title: 'Project Not Found',
     }
   }
 
   return {
-    title: `${project.title} - Case Study`,
-    description: project.description,
+    title: `${project.metaTitle || project.title} - Case Study`,
+    description: project.metaDescription || project.description,
     openGraph: {
-      title: project.title,
-      description: project.description,
+      title: project.metaTitle || project.title,
+      description: project.metaDescription || project.description,
       type: 'article',
-      publishedTime: project.date,
+      images: project.heroImage ? [{ url: project.heroImage }] : undefined,
     },
   }
 }

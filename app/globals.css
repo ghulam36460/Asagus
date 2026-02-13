@@ -73,29 +73,63 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
-/* Hide scrollbar but keep functionality */
-::-webkit-scrollbar {
-  width: 0px;
-  height: 0px;
+/* Hide scrollbar on small screens but keep functionality */
+@media (max-width: 1023px) {
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+  }
+
+  /* For Firefox */
+  * {
+    scrollbar-width: none;
+  }
+
+  /* For IE and Edge */
+  * {
+    -ms-overflow-style: none;
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+/* Desktop/large screens: show a thin, subtle custom scrollbar */
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(2,6,23,0.45); /* subtle dark thumb */
+    border-radius: 9999px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* Firefox / system */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(2,6,23,0.45) transparent;
+    -ms-overflow-style: auto;
+  }
+
+  /* Ensure smooth scrolling is enforced on large screens (anchors / JS scrollIntoView) */
+  :root, html, body, .show-scrollbar, [data-scrollable] {
+    scroll-behavior: smooth;
+  }
 }
 
-::-webkit-scrollbar-thumb {
-  background: transparent;
-}
-
-/* For Firefox */
-* {
-  scrollbar-width: none;
-}
-
-/* For IE and Edge */
-* {
-  -ms-overflow-style: none;
-}
 
 /* Focus styles for accessibility */
 *:focus-visible {

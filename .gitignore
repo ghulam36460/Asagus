@@ -42,7 +42,7 @@ next-env.d.ts
 admin-panel/node_modules/
 admin-panel/.next/
 admin-panel/**/*.log
-admin-panel/.env*
+# admin-panel/.env* - COMMENTED OUT TO ALLOW .env FILES IN PRIVATE REPO
 admin-panel/services/*/dist/
 admin-panel/packages/*/dist/
 admin-panel/frontend/out/

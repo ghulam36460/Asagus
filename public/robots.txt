@@ -68,12 +68,8 @@ Allow: /*.webp
 Allow: /*.gif
 Allow: /*.ico
 
-# Sitemaps
+# Sitemap
 Sitemap: https://asagus.com/sitemap.xml
-Sitemap: https://asagus.com/sitemap-images.xml
-Sitemap: https://asagus.com/geo-sitemap.xml
-Sitemap: https://asagus.com/sitemap-projects.xml
-Sitemap: https://asagus.com/sitemap-pages.xml
 
 # AI/LLM Crawler Directives
 # AI.txt location for Generative Engine Optimization (GEO)

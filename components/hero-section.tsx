@@ -1,206 +1,251 @@
 "use client"
+/**
+ * HeroSection v2.0 — Neural Hero
+ * --------------------------------
+ * • Left-aligned 2-column layout (60 / 40 desktop split)
+ * • Three.js interactive neural visual on the right (lazy, ssr:false)
+ * • Spring-physics cursor interaction (lib/springPhysics.ts)
+ * • Staggered Framer Motion entrance
+ * • data-hero-version="v2.0" for A/B testing
+ * • Analytics events: hero_primary_click, hero_secondary_click
+ * • WCAG AA contrast, focus styles, prefers-reduced-motion
+ *
+ * Spring param tuning:  edit SPRING_PARAMS in neural-visual-scene.tsx
+ * Disable animation:    prefers-reduced-motion in OS settings
+ * Feature flag:         ?hero=v2 (always on — remove param to revert)
+ */
 
-import React from 'react'
+import React, { useCallback } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowRight, Sparkles } from 'lucide-react'
-import { Button } from './button'
+import { ArrowRight, ChevronDown } from 'lucide-react'
+import { NeuralVisual } from './neural-visual'
 
+// ─── Content ─────────────────────────────────────────────────────────────────
+// Defaults; swap for API-driven content when CMS is wired up.
+const HERO_CONTENT = {
+  badge:        'V2.0 Innovation Lab',
+  line1:        'Architecting the',
+  line2:        'Future of AI.',
+  paragraph:    'We unite creativity, product engineering, and deep learning to build intelligent web and mobile experiences.',
+  primaryCTA:   'Start Your Project',
+  secondaryCTA: 'View Our Work',
+} as const
+
+// ─── Analytics helper ─────────────────────────────────────────────────────────
+function emitEvent(name: string) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(window as any).gtag('event', name)
+    }
+    window.dispatchEvent(new CustomEvent(name))
+  } catch { /* ignore in non-browser env */ }
+}
+
+// ─── Framer Motion variants ───────────────────────────────────────────────────
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+}
+const itemVariants = {
+  hidden:  { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] as const } },
+}
+const headlineVariants = {
+  hidden:  { opacity: 0, y: 32 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as const } },
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 export function HeroSection() {
-  // useReducedMotion MUST be called at the top of the component (Rules of Hooks)
   const prefersReducedMotion = useReducedMotion()
 
+  const handlePrimaryClick = useCallback(() => {
+    emitEvent('hero_primary_click')
+    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
+  }, [])
+
+  const handleSecondaryClick = useCallback(() => {
+    emitEvent('hero_secondary_click')
+    document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })
+  }, [])
+
+  const handleScrollDown = useCallback(() => {
+    document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })
+  }, [])
+
+  const motionProps = prefersReducedMotion
+    ? {}
+    : { variants: containerVariants, initial: 'hidden' as const, animate: 'visible' as const }
+
   return (
-    <section className="min-h-screen flex items-center justify-center relative overflow-hidden py-36 lg:py-48 mb-16 md:mb-24 lg:mb-32">
-      {/* Animated glow effect (responsive, accessible, and performance-minded) */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* subtle contrast overlay to improve text legibility */}
-        <div className="absolute inset-0 bg-black/20 mix-blend-normal" />
-
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 parallax-item" data-parallax-depth="0.15">
-          <motion.div
-            className="w-[clamp(240px,40vw,800px)] h-[clamp(240px,40vw,800px)] rounded-full bg-brand-blue/30 blur-[80px] sm:blur-[120px]"
-            animate={!prefersReducedMotion ? {
-              opacity: [0.3, 0.5, 0.3],
-              scale: [1, 1.15, 1]
-            } : { opacity: 0.4, scale: 1 }}
-            transition={!prefersReducedMotion ? {
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut"
-            } : { duration: 0 }}
-            style={{ willChange: 'transform, opacity' }}
-          />
-        </div>
-
-        <div className="absolute top-20 right-20 parallax-item" data-parallax-depth="0.25">
-          <motion.div
-            className="w-[clamp(160px,25vw,400px)] h-[clamp(160px,25vw,400px)] rounded-full bg-purple-500/20 blur-[60px] sm:blur-[100px]"
-            animate={!prefersReducedMotion ? {
-              opacity: [0.2, 0.4, 0.2],
-              scale: [1, 1.08, 1]
-            } : { opacity: 0.25, scale: 1 }}
-            transition={!prefersReducedMotion ? {
-              duration: 6,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 1
-            } : { duration: 0 }}
-            style={{ willChange: 'transform, opacity' }}
-          />
-        </div>
-
-        {/* Floating orbs (reduced size on small screens for better perf) */}
-        <motion.div
-          className="absolute left-10 top-1/4 w-24 h-24 rounded-full bg-blue-500/18 blur-[48px] sm:w-32 sm:h-32 sm:blur-[60px]"
-          animate={!prefersReducedMotion ? {
-            y: [-20, 20, -20],
-            x: [-10, 10, -10],
-            opacity: [0.3, 0.6, 0.3]
-          } : { opacity: 0.4 }}
-          transition={!prefersReducedMotion ? { duration: 7, repeat: Infinity, ease: 'easeInOut' } : { duration: 0 }}
-          style={{ willChange: 'transform, opacity' }}
-        />
-        <motion.div
-          className="absolute left-20 bottom-1/3 w-36 h-36 rounded-full bg-cyan-500/12 blur-[56px] sm:w-48 sm:h-48"
-          animate={!prefersReducedMotion ? {
-            y: [20, -20, 20],
-            x: [10, -5, 10],
-            opacity: [0.2, 0.5, 0.2]
-          } : { opacity: 0.3 }}
-          transition={!prefersReducedMotion ? { duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 0.5 } : { duration: 0 }}
-          style={{ willChange: 'transform, opacity' }}
-        />
-
-        {/* Floating orbs on right side */}
-        <motion.div
-          className="absolute right-10 top-1/3 w-32 h-32 rounded-full bg-purple-500/18 blur-[52px] sm:w-40 sm:h-40"
-          animate={!prefersReducedMotion ? {
-            y: [15, -15, 15],
-            x: [5, -5, 5],
-            opacity: [0.25, 0.55, 0.25]
-          } : { opacity: 0.35 }}
-          transition={!prefersReducedMotion ? { duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1.5 } : { duration: 0 }}
-          style={{ willChange: 'transform, opacity' }}
-        />
-        <motion.div
-          className="absolute right-32 bottom-1/4 w-28 h-28 rounded-full bg-pink-500/12 blur-[48px] sm:w-36 sm:h-36"
-          animate={!prefersReducedMotion ? {
-            y: [-15, 15, -15],
-            x: [-8, 8, -8],
-            opacity: [0.2, 0.45, 0.2]
-          } : { opacity: 0.3 }}
-          transition={!prefersReducedMotion ? { duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 } : { duration: 0 }}
-          style={{ willChange: 'transform, opacity' }}
-        />
-
-        {/* Animated particles (reduced count & lighter weight for perf) */}
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1.5 h-1.5 rounded-full bg-brand-blue/40"
-            style={{
-              left: `${8 + i * 14}%`,
-              top: `${18 + (i % 3) * 18}%`,
-              willChange: 'transform, opacity'
-            }}
-            animate={!prefersReducedMotion ? {
-              y: [0, -20, 0],
-              opacity: [0, 0.8, 0],
-              scale: [0, 1.2, 0],
-            } : { opacity: 0.4 }}
-            transition={{
-              duration: 3 + i * 0.4,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.6,
-            }}
-          />
-        ))}
-
-        {/* Subtle noise texture for richness */}
-        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'url("/noise.png")', mixBlendMode: 'overlay' }} />
+    <section
+      className="relative min-h-screen flex items-center overflow-hidden"
+      data-hero-version="v2.0"
+      aria-label="Hero — Architecting the Future of AI"
+    >
+      {/* ── Subtle ambient layer (no heavy outer glows/rings) ────────────── */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        {/* Very soft ambient wash — no heavy rings */}
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-[#7b61ff]/8 blur-[120px]" />
+        <div className="absolute -top-20 right-0 w-[350px] h-[350px] rounded-full bg-[#00d4ff]/6 blur-[100px]" />
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-        >
-          <h1 className="font-display text-5xl sm:text-5xl md:text-6xl lg:text-7xl mb-8 leading-[0.95] tracking-tight">
-            <span className="block bg-gradient-to-r from-brand-blue via-blue-400 to-purple-500 bg-clip-text text-transparent">ASAGUS</span>
-          </h1>
-        </motion.div>
+      {/* ── Main 2-column grid ───────────────────────────────────────────── */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-28 lg:py-36">
+        <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-8 lg:gap-4 items-center">
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-        >
-          <h2 className="font-display text-lg sm:text-xl md:text-2xl lg:text-3xl mb-10 leading-tight">
-            <span className="block text-gray-400">ENGINEERING THE</span>
-            <span className="block text-white mt-1.5">FUTURE OF DIGITAL</span>
-            <span className="block text-brand-blue mt-1.5">INNOVATION</span>
-          </h2>
-        </motion.div>
-
-        <motion.p
-          className="text-base sm:text-lg text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed font-light"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-        >
-          We unite <span className="text-white font-medium">creativity</span> and data-driven intelligence to create 
-          <span className="text-white font-medium"> digital experiences</span> that fuel real business growth.
-        </motion.p>
-
-        <motion.div
-          className="flex flex-col sm:flex-row gap-6 justify-center items-center"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.7 }}
-        >
-          <Button
-            onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-            icon={<ArrowRight className="w-4 h-4" />}
-            className="min-w-[180px] !px-6 !py-3 !text-sm"
+          {/* ── LEFT COLUMN ──────────────────────────────────────────────── */}
+          <motion.div
+            className="flex flex-col items-start text-left"
+            {...motionProps}
           >
-            Start Your Project
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
-            className="min-w-[180px] !px-6 !py-3 !text-sm"
-          >
-            View Our Work
-          </Button>
-        </motion.div>
+            {/* Badge */}
+            <motion.div variants={prefersReducedMotion ? {} : itemVariants} className="mb-6">
+              <span
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.75rem] font-semibold tracking-wide border border-white/10 bg-white/5 text-[#9aa0a6] backdrop-blur-sm select-none"
+                aria-label="Version badge"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-[#7b61ff] animate-pulse" aria-hidden="true" />
+                {HERO_CONTENT.badge}
+              </span>
+            </motion.div>
 
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, y: [0, 8, 0] }}
-          transition={{ 
-            opacity: { delay: 1.3 },
-            y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" }
-          }}
-        >
-          <div 
-            className="flex flex-col items-center gap-2 cursor-pointer group"
-            onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
+            {/* Headline — h1 is the dominant typographic element */}
+            <motion.h1
+              className="font-display leading-[1.02] tracking-tight mb-6"
+              style={{ fontSize: 'clamp(2.5rem, 6vw, 5.0rem)' }}
+              variants={prefersReducedMotion ? {} : headlineVariants}
+            >
+              <span className="block text-white">{HERO_CONTENT.line1}</span>
+              <span className="block bg-gradient-to-r from-[#7b61ff] via-[#4a90e2] to-[#00d4ff] bg-clip-text text-transparent">
+                {HERO_CONTENT.line2}
+              </span>
+            </motion.h1>
+
+            {/* Supporting paragraph */}
+            <motion.p
+              className="font-body text-[1rem] sm:text-[1.075rem] leading-relaxed text-[#9aa0a6] mb-10 max-w-[480px]"
+              variants={prefersReducedMotion ? {} : itemVariants}
+            >
+              {HERO_CONTENT.paragraph}
+            </motion.p>
+
+            {/* CTAs */}
+            <motion.div
+              className="flex flex-col sm:flex-row gap-4 items-start"
+              variants={prefersReducedMotion ? {} : itemVariants}
+            >
+              {/* Primary CTA — gradient contained, no outer glow ring */}
+              <button
+                type="button"
+                onClick={handlePrimaryClick}
+                aria-label="Start your project with ASAGUS"
+                className={[
+                  'group inline-flex items-center gap-2.5 px-7 py-4 rounded-full',
+                  'font-body font-semibold text-[1rem] text-white',
+                  'bg-gradient-to-r from-[#7b61ff] to-[#00d4ff]',
+                  'relative overflow-hidden',
+                  'before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-b before:from-white/15 before:to-transparent before:pointer-events-none',
+                  'shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]',
+                  'transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97]',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7b61ff] focus-visible:ring-offset-2 focus-visible:ring-offset-black',
+                ].join(' ')}
+              >
+                <span className="relative z-10">{HERO_CONTENT.primaryCTA}</span>
+                <ArrowRight
+                  className="relative z-10 w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                />
+              </button>
+
+              {/* Secondary CTA — transparent, 1px border at 40% white */}
+              <button
+                type="button"
+                onClick={handleSecondaryClick}
+                aria-label="View our work and portfolio"
+                className={[
+                  'inline-flex items-center gap-2 px-7 py-4 rounded-full',
+                  'font-body font-semibold text-[1rem] text-white/80',
+                  'border border-white/40 bg-transparent',
+                  'transition-all duration-200 hover:bg-white/5 hover:text-white hover:scale-[1.03] active:scale-[0.97]',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black',
+                ].join(' ')}
+              >
+                {HERO_CONTENT.secondaryCTA}
+              </button>
+            </motion.div>
+
+            {/* Stat strip */}
+            <motion.div
+              className="mt-12 flex flex-wrap items-center gap-x-6 gap-y-2 text-[0.8rem] text-[#9aa0a6]"
+              variants={prefersReducedMotion ? {} : itemVariants}
+            >
+              <span className="flex items-center gap-1.5">
+                <span className="font-semibold text-white">50+</span> Projects shipped
+              </span>
+              <span className="w-px h-3 bg-white/20 hidden sm:block" aria-hidden="true" />
+              <span className="flex items-center gap-1.5">
+                <span className="font-semibold text-white">2024</span> Founded
+              </span>
+              <span className="w-px h-3 bg-white/20 hidden sm:block" aria-hidden="true" />
+              <span className="flex items-center gap-1.5">
+                <span className="font-semibold text-white">AI-first</span> engineering
+              </span>
+            </motion.div>
+          </motion.div>
+
+          {/* ── RIGHT COLUMN — desktop neural visual ──────────────────────── */}
+          <motion.div
+            className="hidden lg:flex justify-center items-center w-full h-[540px] relative"
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.0, delay: 0.4, ease: 'easeOut' }}
+            aria-hidden="true"
           >
-            <div className="relative">
-              <div className="w-[2px] h-10 bg-gradient-to-b from-brand-blue via-brand-blue/50 to-transparent"></div>
-              <motion.div
-                className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-brand-blue rounded-full"
-                animate={{ y: [0, 32, 0] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-              />
-            </div>
-          </div>
-        </motion.div>
+            <NeuralVisual className="w-full h-full" />
+          </motion.div>
+
+          {/* Mobile simplified visual (stacks below text, small height) */}
+          <motion.div
+            className="flex lg:hidden justify-center items-center w-full h-[220px] relative"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            aria-hidden="true"
+          >
+            <NeuralVisual className="w-full h-full" />
+          </motion.div>
+        </div>
       </div>
+
+      {/* ── Scroll down indicator ─────────────────────────────────────────── */}
+      <motion.button
+        type="button"
+        onClick={handleScrollDown}
+        aria-label="Scroll down to explore"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm"
+        initial={{ opacity: 0 }}
+        animate={
+          prefersReducedMotion
+            ? { opacity: 0.5 }
+            : { opacity: [0, 0.6, 0.6], y: [0, 0, 6] }
+        }
+        transition={
+          prefersReducedMotion
+            ? {}
+            : {
+                opacity: { delay: 1.5, duration: 0.6 },
+                y: { delay: 1.5, duration: 2, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' },
+              }
+        }
+      >
+        <span className="text-[0.68rem] tracking-[0.15em] uppercase text-white/30 font-body group-hover:text-white/50 transition-colors">
+          Scroll
+        </span>
+        <ChevronDown className="w-4 h-4 text-white/30 group-hover:text-white/50 transition-colors" aria-hidden="true" />
+      </motion.button>
     </section>
   )
 }

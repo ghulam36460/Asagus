@@ -115,7 +115,7 @@ importers:
   packages/database:
     dependencies:
       '@prisma/client':
-        specifier: ^6.3.0
+        specifier: 6.19.2
         version: 6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3)
       dotenv:
         specifier: ^16.4.0
@@ -131,7 +131,7 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       prisma:
-        specifier: ^6.3.0
+        specifier: 6.19.2
         version: 6.19.2(typescript@5.9.3)
       rimraf:
         specifier: ^6.0.0

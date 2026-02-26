@@ -27,7 +27,7 @@ export default function TermsOfService() {
         <h1 className="font-display text-4xl sm:text-5xl text-black dark:text-white mb-4">
           Terms of Service
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">
+        <p className="text-gray-600 dark:text-gray-400 mb-8" suppressHydrationWarning>
           Last updated: {new Date().toLocaleDateString()}
         </p>
 

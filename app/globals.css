@@ -11,6 +11,34 @@
   --card-foreground: #000000;
   --primary: #1D4DF1;
   --primary-foreground: #FFFFFF;
+
+  /* ─── Bento Services — Design Tokens ─────────────────────────────────────── */
+  /* Glass overlay */
+  --glass-opacity: 0.08;
+  --glass-blur: 12px;
+  --glass-bg: rgba(255, 255, 255, var(--glass-opacity));
+  --glass-border: rgba(255, 255, 255, 0.10);
+
+  /* Neon accents (override per card via inline style) */
+  --neon-color-rgb: 29, 77, 241;        /* brand-blue */
+  --accent-rgb: 29, 77, 241;
+
+  /* Research card accent (violet) */
+  --neon-research-rgb: 139, 92, 246;
+  /* Product card accent (cyan-blue) */
+  --neon-product-rgb: 29, 77, 241;
+
+  /* Radial glow motion layer */
+  --g-opacity: 0.18;
+
+  /* 3-D tilt */
+  --tilt-perspective: 1200px;
+  --tilt-max: 8deg;
+
+  /* Bento grid */
+  --bento-gap: 16px;
+  --bento-radius: 24px;
+  --bento-min-h: 340px;
 }
 
 .dark {
@@ -20,6 +48,11 @@
   --card-foreground: #FFFFFF;
   --primary: #1D4DF1;
   --primary-foreground: #FFFFFF;
+
+  /* Dark mode glass — slightly more opaque for readability */
+  --glass-opacity: 0.08;
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 * {
@@ -249,3 +282,276 @@ a:hover {
 }
 
 /* End footer spacing utility */
+/* ===================================
+   Bento Services Grid — Layout CSS
+   =================================== */
+
+/* ── Grid wrapper ─────────────────── */
+.bento-grid {
+  display: grid;
+  gap: var(--bento-gap);
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto;
+  grid-template-areas:
+    "a a b c"
+    "a a d e"
+    "f f g g";
+}
+
+@media (max-width: 1023px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas:
+      "a a"
+      "b c"
+      "d e"
+      "f g";
+  }
+}
+
+@media (max-width: 767px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "a"
+      "b"
+      "c"
+      "d"
+      "e"
+      "f"
+      "g";
+  }
+}
+
+/* ── Named grid areas ─────────────── */
+.bento-area-a { grid-area: a; min-height: calc(var(--bento-min-h) * 2 + var(--bento-gap)); }
+.bento-area-b { grid-area: b; min-height: var(--bento-min-h); }
+.bento-area-c { grid-area: c; min-height: var(--bento-min-h); }
+.bento-area-d { grid-area: d; min-height: var(--bento-min-h); }
+.bento-area-e { grid-area: e; min-height: var(--bento-min-h); }
+.bento-area-f { grid-area: f; min-height: var(--bento-min-h); }
+.bento-area-g { grid-area: g; min-height: var(--bento-min-h); }
+
+@media (max-width: 767px) {
+  .bento-area-a,
+  .bento-area-b,
+  .bento-area-c,
+  .bento-area-d,
+  .bento-area-e,
+  .bento-area-f,
+  .bento-area-g { min-height: var(--bento-min-h); }
+}
+
+/* ── Card base ────────────────────── */
+.bento-card {
+  position: relative;
+  border-radius: var(--bento-radius);
+  overflow: hidden;
+  isolation: isolate;
+  cursor: pointer;
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.45),
+    0 0 22px rgba(var(--neon-color-rgb), 0.12);
+  /* GPU composite layer */
+  will-change: transform, box-shadow;
+  transform: translateZ(0);
+}
+
+/* ── Glass overlay ────────────────── */
+.bento-glass {
+  position: absolute;
+  inset: 0;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  z-index: 2;
+}
+
+/* ── Radial glow motion layer ─────── */
+.bento-glow-layer {
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(
+    circle at var(--x, 50%) var(--y, 50%),
+    rgba(var(--accent-rgb), var(--g-opacity)),
+    transparent 40%
+  );
+  filter: blur(60px);
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 0.26s ease-out;
+}
+
+.bento-card:hover .bento-glow-layer,
+.bento-card:focus-visible .bento-glow-layer {
+  opacity: 0.65;
+}
+
+/* ── Video layer ──────────────────── */
+.bento-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  /* Dim slightly for text contrast */
+  filter: brightness(0.55) saturate(1.1);
+  transition: filter 0.4s ease, transform 0.6s ease;
+}
+
+.bento-card:hover .bento-video {
+  filter: brightness(0.65) saturate(1.25);
+  transform: scale(1.03);
+}
+
+/* ── Poster / static fallback ─────── */
+.bento-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  filter: brightness(0.55) saturate(1.1);
+  transition: filter 0.4s ease, transform 0.6s ease;
+}
+
+.bento-card:hover .bento-poster {
+  filter: brightness(0.65) saturate(1.2);
+  transform: scale(1.03);
+}
+
+/* ── Gradient scrim (bottom text safety) */
+.bento-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.82) 0%,
+    rgba(0, 0, 0, 0.30) 50%,
+    transparent 100%
+  );
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* ── Content panel ────────────────── */
+.bento-content {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem;
+}
+
+/* ── Type badge ───────────────────── */
+.bento-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  backdrop-filter: blur(8px);
+  width: max-content;
+}
+
+.bento-type-badge.research {
+  color: rgb(167, 139, 250);
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.35);
+}
+
+.bento-type-badge.product {
+  color: rgb(99, 179, 237);
+  background: rgba(29, 77, 241, 0.15);
+  border-color: rgba(29, 77, 241, 0.35);
+}
+
+/* ── Metric badges ────────────────── */
+.bento-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.bento-metric-badge {
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  backdrop-filter: blur(6px);
+  white-space: nowrap;
+}
+
+/* ── Focus ring ───────────────────── */
+.bento-card:focus-visible {
+  outline: 2px solid rgba(var(--neon-color-rgb), 0.9);
+  outline-offset: 3px;
+}
+
+/* ── Neon hover border intensify ─── */
+.bento-card:hover,
+.bento-card:focus-visible {
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.55),
+    0 0 28px rgba(var(--neon-color-rgb), 0.22),
+    0 0 60px rgba(var(--neon-color-rgb), 0.08);
+  border-color: rgba(var(--neon-color-rgb), 0.35);
+}
+
+/* ── Inline play button (mobile) ─── */
+.bento-play-btn {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.bento-play-btn-inner {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  pointer-events: auto;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.bento-play-btn-inner:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: scale(1.08);
+}
+
+/* ── Reduced motion overrides ─────── */
+@media (prefers-reduced-motion: reduce) {
+  .bento-card,
+  .bento-video,
+  .bento-poster,
+  .bento-glow-layer {
+    transition: none !important;
+    transform: none !important;
+  }
+  .bento-card:hover .bento-glow-layer {
+    opacity: 0 !important;
+  }
+}

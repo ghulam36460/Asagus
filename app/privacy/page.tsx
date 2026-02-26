@@ -107,7 +107,7 @@ export default function PrivacyPolicy() {
           <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl text-gray-900 dark:text-white mb-4">
             Privacy <span className="bg-gradient-to-r from-brand-blue to-purple-600 bg-clip-text text-transparent">Policy</span>
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600 dark:text-gray-400" suppressHydrationWarning>
             Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>

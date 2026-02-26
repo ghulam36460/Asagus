@@ -1,7 +1,6 @@
 import { HeroSection } from "@/components/hero-section";
-import { ServicesSection } from "@/components/services-section";
+import { BentoServicesSection } from "@/components/bento-services-section";
 import { ProjectsSection } from "@/components/projects-section";
-import { AboutSection } from "@/components/about-section";
 import { ContactSection } from "@/components/contact-section";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ScrollProgress } from "@/components/scroll-progress";
@@ -15,9 +14,8 @@ export default function Home() {
       <LiveChat />
       <ThemeToggle />
       <HeroSection />
-      <ServicesSection />
+      <BentoServicesSection />
       <ProjectsSection />
-      <AboutSection />
       <ContactSection />
       <Footer />
     </main>

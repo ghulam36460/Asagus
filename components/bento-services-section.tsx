@@ -408,10 +408,7 @@ function BentoCard({
               {/* CTA */}
               <Link
                 href={ctaHref ?? '#'}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold
-                           text-white/85 hover:text-white transition-colors
-                           focus-visible:outline-none focus-visible:ring-2
-                           focus-visible:ring-white/60 rounded-sm"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-white/85 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-sm"
                 aria-label={`${ctaLabel}: ${title}`}
                 tabIndex={hovered ? 0 : -1}
               >
@@ -687,11 +684,7 @@ export function BentoServicesSection() {
         >
           <Link
             href="/portfolio"
-            className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full text-sm font-semibold text-white
-                       border border-white/10 bg-white/[0.06] backdrop-blur-sm
-                       hover:bg-white/[0.11] hover:border-white/20
-                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40
-                       transition-all duration-300"
+            className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full text-sm font-semibold text-white border border-white/10 bg-white/[0.06] backdrop-blur-sm hover:bg-white/[0.11] hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-all duration-300"
           >
             Explore Full Portfolio
             <ArrowUpRight className="w-4 h-4" aria-hidden="true" />

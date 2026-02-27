@@ -10,7 +10,6 @@
 
 import {
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
   useCallback,
@@ -341,7 +340,7 @@ export function SurfCarousel() {
 
   // Viewport-responsive card widths
   const [vw, setVw] = useState(0)
-  useLayoutEffect(() => {
+  useEffect(() => {
     const update = () => setVw(window.innerWidth)
     update()
     window.addEventListener('resize', update)

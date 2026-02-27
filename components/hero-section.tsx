@@ -57,6 +57,88 @@ const headlineVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as const } },
 }
 
+// ─── Hero Buttons (100% inline styles — immune to all global/Tailwind overrides) ─
+function HeroPrimaryBtn({ onClick, label }: { onClick: () => void; label: string }) {
+  const [hovered, setHovered] = React.useState(false)
+  const [pressed, setPressed] = React.useState(false)
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => { setHovered(false); setPressed(false) }}
+      onMouseDown={() => setPressed(true)}
+      onMouseUp={() => setPressed(false)}
+      aria-label={label}
+      style={{
+        all: 'unset',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '10px',
+        padding: '12px 26px',
+        borderRadius: '9999px',
+        background: '#ffffff',
+        color: '#000000',
+        fontSize: '0.9rem',
+        fontWeight: 600,
+        fontFamily: 'var(--font-roboto), sans-serif',
+        cursor: 'pointer',
+        boxSizing: 'border-box',
+        userSelect: 'none',
+        transform: pressed ? 'scale(0.97)' : hovered ? 'scale(1.04)' : 'scale(1)',
+        boxShadow: hovered
+          ? 'inset 0 1px 0 rgba(255,255,255,0.25), 0 8px 32px rgba(255,255,255,0.2)'
+          : 'inset 0 1px 0 rgba(255,255,255,0.1)',
+        transition: 'transform 180ms ease, box-shadow 180ms ease',
+        outline: 'none',
+        WebkitTapHighlightColor: 'transparent',
+      }}
+    >
+      {label}
+      <ArrowRight style={{ width: 16, height: 16, flexShrink: 0, transform: hovered ? 'translateX(3px)' : 'translateX(0)', transition: 'transform 180ms ease' }} aria-hidden="true" />
+    </button>
+  )
+}
+
+function HeroSecondaryBtn({ onClick, label }: { onClick: () => void; label: string }) {
+  const [hovered, setHovered] = React.useState(false)
+  const [pressed, setPressed] = React.useState(false)
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => { setHovered(false); setPressed(false) }}
+      onMouseDown={() => setPressed(true)}
+      onMouseUp={() => setPressed(false)}
+      aria-label={label}
+      style={{
+        all: 'unset',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '12px 26px',
+        borderRadius: '9999px',
+        background: hovered ? 'rgba(255,255,255,0.07)' : 'transparent',
+        color: hovered ? '#fff' : 'rgba(255,255,255,0.75)',
+        fontSize: '0.9rem',
+        fontWeight: 600,
+        fontFamily: 'var(--font-roboto), sans-serif',
+        cursor: 'pointer',
+        boxSizing: 'border-box',
+        userSelect: 'none',
+        border: '1.5px solid rgba(255,255,255,0.35)',
+        transform: pressed ? 'scale(0.97)' : hovered ? 'scale(1.04)' : 'scale(1)',
+        transition: 'transform 180ms ease, background 180ms ease, color 180ms ease',
+        outline: 'none',
+        WebkitTapHighlightColor: 'transparent',
+      }}
+    >
+      {label}
+    </button>
+  )
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 export function HeroSection() {
   const prefersReducedMotion = useReducedMotion()
@@ -81,7 +163,8 @@ export function HeroSection() {
 
   return (
     <section
-      className="relative min-h-screen flex items-center overflow-hidden"
+      className="relative flex items-center overflow-hidden"
+      style={{ minHeight: '100vh', paddingTop: 'calc(var(--announcement-height, 44px) + 60px + 12px)' }}
       data-hero-version="v2.0"
       aria-label="Hero — Architecting the Future of AI"
     >
@@ -93,40 +176,31 @@ export function HeroSection() {
       </div>
 
       {/* ── Main 2-column grid ───────────────────────────────────────────── */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-28 lg:py-36">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-10 sm:px-20 lg:px-28 py-16 lg:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-8 lg:gap-4 items-center">
 
           {/* ── LEFT COLUMN ──────────────────────────────────────────────── */}
           <motion.div
             className="flex flex-col items-start text-left"
+            style={{ paddingLeft: 'clamp(0.5rem, 2.5vw, 2rem)', marginTop: '-7rem' }}
             {...motionProps}
           >
-            {/* Badge */}
-            <motion.div variants={prefersReducedMotion ? {} : itemVariants} className="mb-6">
-              <span
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.75rem] font-semibold tracking-wide border border-white/10 bg-white/5 text-[#9aa0a6] backdrop-blur-sm select-none"
-                aria-label="Version badge"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-[#7b61ff] animate-pulse" aria-hidden="true" />
-                {HERO_CONTENT.badge}
-              </span>
-            </motion.div>
-
             {/* Headline — h1 is the dominant typographic element */}
             <motion.h1
-              className="font-display leading-[1.02] tracking-tight mb-6"
-              style={{ fontSize: 'clamp(2.5rem, 6vw, 5.0rem)' }}
+              className="font-display leading-[1.02] tracking-tight"
+              style={{ fontSize: 'clamp(2.2rem, 5vw, 4.2rem)', marginBottom: '1.25rem' }}
               variants={prefersReducedMotion ? {} : headlineVariants}
             >
               <span className="block text-white">{HERO_CONTENT.line1}</span>
-              <span className="block bg-gradient-to-r from-[#7b61ff] via-[#4a90e2] to-[#00d4ff] bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-[#6b52cc] via-[#3a78c9] to-[#00aabf] bg-clip-text text-transparent opacity-75">
                 {HERO_CONTENT.line2}
               </span>
             </motion.h1>
 
             {/* Supporting paragraph */}
             <motion.p
-              className="font-body text-[1rem] sm:text-[1.075rem] leading-relaxed text-[#9aa0a6] mb-10 max-w-[480px]"
+              className="font-body text-[0.9rem] sm:text-[0.975rem] leading-relaxed text-[#9aa0a6] max-w-[460px]"
+              style={{ marginBottom: '1.75rem' }}
               variants={prefersReducedMotion ? {} : itemVariants}
             >
               {HERO_CONTENT.paragraph}
@@ -134,66 +208,16 @@ export function HeroSection() {
 
             {/* CTAs */}
             <motion.div
-              className="flex flex-col sm:flex-row gap-4 items-start"
+              style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}
               variants={prefersReducedMotion ? {} : itemVariants}
             >
-              {/* Primary CTA — gradient contained, no outer glow ring */}
-              <button
-                type="button"
-                onClick={handlePrimaryClick}
-                aria-label="Start your project with ASAGUS"
-                className={[
-                  'group inline-flex items-center gap-2.5 px-7 py-4 rounded-full',
-                  'font-body font-semibold text-[1rem] text-white',
-                  'bg-gradient-to-r from-[#7b61ff] to-[#00d4ff]',
-                  'relative overflow-hidden',
-                  'before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-b before:from-white/15 before:to-transparent before:pointer-events-none',
-                  'shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]',
-                  'transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97]',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7b61ff] focus-visible:ring-offset-2 focus-visible:ring-offset-black',
-                ].join(' ')}
-              >
-                <span className="relative z-10">{HERO_CONTENT.primaryCTA}</span>
-                <ArrowRight
-                  className="relative z-10 w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5"
-                  aria-hidden="true"
-                />
-              </button>
+              {/* Primary CTA */}
+              <HeroPrimaryBtn onClick={handlePrimaryClick} label={HERO_CONTENT.primaryCTA} />
 
-              {/* Secondary CTA — transparent, 1px border at 40% white */}
-              <button
-                type="button"
-                onClick={handleSecondaryClick}
-                aria-label="View our work and portfolio"
-                className={[
-                  'inline-flex items-center gap-2 px-7 py-4 rounded-full',
-                  'font-body font-semibold text-[1rem] text-white/80',
-                  'border border-white/40 bg-transparent',
-                  'transition-all duration-200 hover:bg-white/5 hover:text-white hover:scale-[1.03] active:scale-[0.97]',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black',
-                ].join(' ')}
-              >
-                {HERO_CONTENT.secondaryCTA}
-              </button>
+              {/* Secondary CTA */}
+              <HeroSecondaryBtn onClick={handleSecondaryClick} label={HERO_CONTENT.secondaryCTA} />
             </motion.div>
 
-            {/* Stat strip */}
-            <motion.div
-              className="mt-12 flex flex-wrap items-center gap-x-6 gap-y-2 text-[0.8rem] text-[#9aa0a6]"
-              variants={prefersReducedMotion ? {} : itemVariants}
-            >
-              <span className="flex items-center gap-1.5">
-                <span className="font-semibold text-white">50+</span> Projects shipped
-              </span>
-              <span className="w-px h-3 bg-white/20 hidden sm:block" aria-hidden="true" />
-              <span className="flex items-center gap-1.5">
-                <span className="font-semibold text-white">2024</span> Founded
-              </span>
-              <span className="w-px h-3 bg-white/20 hidden sm:block" aria-hidden="true" />
-              <span className="flex items-center gap-1.5">
-                <span className="font-semibold text-white">AI-first</span> engineering
-              </span>
-            </motion.div>
           </motion.div>
 
           {/* ── RIGHT COLUMN — desktop neural visual ──────────────────────── */}
@@ -202,9 +226,11 @@ export function HeroSection() {
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.0, delay: 0.4, ease: 'easeOut' }}
+            style={{ marginTop: '-3rem' }}
             aria-hidden="true"
           >
-            <NeuralVisual className="w-full h-full" />
+
+            <NeuralVisual className="w-full h-full relative z-10" />
           </motion.div>
 
           {/* Mobile simplified visual (stacks below text, small height) */}
@@ -215,7 +241,8 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 0.6 }}
             aria-hidden="true"
           >
-            <NeuralVisual className="w-full h-full" />
+
+            <NeuralVisual className="w-full h-full relative z-10" />
           </motion.div>
         </div>
       </div>

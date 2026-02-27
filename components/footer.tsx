@@ -24,12 +24,10 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
     <li>
       <Link
         href={href}
-        className="group inline-flex items-center gap-1.5 text-sm text-white/50
-                   hover:text-white transition-colors duration-200"
+        className="group inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white transition-colors duration-200"
       >
         <ChevronRight
-          className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0
-                     transition-all duration-200 text-brand-blue"
+          className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-brand-blue"
           aria-hidden="true"
         />
         {children}
@@ -150,8 +148,7 @@ export function Footer() {
           animate={isInView ? "visible" : "hidden"}
         >
           {/* Eyebrow */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full
-                          bg-brand-blue/10 border border-brand-blue/25 backdrop-blur-sm mb-7">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-blue/10 border border-brand-blue/25 backdrop-blur-sm mb-7">
             <Send className="w-3.5 h-3.5 text-brand-blue" aria-hidden="true" />
             <span className="text-[11px] font-bold uppercase tracking-widest text-brand-blue">
               Newsletter
@@ -176,8 +173,7 @@ export function Footer() {
             <motion.div
               initial={{ scale: 0.92, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="flex items-center gap-3 px-6 py-4 rounded-2xl
-                         bg-emerald-500/10 border border-emerald-500/25"
+              className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/25"
             >
               <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
                 <Check className="w-4 h-4 text-emerald-400" />
@@ -190,10 +186,7 @@ export function Footer() {
           ) : (
             <form onSubmit={handleSubmit} className="w-full max-w-lg" noValidate>
               {/* Input row */}
-              <div className="flex items-center gap-2 p-1.5 rounded-2xl
-                              bg-white/[0.04] border border-white/[0.08]
-                              focus-within:border-brand-blue/40 focus-within:bg-white/[0.06]
-                              transition-all duration-300">
+              <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white/[0.04] border border-white/[0.08] focus-within:border-brand-blue/40 focus-within:bg-white/[0.06] transition-all duration-300">
                 <div className="pl-3 text-white/30" aria-hidden="true">
                   <Mail className="w-4 h-4" />
                 </div>
@@ -205,16 +198,12 @@ export function Footer() {
                   required
                   disabled={isSubmitting}
                   aria-label="Email address"
-                  className="flex-1 h-11 bg-transparent text-sm text-white
-                             placeholder:text-white/30 focus:outline-none disabled:opacity-50 px-2"
+                  className="flex-1 h-11 bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none disabled:opacity-50 px-2"
                 />
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="h-11 px-6 rounded-xl bg-brand-blue hover:bg-blue-500
-                             text-sm font-semibold text-white transition-colors
-                             disabled:opacity-50 flex items-center gap-2 flex-shrink-0
-                             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60"
+                  className="h-11 px-6 rounded-xl bg-brand-blue hover:bg-blue-500 text-sm font-semibold text-white transition-colors disabled:opacity-50 flex items-center gap-2 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60"
                 >
                   {isSubmitting ? (
                     <div
@@ -245,8 +234,7 @@ export function Footer() {
             {stats.map((s) => (
               <div
                 key={s.label}
-                className="flex items-center gap-2.5 px-4 py-2 rounded-xl
-                           bg-white/[0.04] border border-white/[0.07] backdrop-blur-sm"
+                className="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.07] backdrop-blur-sm"
               >
                 <span className="text-sm font-bold text-white">{s.value}</span>
                 <span className="text-xs text-white/40">{s.label}</span>
@@ -288,8 +276,7 @@ export function Footer() {
             </p>
 
             {/* Status pill */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full
-                            bg-emerald-500/10 border border-emerald-500/20 w-max">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 w-max">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
               <span className="text-xs font-medium text-emerald-400">Available for new projects</span>
             </div>
@@ -332,11 +319,7 @@ export function Footer() {
                   role="listitem"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="relative w-9 h-9 rounded-xl bg-white/[0.05] border border-white/[0.08]
-                             flex items-center justify-center text-white/50
-                             hover:text-white hover:border-brand-blue/40 hover:bg-brand-blue/10
-                             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/50
-                             transition-all duration-200 group/s"
+                  className="relative w-9 h-9 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-white/50 hover:text-white hover:border-brand-blue/40 hover:bg-brand-blue/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/50 transition-all duration-200 group/s"
                 >
                   <s.icon className="w-4 h-4" />
                 </a>
@@ -391,8 +374,7 @@ export function Footer() {
 
             {/* CTA glass card */}
             <div
-              className="relative rounded-2xl overflow-hidden p-6 border border-white/[0.08]
-                         bg-gradient-to-br from-brand-blue/12 via-transparent to-purple-600/10"
+              className="relative rounded-2xl overflow-hidden p-6 border border-white/[0.08] bg-gradient-to-br from-brand-blue/12 via-transparent to-purple-600/10"
             >
               {/* Background glow */}
               <div
@@ -418,10 +400,7 @@ export function Footer() {
 
                 <Link
                   href="/#contact"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-white
-                             px-4 py-2.5 rounded-xl bg-brand-blue hover:bg-blue-500
-                             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60
-                             transition-colors group/cta"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-white px-4 py-2.5 rounded-xl bg-brand-blue hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60 transition-colors group/cta"
                 >
                   Start a Project
                   <ArrowUpRight className="w-3.5 h-3.5 group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5 transition-transform" aria-hidden="true" />

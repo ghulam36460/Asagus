@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Audiowide, PT_Sans_Caption } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SmoothScroll } from "@/components/smooth-scroll";
 import { ScrollRevealProvider } from "@/components/scroll-reveal-provider";
-import { FloatingNavbar } from "@/components/floating-navbar";
-import { AnimatedBackground } from "@/components/animated-background";
+import { SiteHeader } from "@/components/site-header";
+
 import { StructuredData } from "./structured-data";
 import { ComprehensiveSEO } from "./comprehensive-seo";
 import { GEOSchema } from "./geo-schema";
@@ -13,17 +13,16 @@ import { AIMetaTags } from "./ai-meta";
 import { CitationGuide } from "./citation-guide";
 import { ConversationalContent } from "./conversational-content";
 
-const audiowide = Audiowide({
-  weight: "400",
-  variable: "--font-audiowide",
-  subsets: ["latin"],
+const azonix = localFont({
+  src: "../font/Azonix-1VB0.otf",
+  variable: "--font-azonix",
   display: "swap",
+  weight: "400",
 });
 
-const ptSansCaption = PT_Sans_Caption({
-  weight: ["400", "700"],
-  variable: "--font-pt-sans-caption",
-  subsets: ["latin"],
+const roboto = localFont({
+  src: "../font/Roboto-VariableFont_wdth,wght.ttf",
+  variable: "--font-roboto",
   display: "swap",
 });
 
@@ -130,7 +129,7 @@ export default function RootLayout({
         <ConversationalContent />
       </head>
       <body
-        className={`${audiowide.variable} ${ptSansCaption.variable} font-body antialiased overflow-x-hidden`}
+        className={`${azonix.variable} ${roboto.variable} antialiased overflow-x-hidden`}
         suppressHydrationWarning
       >
         <ThemeProvider
@@ -139,10 +138,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AnimatedBackground />
           <SmoothScroll />
           <ScrollRevealProvider>
-            <FloatingNavbar />
+            <SiteHeader />
             {children}
           </ScrollRevealProvider>
         </ThemeProvider>

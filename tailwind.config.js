@@ -16,8 +16,8 @@ module.exports = {
         },
       },
       fontFamily: {
-        display: ['var(--font-audiowide)', 'sans-serif'],
-        body: ['var(--font-pt-sans-caption)', 'sans-serif'],
+        display: ['var(--font-azonix)', 'sans-serif'],
+        body: ['var(--font-roboto)', 'sans-serif'],
       },
       boxShadow: {
         glow: '0 0 20px rgba(29, 77, 241, 0.5)',

@@ -1,48 +1,19 @@
 {
   "name": "asagus",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "start:admin": "cd admin-panel && pnpm start",
-    "start:all": "concurrently \"pnpm start\" \"pnpm start:admin\" --names \"MAIN,ADMIN\" --prefix-colors \"cyan,magenta\"",
-    "lint": "eslint",
-    "dev:admin": "cd admin-panel && pnpm dev",
-    "dev:all": "concurrently \"pnpm dev\" \"pnpm dev:admin\" --names \"MAIN,ADMIN\" --prefix-colors \"cyan,magenta\"",
-    "install:all": "pnpm install && cd admin-panel && pnpm install",
-    "build:all": "pnpm build && cd admin-panel && pnpm build",
-    "admin:install": "cd admin-panel && pnpm install",
-    "admin:create-db": "cd admin-panel && .\\create-database.bat",
-    "admin:db-setup": "cd admin-panel && pnpm db:setup",
-    "admin:setup": "pnpm admin:install && pnpm admin:create-db && pnpm admin:db-setup"
-  },
-  "dependencies": {
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.5.0",
-    "@types/three": "^0.183.1",
-    "framer-motion": "^12.23.25",
-    "gsap": "^3.13.0",
-    "lenis": "^1.3.15",
-    "lucide-react": "^0.556.0",
-    "next": "16.1.6",
-    "next-themes": "^0.4.6",
-    "react": "19.2.0",
-    "react-dom": "19.2.0",
-    "resend": "^6.5.2",
-    "three": "^0.183.1"
+    "dev:web": "pnpm --filter asagus dev",
+    "dev:admin": "pnpm --filter @asagus/admin-frontend dev",
+    "dev:gateway": "pnpm --filter @asagus/api-gateway dev",
+    "dev:auth": "pnpm --filter @asagus/auth-service dev",
+    "dev:content": "pnpm --filter @asagus/content-service dev",
+    "dev:analytics": "pnpm --filter @asagus/analytics-service dev",
+    "build:web": "pnpm --filter asagus build",
+    "build:admin": "pnpm --filter @asagus/admin-frontend build",
+    "install:all": "pnpm install"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "babel-plugin-react-compiler": "1.0.0",
-    "concurrently": "^9.1.2",
-    "eslint": "^9",
-    "eslint-config-next": "16.0.7",
-    "tailwindcss": "^4",
     "typescript": "^5"
   }
 }

@@ -1,0 +1,1539 @@
+================================================================================
+          ASAGUS - FULL APPLICATION AUDIT REPORT
+          Generated: February 19, 2026
+          Audited By: GitHub Copilot (Claude Sonnet 4.6)
+          Scope: Every file in the workspace - no stone left unturned
+================================================================================
+
+
+TABLE OF CONTENTS
+-----------------
+ 1. Project Overview & Architecture
+ 2. Main Website (Next.js Frontend) - Full Breakdown
+ 3. Admin Panel - Full Breakdown
+ 4. Database Schema & Data Models
+ 5. Backend Microservices - Full Breakdown
+ 6. API Gateway
+ 7. Authentication & Security System
+ 8. SEO, Analytics & Tracking
+ 9. Email & Communication System
+10. Technology Stack (Complete List)
+11. Current Functionality Summary (What Works Today)
+12. Gaps, Issues & Incomplete Features
+13. Potential Additions & Improvements
+14. Admin Panel Control Map (What You Can Control From The Panel)
+15. Final Assessment
+
+
+================================================================================
+ 1. PROJECT OVERVIEW & ARCHITECTURE
+================================================================================
+
+ASAGUS is a software development company website paired with its own custom-built,
+self-hosted admin panel. The project is split into two major parts:
+
+  A) MAIN WEBSITE  → Next.js 16 app at the root of the project
+                     Runs on port 3000 (dev) / built as production Next.js app
+                     Uses static TypeScript data + external API for projects
+
+  B) ADMIN PANEL   → Separate sub-project at /admin-panel/
+                     Microservices architecture (4 services + 1 frontend)
+                     Runs on ports 4000 (API gateway), 4001, 4002, 4003, 3001
+
+Both parts share one PostgreSQL database (asagus_admin).
+The main website currently falls back to a local TypeScript data file
+(data/projects.ts) if the backend API is unavailable.
+
+Architecture Type: Monorepo with pnpm workspaces.
+
+Directory Structure Summary:
+  /                     → Main website (Next.js)
+  /app/                 → Next.js App Router pages & API routes
+  /components/          → All frontend UI components (26 components)
+  /data/                → Static TypeScript data (projects.ts)
+  /lib/                 → Utility libraries (validation, logger, projects-api, scroll)
+  /public/              → Static assets
+  /admin-panel/         → Entire admin panel (monorepo)
+  /admin-panel/frontend/         → Next.js admin UI (port 3001)
+  /admin-panel/services/         → 4 Express microservices
+  /admin-panel/packages/database/→ Prisma ORM + PostgreSQL schema
+
+
+================================================================================
+ 2. MAIN WEBSITE (NEXT.JS FRONTEND) - FULL BREAKDOWN
+================================================================================
+
+--- PAGES & ROUTES ---
+
+  / (Home)             → Single-page app layout with all sections stacked:
+                          HeroSection → ServicesSection → ProjectsSection
+                          → AboutSection → ContactSection → Footer
+
+  /projects            → Portfolio listing page (project grid/filter view)
+  /projects/[slug]     → Individual project detail page
+
+  /privacy             → Privacy policy page
+  /terms               → Terms of service page
+
+  API Routes (Next.js):
+  /api/contact         → POST: Handles contact form submissions, sends email via Resend
+  /api/newsletter      → POST: Newsletter subscription, sends welcome + admin notification email
+
+  Special Next.js routes:
+  /sitemap.xml         → Dynamic XML sitemap
+  /geo-sitemap.xml     → Geo-targeted sitemap (multi-region)
+  /sitemap-images.xml  → Images sitemap
+  /manifest.ts         → PWA manifest
+  /opengraph-image.tsx → Dynamic OG image generation
+  /icon.tsx            → Dynamic favicon generation
+
+
+--- SECTIONS (MAIN PAGE) ---
+
+  HeroSection:
+    - Animated gradient background with parallax floating orbs
+    - 6 animated particle dots
+    - GSAP / Framer Motion animations throughout
+    - Tagline: "ENGINEERING THE FUTURE OF DIGITAL INNOVATION"
+    - Two CTA buttons: "Start Your Project" (scrolls to contact) + "View Our Work"
+    - Scroll indicator arrow with smooth animation
+    - Respects prefers-reduced-motion for accessibility
+
+  ServicesSection:
+    - 4 service cards with background images + blur overlay:
+        1. Web & App Development
+        2. AI & Machine Learning
+        3. API & Backend Engineering
+        4. Data & Automation
+    - Each card: background image, gradient overlay, icon, number, description
+    - On click opens ServiceModal with full feature list
+    
+  ProjectsSection:
+    - Fetches from admin panel API (falls back to local data/projects.ts)
+    - Category filter tabs
+    - Project cards with hover effects
+    - Clicking opens ProjectModal with full details
+
+  AboutSection:
+    - Company stats + about information
+    - Animated on scroll
+
+  ContactSection:
+    - Full contact form: Name, Email, Phone, Service, Message
+    - Client-side validation (lib/validation.ts)
+    - Sends to /api/contact → Resend email service
+    - Shows success/error toast notification
+    - Service type can be specified
+
+  Footer:
+    - Newsletter subscription form → /api/newsletter → Resend
+    - Social links: LinkedIn, Instagram, Twitter, Dribbble (currently placeholder URLs)
+    - Nav links: Home, Projects, Services, About, Contact
+    - Service links
+    - Contact info section (address, email, phone)
+    - Copyright
+
+  FloatingNavbar:
+    - Glassmorphism pill design with gradient glow
+    - Links: Home, Projects, Research, Products, Services, Contact
+    - Mobile: hamburger menu with animated drawer
+    - Close on Escape key or outside click
+    - NOTE: "Research" links to /research-development and "Products" links to /products
+      → These pages DO NOT EXIST in the codebase yet (404 on those routes)
+
+  ThemeToggle:
+    - Dark/light mode toggle using next-themes
+    - Fixed position on page
+
+  ScrollProgress:
+    - Fixed top progress bar showing scroll position
+
+  LiveChat:
+    - Crisp chat integration
+    - Loads only if NEXT_PUBLIC_CRISP_WEBSITE_ID env var is set
+    - Currently NO Crisp ID configured → chat widget is NOT active
+    - Includes helper functions: openChat, closeChat, showChat, hideChat,
+      sendMessage, setUserEmail, setUserName
+
+  AnimatedBackground:
+    - GSAP-powered animated background (parallax, particle effects)
+
+  SmoothScroll:
+    - Lenis smooth scroll library integration
+
+  ScrollRevealProvider:
+    - Intersection Observer based reveal animations for sections
+
+
+--- PROJECT PAGES ---
+
+  /projects:
+    - Static project listing page (uses local data/projects.ts)
+    - Filter by category
+    - Uses portfolio-filter.tsx component
+
+  /projects/[slug]:
+    - Individual project page with full details
+    - project-page-client.tsx renders hero, gallery, metrics, testimonials
+    - Uses lib/projects-api.ts to fetch from backend API with fallback to static data
+    - View count increment on each visit (handled by backend)
+
+
+--- STATIC DATA (data/projects.ts) ---
+
+Contains 5+ hardcoded sample/real projects:
+  1. LOGBOG          - Full-stack React blogging application
+  2. AI Vocal Expert - AI speech recognition + face authentication
+  3. GS Dashboard    - (data visible, rest truncated but present)
+  Additional projects present (file is 252 lines)
+
+Each project has: slug, title, category, technologies[], description,
+fullDescription, challenge, solution, results[], images{hero, gallery[]},
+testimonial{quote, author, role, company}, date, featured, externalLink
+
+
+--- LIBRARY FILES ---
+
+lib/validation.ts:
+  - Form validation engine
+  - contactFormRules: validates fullName, email, phone, service, message
+  - Minimum/maximum length rules, regex patterns
+
+lib/logger.ts:
+  - Structured logging utility with error/warn/info/debug levels
+  - Environment-aware, verbose in development
+
+lib/projects-api.ts:
+  - Fetches projects from admin panel API (http://localhost:4000/api/v1/projects)
+  - Functions: fetchProjects(), fetchProject(slug)
+  - 60-second revalidation for ISR
+  - Falls back to static data if API fails
+
+lib/scroll-reveal.ts:
+  - Intersection Observer setup for scroll-based animations
+
+
+--- SEO IMPLEMENTATION ---
+
+The website has an exceptionally deep SEO implementation:
+
+layout.tsx metadata:
+  - Full Open Graph (og:title, og:description, og:image, og:type, og:locale)
+  - Twitter card (summary_large_image)
+  - Canonical URLs with language alternates for 8 regions:
+    en-US, en-GB, en-AU, en-CA, en-IN, en-SG, en-AE, en-NZ
+  - Google robots directives (index, follow, max-snippet: -1)
+  - Google Search Console verification placeholder
+  - Keywords list (16 keywords)
+
+Dedicated SEO components in app/:
+  - structured-data.tsx   → JSON-LD structured data (Organization, Website, SoftwareApplication)
+  - comprehensive-seo.tsx → Comprehensive Open Graph + Twitter meta tags
+  - geo-schema.tsx        → GEO-targeted JSON-LD for local SEO
+  - ai-meta.tsx           → AI assistant discovery meta tags (for ChatGPT, Perplexity, etc.)
+  - citation-guide.tsx    → Citation format for AI citation
+  - conversational-content.tsx → Conversational Q&A content for AI discovery
+
+Dynamic sitemaps (geo-sitemap, sitemap-images) for full coverage.
+
+
+================================================================================
+ 3. ADMIN PANEL - FULL BREAKDOWN
+================================================================================
+
+The admin panel is a completely separate Next.js application running at port 3001.
+It is backed by 3 Express microservices and talks to the same PostgreSQL database.
+
+URL: http://localhost:3001 (dev) → https://admin.asagus.com (production)
+
+--- LOGIN PAGE (/login) ---
+  - Email + password form
+  - JWT-based authentication
+  - Show/hide password toggle
+  - Redirects to /dashboard on success
+  - Shows error message on failure
+  - Default credentials from seed: admin@asagus.com / Admin@2026Secure!
+
+--- SIDEBAR NAVIGATION ---
+
+The sidebar has 13 navigation items:
+  1.  Dashboard     (/dashboard)
+  2.  Projects      (/dashboard/projects)
+  3.  Services      (/dashboard/services)
+  4.  Team          (/dashboard/team)
+  5.  Blog          (/dashboard/blog)
+  6.  Research      (/dashboard/research)
+  7.  Testimonials  (/dashboard/testimonials)
+  8.  FAQs          (/dashboard/faqs)
+  9.  Contacts      (/dashboard/contacts)
+  10. Analytics     (/dashboard/analytics)
+  11. Users         (/dashboard/users)
+  12. Audit Logs    (/dashboard/audit-logs)
+  13. Settings      (/dashboard/settings)
+
+Plus: Logout button at bottom
+
+Sidebar features:
+  - Collapsible (icon-only mode for desktop)
+  - Mobile responsive with hamburger menu
+  - Active state highlighting with gradient background
+  - Smooth hover transitions
+
+--- DASHBOARD (Main Overview) ---
+
+Stats Grid Row 1:
+  - Total Projects (with published count)
+  - Active Services count
+  - Testimonials count
+  - Total Page Views
+
+Stats Grid Row 2:
+  - Contact Forms (with unread count)
+  - Newsletter Subscribers
+  - Unread Messages
+  - Growth % (currently hardcoded +12.5%)
+
+Tables below stats:
+  - Recent Projects table (title, category, published status, view count, date)
+  - Recent Contacts table (name, email, subject, read status, date)
+
+Data source: /api/v1/dashboard/stats endpoint
+
+
+--- PROJECTS PAGE (/dashboard/projects) ---
+
+List View:
+  - Search by title/description
+  - Filter by category (10 categories)
+  - Paginated table (10 per page)
+  - Columns: title, slug, category, tags, featured, published, view count, dates, actions
+
+Create/Edit Modal:
+  - Title (required)
+  - Description (short)
+  - Full Description (long text)
+  - Challenge field
+  - Solution field
+  - Category selector (10 options)
+  - Tags (comma-separated)
+  - Technology selector (searchable multi-select with Technology model)
+  - Client Name
+  - Project URL
+  - GitHub URL
+  - Thumbnail image upload
+  - Multi-image gallery upload
+  - Featured toggle
+  - Published toggle
+
+Actions per row: Edit (pencil), Delete (trash), Toggle visibility
+
+Backend operations: GET, POST, PUT, DELETE on projects
+Technology linking: projects can be linked to Technology records
+
+
+--- SERVICES PAGE (/dashboard/services) ---
+
+List View:
+  - Search by title
+  - Table: title, icon, published status, sort order, actions
+
+Create/Edit Modal:
+  - Title (required)
+  - Short Description
+  - Full Description
+  - Icon selector (12 Lucide icon options: Shield, Code, Cloud, Brain, Lock, Globe,
+    Smartphone, Database, Cpu, Terminal, Layers, Zap)
+  - Features (comma-separated list)
+  - Sort Order number
+  - Published checkbox
+
+Actions: Edit, Delete
+Backend: Full CRUD on services table
+
+
+--- TEAM PAGE (/dashboard/team) ---
+
+List View:
+  - Avatar display (initials if no photo)
+  - Name, Role, Department columns
+  - Expertise tags (shows first 3, then count)
+  - Active status, Featured star indicator
+  - Actions: Edit, Delete
+
+Create/Edit Modal (extensive):
+  - Name, Slug (auto-generated from name)
+  - Role, Department (8 department options)
+  - Bio (rich text editor)
+  - Expertise tags (add/remove chips)
+  - Avatar URL (image upload component)
+  - Contact: Email, Phone
+  - Social: LinkedIn, Twitter, GitHub, Website
+  - Status: Is Active, Featured checkboxes
+  - Sort Order, Join Date
+  - SEO: Meta Title, Meta Description (if extended by full backend response)
+
+Uses: RichTextEditor component, ImageUpload component, useToast hook
+
+
+--- BLOG PAGE (/dashboard/blog) ---
+
+Full blog management with:
+  - Post list with status badges (Draft, Published, Archived)
+  - View count display
+  - Quick publish/unpublish toggle
+  - Search and filter
+
+Create/Edit Modal (very complete):
+  - Title (required)
+  - Slug (auto-generated, editable)
+  - Excerpt
+  - Full Content → RichTextEditor (WYSIWYG)
+  - Featured Image (ImageUpload component)
+  - Author Name
+  - Category selector (10 categories: Technology, AI & ML, Cybersecurity, etc.)
+  - Tags management (add/remove chips)
+  - Status selector (draft/published/archived)
+  - Published date/time picker
+  - Featured toggle
+  - Read Time (minutes)
+  - SEO fields: Meta Title, Meta Description, OG Image
+
+Operations: Create, Read, Update, Delete, Publish/Unpublish
+Backend endpoint: /api/v1/content/blog
+
+
+--- RESEARCH PAGE (/dashboard/research) ---
+
+For managing R&D projects with:
+  - Status filter (ongoing/completed/paused/planned)
+  - Visual status badges with colors
+
+Create/Edit Modal (very detailed):
+  - Title, Slug
+  - Description (rich text)
+  - Status dropdown (4 statuses)
+  - Category (10 tech categories: AI, ML, Cybersecurity, Blockchain, Web3, etc.)
+  - Technologies array (add/remove chips)
+  - Team Members array (add/remove chips)
+  - Thumbnail image upload
+  - Gallery images (multi-upload)
+  - Objectives (rich text)
+  - Methodology (rich text)
+  - Results/Findings (rich text)
+  - Publications (JSON / links)
+  - Start Date, End Date
+  - Is Public toggle
+  - Featured toggle
+  - Sort Order
+  - SEO: Meta Title, Meta Description
+
+Backend endpoint: /api/v1/content/research
+
+
+--- TESTIMONIALS PAGE (/dashboard/testimonials) ---
+
+List View:
+  - Client name, company columns
+  - Star rating display (filled/empty stars)
+  - Published status badge
+  - Date added
+  - Edit / Delete actions
+
+Create/Edit Modal:
+  - Client Name (required)
+  - Title (position/role)
+  - Company
+  - Client Avatar URL
+  - Testimonial Content (required, textarea)
+  - Interactive star rating selector (click stars to set 1-5)
+  - Sort Order
+  - Featured checkbox
+  - Published checkbox
+
+
+--- FAQS PAGE (/dashboard/faqs) ---
+
+List View:
+  - Question text
+  - Category
+  - Published status
+  - Sort Order
+  - Actions: Up/Down reorder, Edit, Delete
+
+Create/Edit Modal:
+  - Question (required)
+  - Answer (required, textarea)
+  - Category (5 categories: General, Services, Pricing, Technical, Support)
+  - Sort Order
+  - Published checkbox
+
+Special: Up/Down reorder arrows to quickly reorder FAQs without dragging.
+
+
+--- CONTACTS PAGE (/dashboard/contacts) ---
+
+List View:
+  - Blue dot indicator for unread messages
+  - Name, Email, Subject columns
+  - Status: New (blue) / Read (grey) / Replied (green)
+  - Received date
+  - View + Delete actions
+
+Filter Tabs:
+  - All | Unread | Read
+
+Pagination: 15 per page
+
+View/Reply Modal:
+  - Shows full contact details: name, email, phone, subject, message, received date
+  - If already replied: shows sent reply with timestamp in green box
+  - If not replied: shows reply textarea + "Send Reply" button
+  - Auto-marks as read when opened
+
+Operations:
+  - Mark as read (auto on open)
+  - Reply to contact (stored in DB, TODO: send email)
+  - Delete contact
+
+
+--- ANALYTICS PAGE (/dashboard/analytics) ---
+
+Period selector: 7 Days | 30 Days | 90 Days
+
+Stats Cards:
+  - Page Views (period)
+  - Unique Visitors
+  - Total Events
+  - Average Daily Views
+
+Charts:
+  - Bar chart for Daily Page Views (hover tooltip with exact count)
+
+Data Tables:
+  - Top Pages (path + view count)
+  - Device Breakdown (desktop/mobile/tablet + count)
+  - Browser Breakdown (top 5 browsers + count)
+
+All data comes from PageView and AnalyticsEvent tables in the database.
+
+
+--- USERS PAGE (/dashboard/users) ---
+
+List View:
+  - Avatar with initials
+  - Name + email
+  - Role badge (color-coded): Super Admin (red), Admin (purple), Editor (blue), Viewer (grey)
+  - Active/Inactive status
+  - Last Login date
+  - Joined date
+  - Edit / Delete actions
+
+Create Modal:
+  - First Name, Last Name (required)
+  - Email (required, immutable after creation)
+  - Password (required for new)
+  - Role selector (super_admin, admin, editor, viewer)
+  - Active checkbox
+
+Edit Modal:
+  - Name fields
+  - Optional password change
+  - Active toggle
+  - NOTE: Role change not editable in this UI (can be done via API)
+
+
+--- AUDIT LOGS PAGE (/dashboard/audit-logs) ---
+
+Full system activity log:
+  - Search across all logs
+  - Filter by action type (All, LOGIN, LOGOUT, CREATE, UPDATE, DELETE, READ)
+  - Paginated (20 per page)
+
+Columns:
+  - User (name or "System")
+  - Action (color-coded badge)
+  - Resource type
+  - Resource ID (truncated to 8 chars, monospace)
+  - IP Address (monospace)
+  - Timestamp
+
+Action colors:
+  - LOGIN: green, LOGOUT: grey, CREATE: blue,
+    UPDATE: yellow, DELETE: red, READ: purple
+
+
+--- SETTINGS PAGE (/dashboard/settings) ---
+
+Group-based settings navigation (left sidebar):
+  - Settings are grouped and the active group is shown
+
+For each setting can have these field types:
+  - Text input
+  - Textarea
+  - Boolean (checkbox with Enabled/Disabled label)
+  - Number input
+  - Color picker (color swatch + hex input)
+
+Actions:
+  - Save Changes (bulk update all settings at once)
+  - Refresh (reload from server)
+
+Backend: GET /api/v1/settings → grouped settings
+         PUT /api/v1/settings/bulk → save all settings
+
+
+--- DEMO PAGE (/dashboard/demo) ---
+
+A UI component showcase page that is NOT in the sidebar navigation.
+Used for testing/development only. Shows:
+  - Single image upload
+  - Multiple image upload
+  - Rich text editor
+  - Search input
+  - Filter bar
+  - Advanced data table with sorting, column headers
+  - Toast notifications
+
+
+================================================================================
+ 4. DATABASE SCHEMA & DATA MODELS
+================================================================================
+
+Database: PostgreSQL (via Prisma ORM)
+Connection: postgresql://postgres:...@localhost:5432/asagus_admin
+
+--- AUTHENTICATION TABLES ---
+
+users:
+  id, email (unique), password_hash, name, avatar_url,
+  email_verified, is_active, last_login, created_at, updated_at
+
+roles:
+  id, name (unique: super_admin/admin/editor/viewer), description, created_at
+
+permissions:
+  id, resource, action, description, created_at
+  Unique: (resource, action)
+  Resources: projects, services, testimonials, faqs, client_logos, stats,
+             media, users, settings, analytics, contacts, newsletter
+  Actions: create, read, update, delete, publish, system, assign_roles, export
+
+user_roles: (junction table)
+  user_id, role_id, assigned_at, assigned_by
+
+role_permissions: (junction table)
+  role_id, permission_id
+
+refresh_tokens:
+  id, user_id, token (unique), expires_at, created_at, ip_address, user_agent
+
+api_keys:
+  id, user_id, name, key_hash (unique), permissions (JSON),
+  rate_limit (default 1000), is_active, last_used_at, expires_at, created_at
+
+audit_logs:
+  id (BigInt), user_id, action, resource, resource_id,
+  ip_address, user_agent, success, failure_reason, metadata (JSON), created_at
+
+
+--- CONTENT TABLES ---
+
+projects:
+  id, title, slug (unique), description, full_description,
+  category, client_name, industry, technologies[] (PostgreSQL array),
+  hero_image, gallery_images[],
+  challenge, solution,
+  project_url, github_url, year, duration, team_size,
+  featured, published, view_count, order_index,
+  meta_title, meta_description, og_image,
+  created_at, updated_at
+
+project_metrics:
+  id, project_id, metric, value
+
+project_testimonials:
+  id, project_id, quote, author, role, company
+
+technologies:
+  id, name (unique), slug (unique), icon, icon_type (devicon/url/svg),
+  color (hex), category, description, order_index, created_at, updated_at
+
+project_technologies: (junction)
+  id, project_id, technology_id
+  Unique: (project_id, technology_id)
+
+services:
+  id, title, slug (unique), subtitle, description,
+  icon, features[], process (JSON), deliverables[],
+  pricing (JSON: {type, from, to}), is_active, featured, order_index,
+  meta_title, meta_description, created_at, updated_at
+
+testimonials:
+  id, client_name, client_role, company, content, rating (1-5),
+  avatar_url, featured, is_active, approved, order_index,
+  created_at, updated_at
+
+faqs:
+  id, question, answer, category, is_active, view_count, helpful, order_index,
+  created_at, updated_at
+
+client_logos:
+  id, name, logo_url, website_url, industry, is_active, order_index,
+  created_at, updated_at
+
+stats:
+  id, label, value, suffix, description, icon, is_active, order_index,
+  created_at, updated_at
+
+
+--- CONTACT & NEWSLETTER TABLES ---
+
+contact_submissions:
+  id, name, email, subject, message, phone, company,
+  is_read, is_replied, replied_at, reply, ip_address, created_at
+
+newsletter_subscribers:
+  id, email (unique), name, is_active, subscribed_at,
+  unsubscribed_at, source, ip_address
+
+
+--- MEDIA TABLE ---
+
+media:
+  id, filename, original_name, mime_type, size (bytes),
+  url, thumbnail_url, alt_text, folder (default: "general"),
+  width, height, uploaded_by, created_at, updated_at
+
+
+--- ANALYTICS TABLES ---
+
+page_views:
+  id (BigInt), path, referrer, user_agent, ip_address,
+  country, city, device, browser, session_id, created_at
+
+analytics_events:
+  id (BigInt), name, category, label, value, metadata (JSON),
+  session_id, ip_address, created_at
+
+
+--- SETTINGS TABLE ---
+
+settings:
+  id, key (unique), value (JSON), group (general/seo/social/email/appearance),
+  label, type (string/number/boolean/json/image), created_at, updated_at
+
+
+--- TEAM MEMBERS TABLE ---
+
+team_members:
+  id, name, slug (unique), role, department, bio,
+  expertise[] (PostgreSQL array), avatar_url,
+  email, phone, linkedin_url, twitter_url, github_url, website_url,
+  is_active, featured, order_index,
+  joined_at, created_at, updated_at
+
+
+--- BLOG TABLES ---
+
+blog_posts:
+  id, title, slug (unique), excerpt, content (text),
+  featured_image, author_id, author_name,
+  category, tags[] (PostgreSQL array),
+  status (draft/published/archived), published_at, featured,
+  view_count, read_time (minutes),
+  meta_title, meta_description, og_image,
+  created_at, updated_at
+
+blog_categories:
+  id, name (unique), slug (unique), description, color (hex),
+  is_active, order_index, created_at, updated_at
+
+
+--- RESEARCH TABLE ---
+
+research_projects:
+  id, title, slug (unique), description,
+  status (ongoing/completed/paused/planned),
+  category, technologies[], team_members[],
+  thumbnail_url, gallery_images[],
+  objectives, methodology, results, publications (JSON),
+  start_date, end_date,
+  is_public, featured, order_index,
+  meta_title, meta_description,
+  created_at, updated_at
+
+
+================================================================================
+ 5. BACKEND MICROSERVICES - FULL BREAKDOWN
+================================================================================
+
+The admin panel backend consists of 4 Express.js services:
+
+--- A) AUTH SERVICE (Port 4001) ---
+
+Handles all authentication and user management.
+
+Endpoints (/api/v1/auth/...):
+  POST /login              → Login with email+password, returns JWT tokens
+  POST /register           → Create new user account
+  POST /refresh-token      → Refresh access token using refresh token
+  POST /logout             → Invalidate refresh tokens
+  GET  /me                 → Get current user profile + roles + permissions
+  PUT  /me                 → Update name, avatar URL
+  PUT  /change-password    → Change password (requires current password)
+  POST /forgot-password    → Request password reset (TODO: email not implemented)
+  POST /reset-password     → Reset password with token
+  POST /verify-email       → Verify email with code
+
+Admin-only user management:
+  GET  /users              → List all admin users
+  GET  /users/:id          → Get single user
+  PUT  /users/:id          → Update user profile
+  DELETE /users/:id        → Delete user
+  POST /users/:id/roles    → Assign role to user
+
+JWT Details:
+  - Access token: 15 minute expiry (configurable)
+  - Refresh token: 7 day expiry (configurable)
+  - Both stored in localStorage on admin frontend
+  - Auto-refresh on 401 (except for auth endpoints to avoid infinite loop)
+  - Fully audited: every login, failed login, logout, register → AuditLog
+
+Password Security:
+  - bcryptjs hashing
+  - Rate limiting at gateway level (200 req/min globally)
+
+
+--- B) CONTENT SERVICE (Port 4002) ---
+
+Handles all website content management.
+
+Projects (/api/v1/content/projects/...):
+  GET    /           → List with filters: category, featured, published, search, sort, pagination
+  GET    /:slug      → Get single project + increment view count
+  POST   /           → Create project (auth: projects:create)
+  PUT    /:id        → Update project (auth: projects:update)
+  DELETE /:id        → Delete project (auth: projects:delete)
+
+Technologies (/api/v1/content/technologies/...):
+  GET    /           → List all technologies (filterable by category/search)
+  GET    /:slug      → Get single technology
+  POST   /           → Create technology (auth: projects:create)
+  PUT    /:id        → Update technology (auth: projects:update)
+  DELETE /:id        → Delete technology (auth: projects:delete)
+
+Services (/api/v1/content/services/...):
+  GET    /           → List services (filter by published, search)
+  GET    /:slug      → Get single service
+  POST   /           → Create (auth: services:create)
+  PUT    /:id        → Update (auth: services:update)
+  DELETE /:id        → Delete (auth: services:delete)
+
+Testimonials (/api/v1/content/testimonials/...):
+  GET    /           → List (filter by active, featured, approved)
+  GET    /:id        → Get single
+  POST   /           → Create (auth: testimonials:create)
+  PUT    /:id        → Update (auth: testimonials:update)
+  DELETE /:id        → Delete (auth: testimonials:delete)
+
+FAQs (/api/v1/content/faqs/...):
+  GET    /           → List (filter by category, active, search)
+  GET    /:id        → Get single + increment view count
+  POST   /           → Create (auth: faqs:create)
+  PUT    /:id        → Update (auth: faqs:update)
+  DELETE /:id        → Delete (auth: faqs:delete)
+
+Contacts (/api/v1/content/contacts/...):
+  GET    /           → List submissions (filter by read status, pagination)
+  GET    /:id        → Get single (auto-marks as read)
+  POST   /:id/reply  → Store reply text (TODO: actual email send pending)
+  DELETE /:id        → Delete (auth)
+  Note: Currently contact submissions must be created from the main website
+        (api/contact route uses Resend, does NOT write to the database - gap)
+
+Team (/api/v1/content/team/...):
+  GET    /           → List members (filter by dept, featured, active)
+  GET    /:slug      → Get single
+  POST   /           → Create (auth)
+  PUT    /:id        → Update (auth)
+  DELETE /:id        → Delete (auth)
+
+Blog (/api/v1/content/blog/...):
+  GET    /           → List posts (filter by status, category, featured, search)
+  GET    /:slug      → Get single post
+  POST   /           → Create (auth)
+  PUT    /:id        → Update (auth)
+  DELETE /:id        → Delete (auth)
+  POST   /:id/publish → Toggle published status (auth)
+
+Research (/api/v1/content/research/...):
+  GET    /           → List (filter by status, category, public, featured)
+  GET    /:slug      → Get single
+  POST   /           → Create (auth)
+  PUT    /:id        → Update (auth)
+  DELETE /:id        → Delete (auth)
+
+Settings (/api/v1/settings/...):
+  GET    /           → Get all settings (grouped)
+  GET    /group/:group → Get settings for specific group
+  PUT    /bulk       → Bulk update settings (auth)
+  PUT    /:key       → Update single setting (auth)
+
+Dashboard (/api/v1/dashboard/...):
+  GET    /stats      → Returns aggregate counts for dashboard overview
+                       (projects, services, testimonials, contacts, subscribers, page views)
+                       + recent contacts + recent projects
+
+
+--- C) ANALYTICS SERVICE (Port 4003) ---
+
+Handles page view tracking and analytics reporting.
+
+Public endpoints:
+  POST /api/v1/analytics/pageview  → Track a page view (path, referrer, sessionId)
+                                     Auto-detects browser + device from User-Agent
+  POST /api/v1/analytics/event     → Track custom event (name, category, label, value, metadata)
+
+Protected endpoints (require JWT):
+  GET  /api/v1/analytics/overview  → Aggregate stats for admin dashboard
+                                     Period: 7d, 30d, 90d
+                                     Returns: totalViews, periodViews, uniqueVisitors (approx),
+                                              topPages[], deviceBreakdown[], browserBreakdown[],
+                                              totalEvents, recentEvents[], dailyViews[]
+  GET  /api/v1/analytics/audit-logs → Paginated audit log viewer
+                                       Filters: action type, search, pagination
+
+
+--- D) API GATEWAY (Port 4000) ---
+
+Acts as a reverse proxy for all three backend services.
+
+Routes traffic:
+  /api/v1/auth/*     → http://localhost:4001
+  /api/v1/content/*  → http://localhost:4002
+  /api/v1/analytics/*→ http://localhost:4003
+  /api/v1/projects/* → http://localhost:4002 (with path rewrite from /projects to /content/projects)
+  /api/v1/services/* → http://localhost:4002 (with path rewrite)
+  /api/v1/testimonials/* → http://localhost:4002 (with path rewrite)
+  /api/v1/faqs/*     → http://localhost:4002 (with path rewrite)
+  /api/v1/contacts/* → http://localhost:4002 (with path rewrite)
+  /api/v1/settings/* → http://localhost:4002 (with path rewrite)
+  /api/v1/dashboard/*→ http://localhost:4002 (with path rewrite)
+
+Security:
+  - Helmet.js (security headers)
+  - CORS whitelist: localhost:3000, localhost:3001, admin.asagus.com, asagus.com
+  - Rate limiting: 200 requests per minute globally
+  - Does NOT parse body (avoids consuming request stream for proxy)
+
+
+================================================================================
+ 6. API GATEWAY
+================================================================================
+
+The gateway (admin-panel/services/api-gateway) is an http-proxy-middleware
+based Express app that:
+
+1. Applies security headers via Helmet
+2. Applies CORS whitelist
+3. Applies global rate limiting (200 req/min)
+4. Routes all /api/v1/* requests to the appropriate microservice
+5. Provides health check endpoints (/health, /api/v1/health)
+
+Important technical note documented in code:
+  The gateway uses pathFilter (not Express mount paths) to avoid stripping
+  path prefixes, which would cause upstream 404s. This is a correct,
+  intentional design decision.
+
+The admin frontend (Next.js at 3001) has its own proxy configured via
+next.config.ts to forward API calls to the gateway at port 4000.
+
+
+================================================================================
+ 7. AUTHENTICATION & SECURITY SYSTEM
+================================================================================
+
+Authentication Flow:
+  1. User POSTs email+password to /api/v1/auth/login
+  2. Auth service validates credentials, hashes password comparison with bcrypt
+  3. Extracts roles[] and permissions[] from DB
+  4. Issues: accessToken (JWT, 15min) + refreshToken (JWT, 7d)
+  5. refreshToken is ALSO stored in the database (refresh_tokens table)
+  6. Frontend stores both in localStorage
+  7. All subsequent API calls include Authorization: Bearer {accessToken}
+  8. On 401: frontend auto-refreshes using refreshToken
+  9. On refresh failure: clears tokens + redirects to /login
+
+Permission System (RBAC):
+  - 4 roles: super_admin, admin, editor, viewer
+  - Permissions are resource:action pairs
+  - Resources: 12 types (projects, services, users, settings, analytics, contacts, etc.)
+  - Actions per resource: create, read, update, delete + special actions
+  
+  Role capabilities:
+    super_admin: ALL permissions (no restrictions)
+    admin: All EXCEPT system settings, assign_roles, delete users
+    editor: Content CRUD (no delete), read analytics, read+update contacts,
+            publish projects, export analytics
+    viewer: Read-only access to content + analytics + contacts
+
+API Key System:
+  - api_keys table exists with key_hash, permissions (JSON), rate_limit
+  - Keys are per-user with optional expiry
+  - Currently seeded but not fully exposed in the frontend UI
+
+Audit Trail:
+  - EVERY action in the auth service writes to audit_logs
+  - Captures: userId, action, resource, resourceId, IP, userAgent,
+              success/failure, failure reason, metadata
+  - Login failures are logged even without a userId (metadata stores attempted email)
+
+
+================================================================================
+ 8. SEO, ANALYTICS & TRACKING
+================================================================================
+
+Main Website SEO (very comprehensive):
+
+  1. Static metadata in layout.tsx:
+     - Full Open Graph implementation
+     - Twitter card
+     - Language alternates (8 regions)
+     - Robots directives
+
+  2. Structured Data (structured-data.tsx):
+     - Organization JSON-LD schema
+     - Website JSON-LD schema
+     - SoftwareApplication JSON-LD schema
+
+  3. GEO Schema (geo-schema.tsx):
+     - LocalBusiness schema targeting multiple regions
+     - Service area markup
+
+  4. AI Discovery (ai-meta.tsx + citation-guide.tsx + conversational-content.tsx):
+     - Special meta tags for ChatGPT, Perplexity, Claude visibility
+     - Citation format guidance
+     - Structured Q&A content for AI to pick up
+
+  5. Dynamic sitemaps:
+     - /sitemap.xml with all routes
+     - /geo-sitemap.xml with language variants
+     - /sitemap-images.xml with image data
+
+Google Analytics:
+  - components/analytics.tsx has GoogleAnalytics component
+  - Tracks page changes via pathname/searchParams hooks
+  - Helper functions: trackEvent, trackFormSubmission, trackButtonClick, trackSectionView
+  - Requires NEXT_PUBLIC_GA_ID environment variable to be set
+  - Currently NOT added to layout.tsx (component exists but not used/mounted)
+
+Custom Analytics (Admin Panel):
+  - Backend analytics service tracks page views and events
+  - Auto-detects device (desktop/mobile/tablet) and browser from User-Agent
+  - Records IP, session ID, referrer
+  - Main website does NOT currently call /api/v1/analytics/pageview
+    (the client.ts file exists but tracking calls not added to website pages)
+
+
+================================================================================
+ 9. EMAIL & COMMUNICATION SYSTEM
+================================================================================
+
+Email Provider: Resend (resend.com)
+Required env var: RESEND_API_KEY
+
+Contact Form (/api/contact route):
+  - Sends styled HTML email to CONTACT_TO_EMAIL (default: mshahwar92@gmail.com)
+  - Includes: name, email, phone, service type, message in formatted card
+  - HTML injection prevention via escapeHtml()
+  - Returns 503 if RESEND_API_KEY not configured
+
+Newsletter (/api/newsletter route):
+  - Sends branded welcome email to subscriber
+  - Also sends new subscriber notification to TO_EMAIL
+  - Includes: design trends, tips, case studies pitch in email
+  - Unsubscribe link exists but is a placeholder ("#")
+
+Contact Reply (Admin Panel):
+  - Admin can write and save a reply to a contact in the DB
+  - The reply is stored in contact_submissions.reply
+  - NOTE: Email is NOT sent on reply yet (code has "TODO: Send email reply via Resend")
+  - This is an incomplete feature
+
+Live Chat (Crisp):
+  - Integration code is complete in live-chat.tsx
+  - Requires NEXT_PUBLIC_CRISP_WEBSITE_ID env var
+  - Currently NOT active (no Crisp ID configured)
+
+
+================================================================================
+10. TECHNOLOGY STACK (COMPLETE LIST)
+================================================================================
+
+Main Website:
+  Framework:    Next.js 16.1.6 (App Router)
+  React:        React 19.2.0
+  Styling:      Tailwind CSS v4 + custom CSS variables
+  Animation:    Framer Motion 12.23.25, GSAP 3.13.0
+  Smooth Scroll:Lenis 1.3.15
+  Icons:        Lucide React 0.556.0
+  Themes:       next-themes 0.4.6
+  Email:        Resend 6.5.2
+  Language:     TypeScript 5
+
+Admin Panel Frontend:
+  Framework:    Next.js (separate instance, port 3001)
+  UI Components: Radix UI (Dialog, Select, DropdownMenu)
+  Design:       TailwindCSS + custom CSS variables
+  Icons:        Lucide React
+  Table:        @tanstack/react-table (TanStack Table)
+  Editor:       Custom RichTextEditor component
+
+Admin Backend:
+  Runtime:     Node.js + TypeScript
+  Framework:   Express.js
+  ORM:         Prisma ORM
+  Database:    PostgreSQL
+  Auth:        JWT (jsonwebtoken), bcryptjs
+  Validation:  Zod (via @asagus/shared package)
+  Proxy:       http-proxy-middleware
+  Security:    Helmet, cors, express-rate-limit
+  Logging:     Morgan (HTTP), custom logger
+  Build:       tsx (TypeScript execution), tsup (bundler)
+  Package Mgr: pnpm workspaces (monorepo)
+
+Infrastructure:
+  Containers:  Docker Compose (PostgreSQL + Redis)
+  Cloud:       Azure (deployment guides exist for Azure Web App, Azure DB)
+  Redis:       Optional (configured but not actively used in the code)
+
+
+================================================================================
+11. CURRENT FUNCTIONALITY SUMMARY (WHAT WORKS TODAY)
+================================================================================
+
+Main Website:
+  ✅ Hero section with animations
+  ✅ Services section with modal detail view
+  ✅ Projects section (fallback to static data if API down)
+  ✅ About section with stats
+  ✅ Contact form → sends real email via Resend (if API key configured)
+  ✅ Newsletter subscription in footer → sends real welcome email
+  ✅ Dark/light theme toggle
+  ✅ Smooth scroll (Lenis)
+  ✅ Floating navbar with mobile menu
+  ✅ Scroll progress indicator
+  ✅ Scroll reveal animations
+  ✅ Individual project detail pages (/projects, /projects/[slug])
+  ✅ Privacy, Terms pages
+  ✅ Full SEO metadata, structured data, sitemaps
+  ✅ Dynamic OG image and favicon generation
+  ✅ PWA manifest
+  ✅ AI discovery optimization (special meta tags)
+  ⚠️  Live chat (code exists, needs Crisp website ID)
+  ⚠️  Google Analytics (component exists, NOT mounted in layout)
+  ❌  /research-development page (link exists in navbar, page does NOT exist)
+  ❌  /products page (link exists in navbar, page does NOT exist)
+
+Admin Panel:
+  ✅ Login with JWT authentication
+  ✅ Auto token refresh
+  ✅ Dashboard overview stats
+  ✅ Projects management (full CRUD + publish/featured)
+  ✅ Technology management (linked to projects)
+  ✅ Services management (full CRUD)
+  ✅ Team management (full CRUD + rich text bio)
+  ✅ Blog management (full CRUD + publish toggle)
+  ✅ Research projects management (full CRUD)
+  ✅ Testimonials management (full CRUD + star rating)
+  ✅ FAQs management (full CRUD + reorder)
+  ✅ Contact form submissions viewer (read, mark as read, reply storage)
+  ✅ Analytics dashboard (page views, devices, browsers, daily chart)
+  ✅ Audit logs viewer (all system actions with filters)
+  ✅ User management (create/edit/delete admin users)
+  ✅ Settings management (grouped key-value settings)
+  ✅ Role-based permission system (4 roles)
+  ✅ Dark/light theme support in admin
+  ✅ Responsive sidebar (collapsible desktop, drawer mobile)
+  ✅ Image upload UI component
+  ✅ Rich text editor component
+  ✅ Technology selector with search for projects
+  ✅ Toast notification system
+  ⚠️  Contact reply email (UI exists, API stores reply, email NOT sent yet)
+  ⚠️  Forgot password / Email verification (backend endpoints exist, email flow incomplete)
+  ❌  API key management UI (model exists in DB, no admin page for it)
+  ❌  Media library page (model exists in DB, no admin page)
+  ❌  Client logos / Stats management pages
+  ❌  Newsletter subscriber management page
+  ❌  Blog categories management page
+
+
+================================================================================
+12. GAPS, ISSUES & INCOMPLETE FEATURES
+================================================================================
+
+CRITICAL GAPS:
+
+  1. Contact Form → NOT written to database
+     The main website /api/contact sends an email via Resend but does NOT
+     write the submission to the contact_submissions database table.
+     The admin panel Contacts page relies on that table. Currently the
+     contacts you see in the admin are only those manually seeded.
+     FIX: The /api/contact route should POST to the admin panel backend
+     to also save the submission.
+
+  2. Live Chat NOT Configured
+     Crisp widget code is complete but NEXT_PUBLIC_CRISP_WEBSITE_ID is not set.
+     No live chat is active on the website.
+
+  3. Dead Navigation Links
+     FloatingNavbar has "Research" (→ /research-development) and "Products"
+     (→ /products) links. NEITHER page exists → 404 error for visitors.
+
+  4. Google Analytics NOT Mounted
+     analytics.tsx component exists but is never imported in layout.tsx.
+     No GA tracking is happening.
+
+  5. Custom Analytics Tracking NOT Called from Main Website
+     The admin panel has an analytics microservice that tracks pageviews,
+     but the main website never calls /api/v1/analytics/pageview.
+     So page view data in the admin analytics is always 0 unless called externally.
+
+  6. Contact Reply Email NOT Sent
+     Admin can type a reply and it's saved to DB, but the email is never
+     sent. Code has "TODO: Send email reply via Resend" comment.
+
+  7. Forgot Password Email Flow Incomplete
+     Backend endpoint exists at /api/v1/auth/forgot-password but the
+     email sending step is not implemented (no Resend call).
+
+  8. Main Website Projects vs Admin Panel Projects
+     The main website and admin panel both have project data but use
+     different sources. The website uses lib/projects-api.ts which queries
+     the admin backend, but falls back to data/projects.ts when API is
+     offline. If the admin panel is not running, website shows static data.
+
+MISSING UI PAGES in Admin:
+  - No Media Library management page (DB model + upload components exist)
+  - No Client Logos page (DB model exists)
+  - No Stats/Counters management page (DB model exists)
+  - No Newsletter Subscribers page (model exists, list/export UI missing)
+  - No Blog Categories management (model exists)
+  - No API Keys management page (model exists)
+
+MISSING FEATURES:
+  - No email tracking / click tracking in newsletters
+  - No "Export to CSV" for contacts or subscribers
+  - No bulk actions in any list view (bulk delete, bulk publish)
+  - No drag-and-drop reorder (FAQs have up/down arrows, others have sort order number field only)
+  - No image optimization/compression on upload
+  - No country/city tracking in analytics (fields exist in schema but not populated)
+  - No session tracking (session_id field in DB but not used from main website)
+  - No real-time dashboard (stats are fetched on page load only)
+  - No notifications/alerts system for new contacts
+  - Redis is configured in .env but NOT used anywhere in the microservices
+
+SECURITY NOTES:
+  - The .env file has plain text credentials including DB password and JWT secrets
+  - JWT secrets are not very strong ("asagus-admin-access-secret-2026-min-32-characters-required")
+    → should use randomly generated secrets in production
+  - Social media links in footer are all placeholder URLs (linkedin.com, instagram.com)
+    → not pointing to actual ASAGUS accounts
+  - SUPER_ADMIN_PASSWORD in .env is simple enough to note → should be changed in prod
+
+
+================================================================================
+13. POTENTIAL ADDITIONS & IMPROVEMENTS
+================================================================================
+
+HIGH PRIORITY (Complete Missing Features):
+
+  1. Connect Contact Form to Database
+     → Modify app/api/contact/route.ts to also POST to the admin panel
+       /api/v1/content/contacts endpoint so contacts show in admin.
+
+  2. Implement Contact Reply Email
+     → In contacts.routes.ts, add Resend email send after storing reply.
+
+  3. Add Google Analytics to Layout
+     → Import GoogleAnalytics component in layout.tsx with GA ID env var.
+
+  4. Add Page View Tracking
+     → Add a useEffect in layout.tsx or a client component to call
+       /api/v1/analytics/pageview on each page navigation.
+
+  5. Create Missing Pages
+     → /research-development → Could show research_projects (is_public ones)
+     → /products → Products/SaaS page showcasing own tools
+
+  6. Wire Up Crisp Live Chat
+     → Register at crisp.chat, get website ID, add to env var.
+
+MEDIUM PRIORITY (New Admin Features):
+
+  7. Media Library Page
+     → Upload images, view/search/delete all media, copy URLs
+     → Drag into project/blog/team forms
+
+  8. Newsletter Subscribers Management
+     → List all subscribers, search, filter active/inactive, export CSV
+
+  9. Client Logos Management
+     → Add company logos to show in clients section of website
+
+  10. Website Stats/Counters Management
+      → Control the "5000+ projects" / "100+ clients" type numbers from admin
+
+  11. Blog Categories Management
+      → CRUD for blog_categories table
+
+  12. API Keys Management
+      → Create API keys for external integrations
+
+  13. Bulk Actions
+      → Bulk delete, bulk publish/unpublish in Projects, Blog, FAQs tables
+
+  14. Drag-and-Drop Reorder
+      → Replace sort order number input with visual drag-and-drop ordering
+
+  15. Real-Time Dashboard
+      → WebSocket or polling to update counts in real time
+
+WEBSITE IMPROVEMENTS:
+
+  16. Blog Frontend Page
+      → /blog listing page pulling from admin panel blog posts
+      → /blog/[slug] individual post page
+
+  17. Team Page
+      → Public-facing /team page showing team members
+
+  18. Research/Publications Page
+      → /research showing public research projects
+
+  19. Products Page
+      → Showcase own apps/products
+
+  20. Testimonials Section
+      → Pull testimonials from DB and display on main website
+        (currently testimonials are per-project and not shown site-wide)
+
+  21. Client Logos Section
+      → "Trusted by" section with client logos pulled from DB
+
+  22. Search Functionality
+      → Site-wide search for projects, blog posts, services
+
+  23. Case Studies
+      → Expand project detail pages into full case study format
+
+PERFORMANCE/TECHNICAL IMPROVEMENTS:
+
+  24. Image CDN
+      → Add Cloudinary or similar for image optimization/CDN delivery
+
+  25. Redis Caching
+      → Redis is configured but unused. Add caching for frequently read data
+        (projects list, services, FAQs) to reduce DB queries.
+
+  26. Email Queue
+      → Background email processing to avoid blocking API responses
+
+  27. i18n/Multi-language
+      → Language-specific routes already set up in metadata alternates
+        (en-US, en-GB, en-AE, etc.) → actual translations not implemented
+
+  28. PWA Offline Mode
+      → manifest.ts exists, but no service worker for offline support
+
+  29. Dark mode colors in admin for email notifications
+  
+  30. Webhook Integration
+      → Notify Slack/Teams when new contact form arrives
+
+SECURITY IMPROVEMENTS:
+
+  31. Change Default Credentials
+      → Update SUPER_ADMIN_PASSWORD and JWT secrets in production env
+
+  32. Two-Factor Authentication (2FA)
+      → Add TOTP/OTP support for admin logins
+
+  33. Session Management UI
+      → Allow users to see and revoke active sessions (refresh tokens)
+
+  34. Email Verification Flow
+      → Complete the forgot-password email verification flow
+
+  35. Content Security Policy
+      → Add CSP headers via Next.js config for XSS protection
+
+
+================================================================================
+14. ADMIN PANEL CONTROL MAP
+    (What You Can Control From The Admin Panel)
+================================================================================
+
+Here is everything you can currently manage from the admin panel:
+
+┌─────────────────────────────────────────────────────────────────┐
+│ CONTENT MANAGEMENT                                               │
+├──────────────────┬──────────────────────────────────────────────┤
+│ Projects         │ Create/Edit/Delete projects, control which    │
+│                  │ are Published (visible on website), which are  │
+│                  │ Featured, set categories, tags, technologies,  │
+│                  │ upload hero image, gallery, set project URL,   │
+│                  │ GitHub URL, client name, challenge, solution   │
+├──────────────────┼──────────────────────────────────────────────┤
+│ Services         │ Add/Edit/Delete service offerings, control    │
+│                  │ which are Published, choose icon, add         │
+│                  │ features list, set display order              │
+├──────────────────┼──────────────────────────────────────────────┤
+│ Team Members     │ Add/Edit/Delete staff profiles, control who   │
+│                  │ is Featured, set roles/departments, bio,      │
+│                  │ expertise tags, social links, avatar photo,   │
+│                  │ join date                                      │
+├──────────────────┼──────────────────────────────────────────────┤
+│ Blog Posts       │ Write/Edit/Delete articles, set status        │
+│                  │ (draft/published/archived), add category,     │
+│                  │ tags, rich text content with formatting,      │
+│                  │ featured image, SEO metadata, read time       │
+├──────────────────┼──────────────────────────────────────────────┤
+│ Research         │ Document R&D projects, set status, categories,│
+│                  │ team, methodology, results, publications,     │
+│                  │ control if public or private                  │
+├──────────────────┼──────────────────────────────────────────────┤
+│ Testimonials     │ Add/Edit/Delete client testimonials, set star │
+│                  │ rating, mark as Featured, control Published   │
+│                  │ visibility, set display order                 │
+├──────────────────┼──────────────────────────────────────────────┤
+│ FAQs             │ Add/Edit/Delete questions, categorize them,   │
+│                  │ publish/unpublish, reorder with up/down       │
+│                  │ arrows                                         │
+├──────────────────┼──────────────────────────────────────────────┤
+│ Technologies     │ (Via Projects page technology selector)       │
+│                  │ Add new technologies with icons, colors,      │
+│                  │ categories for project tagging                │
+└──────────────────┴──────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ COMMUNICATIONS MANAGEMENT                                        │
+├──────────────────┬──────────────────────────────────────────────┤
+│ Contacts         │ View all contact form submissions, see        │
+│                  │ unread count, read messages, filter by        │
+│                  │ read/unread, write and save replies,          │
+│                  │ delete submissions, paginated list            │
+└──────────────────┴──────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ ANALYTICS & MONITORING                                           │
+├──────────────────┬──────────────────────────────────────────────┤
+│ Analytics        │ View page views, unique visitors, events,     │
+│                  │ daily bar chart, top pages, device types,     │
+│                  │ browser breakdown - filter by 7/30/90 days   │
+├──────────────────┼──────────────────────────────────────────────┤
+│ Audit Logs       │ See every action performed on the system:     │
+│                  │ who logged in, what was created/edited/       │
+│                  │ deleted, from which IP; filter by action type │
+└──────────────────┴──────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ USER & ACCESS MANAGEMENT                                         │
+├──────────────────┬──────────────────────────────────────────────┤
+│ Users (Admin)    │ Create/Edit/Delete admin panel users,         │
+│                  │ assign roles (super_admin/admin/editor/viewer)│
+│                  │ activate/deactivate accounts, see last login  │
+└──────────────────┴──────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ CONFIGURATION                                                    │
+├──────────────────┬──────────────────────────────────────────────┤
+│ Settings         │ View and edit all site settings grouped by    │
+│                  │ category. Settings types: text, textarea,     │
+│                  │ boolean toggle, number, color picker.         │
+│                  │ Save all changes in one click. Groups         │
+│                  │ are dynamic based on what is in the DB.       │
+└──────────────────┴──────────────────────────────────────────────┘
+
+WHAT THE ADMIN PANEL CAN CONTROL ON THE MAIN WEBSITE:
+(These only work if the main website reads from the API, not static data)
+
+  • Which projects appear on the website (published = true/false)
+  • Project order (order_index)
+  • Project featured status (shows in featured section)
+  • All project details: images, descriptions, tech stack, links
+
+  • Which services are shown and in what order
+  • Service icons and feature lists
+
+  • FAQs content and order
+
+  • Testimonials displayed and their order
+
+  • Blog posts (if a blog page is added to the website)
+
+  • Team page content (if a team page is added)
+
+  • Research projects (if a research page is added)
+
+  • Website-wide settings (title, description, social links, etc.)
+
+NOTE: Most of the above content control is READY in the backend
+but the main website STILL uses static/fallback data for most things.
+Connecting them requires minimal work.
+
+
+================================================================================
+15. FINAL ASSESSMENT
+================================================================================
+
+OVERALL QUALITY: HIGH
+
+The ASAGUS project is a professionally crafted, production-oriented application.
+The code quality is clean, well-structured, and follows modern patterns throughout.
+
+STRENGTHS:
+  ✅ Very clean and professional UI/UX on both main website and admin panel
+  ✅ Excellent microservices architecture with a proper API gateway
+  ✅ Full role-based access control (RBAC) system with granular permissions
+  ✅ Complete audit logging system - enterprise-grade traceability
+  ✅ Comprehensive database schema covering all business needs
+  ✅ World-class SEO implementation (structured data, geo-targeting, AI discovery)
+  ✅ Strong security patterns (bcrypt, JWT rotation, rate limiting, helmet)
+  ✅ Well-organized monorepo with pnpm workspaces
+  ✅ Responsive designs for both desktop and mobile
+  ✅ Rich text editing, image uploads, technology selectors in admin
+  ✅ Multiple content types (blog, research, projects, team, services)
+  ✅ Docker support for easy local setup
+
+AREAS NEEDING ATTENTION:
+  ⚠️  Contact form submissions are NOT saved to the database
+  ⚠️  Main website still uses static data files (not pulled from admin database)
+  ⚠️  Several navigation links lead to non-existent pages (404)
+  ⚠️  Analytics tracking not wired up to main website
+  ⚠️  Several admin panel sections lack corresponding frontend pages
+  ⚠️  Default credentials should be rotated before production deployment
+  ⚠️  Redis is configured but completely unused (wasted resource)
+
+COMPARED TO A TYPICAL PORTFOLIO/COMPANY SITE:
+  This is approximately 3x more sophisticated. It has a full CMS built from scratch,
+  microservices backend, enterprise auth, plus one of the most comprehensive SEO
+  setups seen in a company website of this size.
+
+ESTIMATED COMPLETION:
+  Core Admin Panel:     ~85% complete (missing few pages)
+  Main Website:         ~75% complete (some features not wired to backend)
+  Data Integration:     ~40% complete (most data still hardcoded or static)
+  Email System:         ~60% complete (one-way emails work, replies do not)
+  Analytics:            ~50% complete (service exists, tracking not called)
+
+THE BIGGEST OPPORTUNITY:
+  The backend and admin panel already support all the content types needed.
+  The main gap is connecting the main website to dynamically read everything
+  from the admin panel database instead of static TypeScript files.
+  Once that bridge is built, the admin panel becomes a full CMS that controls
+  every aspect of what visitors see on asagus.com.
+
+================================================================================
+ END OF AUDIT REPORT
+================================================================================

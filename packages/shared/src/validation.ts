@@ -65,6 +65,13 @@ export const serviceSchema = z.object({
   deliverables: z.array(z.string()).default([]),
   isActive: z.boolean().default(true),
   featured: z.boolean().default(false),
+  // Card visual customization
+  cardType: z.enum(["hero", "standard"]).default("standard"),
+  accentColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Must be a hex color").default("#3b82f6"),
+  categoryLabel: z.string().optional(),
+  imageUrl: z.string().optional(),
+  ctaLabel: z.string().default("Learn more"),
+  ctaHref: z.string().default("#contact"),
 });
 
 // Testimonial Validation

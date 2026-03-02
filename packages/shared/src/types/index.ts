@@ -102,6 +102,14 @@ export interface ServiceDTO {
   isActive: boolean;
   featured: boolean;
   orderIndex: number;
+  // Card visual customization
+  cardType: string;        // "hero" | "standard"
+  accentColor: string;     // hex color
+  categoryLabel?: string;  // small-caps label
+  imageUrl?: string;       // card illustration image
+  ctaLabel: string;
+  ctaHref: string;
+  // SEO
   metaTitle?: string;
   metaDescription?: string;
   createdAt: string;

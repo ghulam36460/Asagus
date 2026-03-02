@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 
@@ -73,6 +74,9 @@ export function FloatingNavbar({ barOffset = 44 }: { barOffset?: number }) {
           <Link
             href="/"
             style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.55rem',
               fontFamily: 'var(--font-azonix), sans-serif',
               fontSize: '1.15rem',
               fontWeight: 700,
@@ -82,6 +86,14 @@ export function FloatingNavbar({ barOffset = 44 }: { barOffset?: number }) {
               flexShrink: 0,
             }}
           >
+            <Image
+              src="/logo.png"
+              alt="ASAGUS logo"
+              width={30}
+              height={40}
+              style={{ objectFit: 'contain', flexShrink: 0, transform: 'translateY(-3px)' }}
+              priority
+            />
             ASAGUS
           </Link>
 
@@ -167,6 +179,9 @@ export function FloatingNavbar({ barOffset = 44 }: { barOffset?: number }) {
           <Link
             href="/"
             style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
               fontFamily: 'var(--font-azonix), sans-serif',
               fontSize: '1rem',
               fontWeight: 700,
@@ -175,6 +190,13 @@ export function FloatingNavbar({ barOffset = 44 }: { barOffset?: number }) {
               textDecoration: 'none',
             }}
           >
+            <Image
+              src="/logo.png"
+              alt="ASAGUS logo"
+              width={26}
+              height={35}
+              style={{ objectFit: 'contain', flexShrink: 0, transform: 'translateY(-3px)' }}
+            />
             ASAGUS
           </Link>
           <button
@@ -252,12 +274,22 @@ export function FloatingNavbar({ barOffset = 44 }: { barOffset?: number }) {
               >
                 <span
                   style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
                     fontFamily: 'var(--font-azonix), sans-serif',
                     fontSize: '1rem',
                     color: '#ffffff',
                     letterSpacing: '0.08em',
                   }}
                 >
+                  <Image
+                    src="/logo.png"
+                    alt="ASAGUS logo"
+                    width={26}
+                    height={35}
+                    style={{ objectFit: 'contain', flexShrink: 0, transform: 'translateY(-3px)' }}
+                  />
                   ASAGUS
                 </span>
                 <button

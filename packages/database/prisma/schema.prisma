@@ -270,6 +270,14 @@ model Service {
   featured     Boolean  @default(false)
   orderIndex   Int      @default(0) @map("order_index")
 
+  // Card visual customization (admin-controlled)
+  cardType     String   @default("standard") @map("card_type")  // "hero" | "standard"
+  accentColor  String   @default("#3b82f6") @map("accent_color") // hex color
+  categoryLabel String? @map("category_label") // small-caps label e.g. "AI & ML"
+  imageUrl     String?  @map("image_url")      // card illustration/image URL
+  ctaLabel     String   @default("Learn more") @map("cta_label")
+  ctaHref      String   @default("#contact")   @map("cta_href")
+
   // SEO
   metaTitle       String? @map("meta_title")
   metaDescription String? @map("meta_description")

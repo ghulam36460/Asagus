@@ -406,6 +406,7 @@ export function SurfCarousel() {
         overflow: 'hidden',
         paddingTop: 72,
         paddingBottom: 60,
+        background: 'transparent', // take page background
       }}
     >
       {/* background comes from body */}

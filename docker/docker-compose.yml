@@ -7,8 +7,8 @@ services:
     container_name: asagus_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-asagus_admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-asagus_secret_2026}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Gang$ter111}
       POSTGRES_DB: ${POSTGRES_DB:-asagus_admin}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
@@ -16,7 +16,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-asagus_admin}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5

@@ -82,29 +82,32 @@ export interface CardProps {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const cardScrollVariant = {
-  hidden: { y: 24, scale: 0.98, opacity: 0 },
+  hidden: { y: 40, scale: 0.96, opacity: 0, filter: 'blur(8px)' },
   visible: (i: number) => ({
     y: 0,
     scale: 1,
     opacity: 1,
+    filter: 'blur(0px)',
     transition: {
       type: 'spring' as const,
-      stiffness: 110,
-      damping: 16,
-      delay: i * 0.06,
+      stiffness: 48,
+      damping: 28,
+      mass: 1.1,
+      delay: i * 0.11,
     },
   }),
 }
 
 const metricsVariant = {
-  hidden: { y: 8, opacity: 0 },
+  hidden: { y: 12, opacity: 0, filter: 'blur(3px)' },
   visible: (i: number) => ({
     y: 0,
     opacity: 1,
+    filter: 'blur(0px)',
     transition: {
-      delay: i * 0.06,
-      duration: 0.22,
-      ease: 'easeOut' as const,
+      delay: i * 0.08,
+      duration: 0.4,
+      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
     },
   }),
 }
@@ -112,15 +115,15 @@ const metricsVariant = {
 const innerContentVariant = {
   rest: { y: 0, scale: 1 },
   hover: {
-    y: -6,
-    scale: 1.01,
-    transition: { type: 'spring' as const, stiffness: 300, damping: 20 },
+    y: -8,
+    scale: 1.014,
+    transition: { type: 'spring' as const, stiffness: 90, damping: 28, mass: 1.0 },
   },
 }
 
 const ctaVariant = {
-  rest:  { x: 0,   opacity: 0.72 },
-  hover: { x: 3,   opacity: 1,    transition: { duration: 0.18, ease: 'easeOut' as const } },
+  rest:  { x: 0,   opacity: 0.6 },
+  hover: { x: 5,   opacity: 1,    transition: { duration: 0.38, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } },
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -162,7 +165,7 @@ function BentoCard({
   const videoRef = useRef<HTMLVideoElement>(null)
 
   const resolvedAccent = accentRgb ?? (type === 'research' ? '139,92,246' : '29,77,241')
-  const MAX_TILT = 8
+  const MAX_TILT = 5
 
   // ── Glow + tilt on pointer move ──────────────────────────────────────────
   const onPointerMove = useCallback(
@@ -186,8 +189,8 @@ function BentoCard({
         const dx = (e.clientX - cx) / (rect.width  / 2)
         const dy = (e.clientY - cy) / (rect.height / 2)
         tiltRef.current.style.transform =
-          `perspective(1200px) rotateY(${dx * MAX_TILT}deg) rotateX(${-dy * MAX_TILT}deg) translateZ(0)`
-        tiltRef.current.style.transition = 'transform 0.08s ease-out'
+          `perspective(1400px) rotateY(${dx * MAX_TILT}deg) rotateX(${-dy * MAX_TILT}deg) translateZ(0)`
+        tiltRef.current.style.transition = 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)'
       }
     },
     [prefersReduced],
@@ -196,7 +199,7 @@ function BentoCard({
   const onPointerLeave = useCallback(() => {
     setHovered(false)
     if (!tiltRef.current || prefersReduced) return
-    tiltRef.current.style.transition = 'transform 0.5s cubic-bezier(0.23,1,0.32,1)'
+    tiltRef.current.style.transition = 'transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)'
     tiltRef.current.style.transform  =
       'perspective(1200px) rotateX(0deg) rotateY(0deg) translateZ(0)'
   }, [prefersReduced])
@@ -620,9 +623,9 @@ export function BentoServicesSection() {
         <motion.div
           ref={headerRef}
           className="text-center mb-16 md:mb-20"
-          initial={prefersReduced ? false : { opacity: 0, y: 20 }}
-          animate={headerInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          initial={prefersReduced ? false : { opacity: 0, y: 36, filter: 'blur(5px)' }}
+          animate={headerInView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+          transition={{ duration: 1.05, ease: [0.16, 1, 0.3, 1] }}
         >
           {/* Eyebrow pill */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/40 border border-purple-500/30 backdrop-blur-sm mb-6">
@@ -680,7 +683,7 @@ export function BentoServicesSection() {
           initial={prefersReduced ? false : { opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px' }}
-          transition={{ delay: 0.32, duration: 0.5, ease: 'easeOut' }}
+          transition={{ delay: 0.22, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
         >
           <Link
             href="/portfolio"

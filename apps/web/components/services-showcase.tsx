@@ -115,9 +115,9 @@ function HeroCard({
   return (
     <motion.div
       ref={ref}
-      initial={reduced ? false : { opacity: 0, y: 32 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay: index * 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
+      initial={reduced ? false : { opacity: 0, y: 40, filter: 'blur(6px)' }}
+      animate={inView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+      transition={{ duration: 0.9, delay: index * 0.18, ease: [0.16, 1, 0.3, 1] }}
       style={{ flex: '1 1 440px', minWidth: 0 }}
     >
       <div
@@ -131,10 +131,11 @@ function HeroCard({
           flexDirection: 'column',
           height: '100%',
           cursor: 'default',
-          transition: 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease',
-          transform: hovered && !reduced ? 'translateY(-6px)' : 'translateY(0)',
+          willChange: 'transform',
+          transition: 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+          transform: hovered && !reduced ? 'translateY(-8px) scale(1.004)' : 'translateY(0) scale(1)',
           boxShadow: hovered
-            ? `0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(${rgb},0.2), inset 0 1px 0 rgba(255,255,255,0.04)`
+            ? `0 32px 96px rgba(0,0,0,0.65), 0 0 0 1px rgba(${rgb},0.22), inset 0 1px 0 rgba(255,255,255,0.05)`
             : `0 0 0 1px rgba(255,255,255,0.07), inset 0 1px 0 rgba(255,255,255,0.03)`,
         }}
         onMouseEnter={() => setHovered(true)}
@@ -397,9 +398,9 @@ function StandardCard({
   return (
     <motion.div
       ref={ref}
-      initial={reduced ? false : { opacity: 0, y: 28 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.55, delay: 0.2 + index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+      initial={reduced ? false : { opacity: 0, y: 36, filter: 'blur(5px)' }}
+      animate={inView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+      transition={{ duration: 0.85, delay: 0.1 + index * 0.15, ease: [0.16, 1, 0.3, 1] }}
       style={{ flex: '1 1 280px', minWidth: 0 }}
     >
       <div
@@ -413,10 +414,11 @@ function StandardCard({
           flexDirection: 'column',
           overflow: 'hidden',
           cursor: 'default',
-          transition: 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease',
-          transform: hovered && !reduced ? 'translateY(-5px)' : 'translateY(0)',
+          willChange: 'transform',
+          transition: 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+          transform: hovered && !reduced ? 'translateY(-6px) scale(1.005)' : 'translateY(0) scale(1)',
           boxShadow: hovered
-            ? `0 16px 50px rgba(0,0,0,0.55), 0 0 0 1px rgba(${rgb},0.18)`
+            ? `0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(${rgb},0.2)`
             : '0 0 0 1px rgba(255,255,255,0.06)',
         }}
         onMouseEnter={() => setHovered(true)}
@@ -755,9 +757,9 @@ export function ServicesShowcase({ services }: { services: ServiceRecord[] }) {
         <motion.div
           ref={headRef}
           style={{ textAlign: 'center', marginBottom: 80 }}
-          initial={reduced ? false : { opacity: 0, y: 22 }}
-          animate={headInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          initial={reduced ? false : { opacity: 0, y: 32, filter: 'blur(4px)' }}
+          animate={headInView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
         >
           {/* Eyebrow pill */}
           <div style={{
@@ -830,7 +832,7 @@ export function ServicesShowcase({ services }: { services: ServiceRecord[] }) {
           initial={reduced ? false : { opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px' }}
-          transition={{ delay: 0.3, duration: 0.5 }}
+          transition={{ delay: 0.2, duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
         >
           <Link
             href="#contact"

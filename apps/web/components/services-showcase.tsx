@@ -732,7 +732,7 @@ export function ServicesShowcase({ services }: { services: ServiceRecord[] }) {
       style={{
         position: 'relative',
         background: 'transparent',
-        padding: '110px 0 130px',
+        padding: '110px 0 100px',
         overflow: 'hidden',
       }}
     >

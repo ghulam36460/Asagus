@@ -264,20 +264,20 @@ a:hover {
    Adjusted to tightly match section spacing so newsletter sits close to Contact
    =================================== */
 .site-footer {
-  /* Mobile: compact spacing so footer is closer to previous section */
-  margin-top: 3.5rem; /* 64px */
-  padding-bottom: 1rem; /* 20px */
+  /* Mobile: extra spacing so footer is visually separated */
+  margin-top: 5rem; /* 80px */
+  padding-bottom: 1rem; /* 16px */
 }
 
 @media (min-width: 768px) {
   .site-footer {
-    margin-top: 3.5rem; /* 96px */
+    margin-top: 8rem; /* 128px */
   }
 }
 
 @media (min-width: 1024px) {
   .site-footer {
-    margin-top: 3.5rem; /* 128px */
+    margin-top: 12rem; /* 192px */
   }
 }
 

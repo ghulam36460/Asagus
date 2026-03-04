@@ -21,6 +21,15 @@ export default async function Home() {
       <ServicesShowcase services={services} />
       {/* legacy research & products section; content already defined in component */}
       <BentoServicesSection />
+      {/* ── Visible section-to-footer separator ─────────────────────────── */}
+      <div
+        aria-hidden="true"
+        style={{
+          height: "1px",
+          background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 20%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.1) 80%, transparent 100%)",
+          boxShadow: "0 0 24px 1px rgba(255,255,255,0.04)",
+        }}
+      />
       <Footer />
     </main>
   );

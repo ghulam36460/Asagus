@@ -599,7 +599,7 @@ export function BentoServicesSection() {
     <section
       id="services"
       aria-label="Our Services — Research and Products"
-      className="relative overflow-hidden bg-gradient-to-b from-black via-gray-950 to-black py-32 lg:py-48"
+      className="relative overflow-hidden bg-gradient-to-b from-black via-gray-950 to-black pt-20 pb-48 lg:pt-28 lg:pb-64"
     >
       {/* ── Ambient background orbs ──────────────────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
@@ -679,7 +679,7 @@ export function BentoServicesSection() {
 
         {/* ── Bottom CTA ────────────────────────────────────────────────────── */}
         <motion.div
-          className="text-center mt-14"
+          className="text-center mt-16"
           initial={prefersReduced ? false : { opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px' }}
@@ -687,13 +687,25 @@ export function BentoServicesSection() {
         >
           <Link
             href="/portfolio"
-            className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full text-sm font-semibold text-white border border-white/10 bg-white/[0.06] backdrop-blur-sm hover:bg-white/[0.11] hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-all duration-300"
+            className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full text-sm font-semibold text-white border border-white/10 bg-white/[0.05] backdrop-blur-sm hover:bg-white/[0.1] hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-all duration-300"
+            style={{ letterSpacing: "-0.01em" }}
           >
             Explore Full Portfolio
             <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
           </Link>
         </motion.div>
       </div>
+
+      {/* ── Bottom fade-out vignette — visually closes the section ───────────── */}
+      <div
+        className="absolute bottom-0 left-0 right-0 pointer-events-none"
+        aria-hidden="true"
+        style={{
+          height: '180px',
+          background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,1) 100%)',
+          zIndex: 10,
+        }}
+      />
     </section>
   )
 }

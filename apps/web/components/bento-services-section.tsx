@@ -17,7 +17,7 @@
  *
  * ─── CardProps API ────────────────────────────────────────────────────────────
  *   id          — unique identifier
- *   type        — 'research' | 'product'
+ *   type        — 'research'
  *   title       — H3 heading
  *   subtitle    — 1-2 line summary
  *   videoSrc    — MP4 video loop (optional; poster shown if absent)
@@ -40,9 +40,10 @@ import Link from 'next/link'
 import { motion, useReducedMotion, useInView, AnimatePresence } from 'framer-motion'
 import {
   Brain, Code2, Database, BarChart3, Workflow, Microscope,
-  ArrowUpRight, FlaskConical, Layers,
+  ArrowUpRight, FlaskConical,
   Play,
 } from 'lucide-react'
+import type { ResearchProjectPublic } from '@/lib/research-api'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Types
@@ -53,7 +54,7 @@ export interface MetricItem {
   value: string
 }
 
-export type CardType = 'research' | 'product'
+export type CardType = 'research'
 
 export interface CardProps {
   id: string
@@ -164,7 +165,7 @@ function BentoCard({
   const glowRef  = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  const resolvedAccent = accentRgb ?? (type === 'research' ? '139,92,246' : '29,77,241')
+  const resolvedAccent = accentRgb ?? '139,92,246'  // research violet
   const MAX_TILT = 5
 
   // ── Glow + tilt on pointer move ──────────────────────────────────────────
@@ -286,7 +287,7 @@ function BentoCard({
           onKeyDown={handleKeyDown}
           tabIndex={0}
           role="article"
-          aria-label={`${type === 'research' ? 'Research' : 'Product'}: ${title}`}
+          aria-label={`Research: ${title}`}
           onFocus={() => setHovered(true)}
           onBlur={() => setHovered(false)}
         >
@@ -343,11 +344,9 @@ function BentoCard({
           >
             {/* Top row: type badge + icon */}
             <div className="flex items-start justify-between">
-              <span className={`bento-type-badge ${type}`}>
-                {type === 'research'
-                  ? <><FlaskConical className="w-2.5 h-2.5" aria-hidden="true" /> Research</>
-                  : <><Layers       className="w-2.5 h-2.5" aria-hidden="true" /> Product</>
-                }
+              <span className="bento-type-badge research">
+                <FlaskConical className="w-2.5 h-2.5" aria-hidden="true" />
+                Research
               </span>
 
               {Icon && (
@@ -463,14 +462,57 @@ function BentoCard({
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Card data — 3 Research + 3 Product (+ 1 wide featured each = 7 cards → 3+4)
-// Change videoSrc / videoSrcWebm once you have optimised clips:
-//   • 6–10 s loop, 720 p, H.264 MP4 + VP9 WebM, ~1.2–2.5 Mbps
-//   • Research: loss-curve / activation / convergence animations
-//   • Product:  UI screen-recordings inside device frames
+// Icon resolver — maps research category string → Lucide icon component
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const CARDS: (CardProps & { index: number })[] = [
+const CATEGORY_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  'Artificial Intelligence': Brain,
+  'Machine Learning':        BarChart3,
+  'Data Science':            BarChart3,
+  'Cybersecurity':           Microscope,
+  'Blockchain':              Database,
+  'Web3':                    Code2,
+  'Cloud Computing':         Database,
+  'IoT':                     Workflow,
+  'Quantum Computing':       Microscope,
+  'DevOps':                  Workflow,
+}
+
+const GRID_AREAS = ['a', 'b', 'c', 'd', 'e', 'f', 'g'] as const
+
+/**
+ * Maps a ResearchProjectPublic record (fetched via the Admin Panel API) into
+ * the CardProps shape consumed by BentoCard. Every field comes from the API —
+ * nothing is hardcoded beyond safe defaults (icon fallback, accent colour).
+ */
+function mapProjectToCard(
+  project: ResearchProjectPublic,
+  idx: number,
+): CardProps & { index: number } {
+  return {
+    id:        project.id,
+    type:      'research',
+    title:     project.title,
+    subtitle:  project.description,
+    posterSrc: project.thumbnailUrl ??
+      'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=900&h=900&fit=crop&auto=format&q=75',
+    metrics:   [],   // metric badges can be added via a future Admin Panel field
+    icon:      CATEGORY_ICON_MAP[project.category] ?? Brain,
+    ctaLabel:  'View Research',
+    ctaHref:   `/research/${project.slug}`,
+    gridArea:  GRID_AREAS[idx % GRID_AREAS.length],
+    accentRgb: '139,92,246',
+    index:     idx,
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Fallback cards — displayed when the API returns no data (e.g. fresh install).
+// All previously-product cards have been reclassified as Research.
+// These are replaced automatically once the Admin Panel has been populated.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const FALLBACK_CARDS: (CardProps & { index: number })[] = [
   // ── A: Research — Neural Architecture Search (2×2 featured) ────────────────
   {
     id:          'research-neural',
@@ -478,7 +520,6 @@ const CARDS: (CardProps & { index: number })[] = [
     title:       'Neural Architecture Search',
     subtitle:    'Automated discovery of optimal network topologies using gradient-guided evolution and Bayesian optimisation.',
     posterSrc:   'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=900&h=900&fit=crop&auto=format&q=75',
-    // videoSrc: '/videos/neural-arch-search.mp4',
     metrics:     [{ label: 'faster convergence', value: '3.2×' }, { label: 'fewer parameters', value: '–41%' }],
     icon:        Brain,
     ctaLabel:    'View Research',
@@ -488,20 +529,19 @@ const CARDS: (CardProps & { index: number })[] = [
     index:       0,
   },
 
-  // ── B: Product — AI SaaS Platform (1×1) ────────────────────────────────────
+  // ── B: Research — Real-time Inference (1×1) ─────────────────────────────────
   {
-    id:          'product-platform',
-    type:        'product',
-    title:       'Asagus AI Platform',
-    subtitle:    'Full-stack SaaS delivering real-time inference at the edge with sub-100 ms P99.',
+    id:          'research-inference',
+    type:        'research',
+    title:       'Real-time Inference at the Edge',
+    subtitle:    'Low-latency model serving pipelines delivering sub-100 ms P99 across distributed edge nodes.',
     posterSrc:   'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=700&h=500&fit=crop&auto=format&q=75',
-    // videoSrc: '/videos/ai-platform-demo.mp4',
-    metrics:     [{ label: 'avg response time', value: '<80 ms' }, { label: 'uptime SLA', value: '99.97%' }],
+    metrics:     [{ label: 'avg latency', value: '<80 ms' }, { label: 'uptime', value: '99.97%' }],
     icon:        Code2,
-    ctaLabel:    'View Case Study',
-    ctaHref:     '/portfolio/ai-platform',
+    ctaLabel:    'View Research',
+    ctaHref:     '/portfolio/edge-inference',
     gridArea:    'b',
-    accentRgb:   '29,77,241',
+    accentRgb:   '139,92,246',
     index:       1,
   },
 
@@ -521,19 +561,19 @@ const CARDS: (CardProps & { index: number })[] = [
     index:       2,
   },
 
-  // ── D: Product — Telemetry Dashboard (1×1) ─────────────────────────────────
+  // ── D: Research — ML Observability (1×1) ───────────────────────────────────
   {
-    id:          'product-dashboard',
-    type:        'product',
-    title:       'Telemetry Dashboard',
-    subtitle:    'Datadog-inspired observability layer for live ML pipelines.',
+    id:          'research-observability',
+    type:        'research',
+    title:       'Observability for ML Pipelines',
+    subtitle:    'High-throughput telemetry layer for monitoring live machine-learning workloads in real time.',
     posterSrc:   'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=700&h=500&fit=crop&auto=format&q=75',
     metrics:     [{ label: 'metrics / sec', value: '1.2 M' }],
     icon:        Database,
-    ctaLabel:    'View Case Study',
-    ctaHref:     '/portfolio/telemetry-dashboard',
+    ctaLabel:    'View Research',
+    ctaHref:     '/portfolio/ml-observability',
     gridArea:    'd',
-    accentRgb:   '29,77,241',
+    accentRgb:   '139,92,246',
     index:       3,
   },
 
@@ -553,19 +593,19 @@ const CARDS: (CardProps & { index: number })[] = [
     index:       4,
   },
 
-  // ── F: Product — Automation Engine (2×1 wide) ──────────────────────────────
+  // ── F: Research — LLM Workflow Automation (2×1 wide) ───────────────────────
   {
-    id:          'product-automation',
-    type:        'product',
-    title:       'Intelligent Automation Engine',
-    subtitle:    'End-to-end workflow automation fusing LLMs with deterministic business rules to cut manual overhead by 94%.',
+    id:          'research-automation',
+    type:        'research',
+    title:       'LLM-driven Workflow Automation',
+    subtitle:    'Research into fusing large language models with deterministic business rules for end-to-end process automation.',
     posterSrc:   'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=900&h=500&fit=crop&auto=format&q=75',
-    metrics:     [{ label: 'manual tasks eliminated', value: '94%' }, { label: 'ROI in 90 days', value: '4.8×' }],
+    metrics:     [{ label: 'tasks automated', value: '94%' }, { label: 'ROI in 90 days', value: '4.8×' }],
     icon:        Workflow,
-    ctaLabel:    'View Case Study',
-    ctaHref:     '/portfolio/automation-engine',
+    ctaLabel:    'View Research',
+    ctaHref:     '/portfolio/automation-research',
     gridArea:    'f',
-    accentRgb:   '29,77,241',
+    accentRgb:   '139,92,246',
     index:       5,
   },
 
@@ -590,15 +630,18 @@ const CARDS: (CardProps & { index: number })[] = [
 // BentoServicesSection — top-level export
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export function BentoServicesSection() {
+export function BentoServicesSection({ projects = [] }: { projects: ResearchProjectPublic[] }) {
   const prefersReduced = useReducedMotion()
   const headerRef      = useRef<HTMLDivElement>(null)
   const headerInView   = useInView(headerRef, { once: true, margin: '-60px' })
 
+  // Use API-driven cards when available; fall back to static data on empty response
+  const cards = projects.length > 0 ? projects.map(mapProjectToCard) : FALLBACK_CARDS
+
   return (
     <section
-      id="services"
-      aria-label="Our Services — Research and Products"
+      id="research"
+      aria-label="Our Research"
       className="relative overflow-hidden bg-gradient-to-b from-black via-gray-950 to-black pt-20 pb-48 lg:pt-28 lg:pb-64"
     >
       {/* ── Ambient background orbs ──────────────────────────────────────────── */}
@@ -631,66 +674,45 @@ export function BentoServicesSection() {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/40 border border-purple-500/30 backdrop-blur-sm mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" aria-hidden="true" />
             <span className="text-[11px] font-semibold uppercase tracking-wider text-purple-300">
-              What We Build
+              Our Research
             </span>
           </div>
 
           {/* Headline */}
           <h2 className="font-display text-5xl sm:text-6xl lg:text-[80px] font-extrabold mb-5 leading-[0.95]">
-            <span className="block text-white/95">Research &amp;</span>
             <span className="block bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500 bg-clip-text text-transparent">
-              Products
+              Research
             </span>
           </h2>
 
           {/* Sub-headline */}
           <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Each card is a window into a live research thread or deployed product.
+            Each card is a window into an active research thread.
             Hover to surface metrics. Click to read the full case&nbsp;study.
           </p>
-
-          {/* Legend */}
-          <div className="flex items-center justify-center gap-6 mt-6" aria-label="Card type legend">
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ background: 'rgb(139,92,246)' }}
-                aria-hidden="true"
-              />
-              Research
-            </div>
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ background: 'rgb(29,77,241)' }}
-                aria-hidden="true"
-              />
-              Product
-            </div>
-          </div>
         </motion.div>
 
         {/* ── Bento Grid ────────────────────────────────────────────────────── */}
         <div className="bento-grid">
-          {CARDS.map((card) => (
+          {cards.map((card) => (
             <BentoCard key={card.id} {...card} />
           ))}
         </div>
 
         {/* ── Bottom CTA ────────────────────────────────────────────────────── */}
         <motion.div
-          className="text-center mt-16"
+          className="relative text-center mt-48 pt-16 z-20"
           initial={prefersReduced ? false : { opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px' }}
           transition={{ delay: 0.22, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
         >
           <Link
-            href="/portfolio"
+            href="/research"
             className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full text-sm font-semibold text-white border border-white/10 bg-white/[0.05] backdrop-blur-sm hover:bg-white/[0.1] hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-all duration-300"
             style={{ letterSpacing: "-0.01em" }}
           >
-            Explore Full Portfolio
+            Explore Research
             <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
           </Link>
         </motion.div>
@@ -701,9 +723,9 @@ export function BentoServicesSection() {
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
         aria-hidden="true"
         style={{
-          height: '180px',
+          height: '100px',
           background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,1) 100%)',
-          zIndex: 10,
+          zIndex: 5,
         }}
       />
     </section>

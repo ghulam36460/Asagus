@@ -4,10 +4,72 @@ import { authenticate } from "../middleware/auth";
 
 const router = Router();
 
-// All routes require authentication
+// ── Public endpoint: list research projects visible on the website ──────────
+// No authentication required — only returns isPublic=true records.
+router.get("/public", async (req: Request, res: Response) => {
+  try {
+    const { status, category, featured } = req.query;
+
+    const where: any = { isPublic: true };
+    if (status) where.status = status as string;
+    if (category) where.category = category as string;
+    if (featured !== undefined) where.featured = featured === "true";
+
+    const projects = await prisma.researchProject.findMany({
+      where,
+      orderBy: [{ orderIndex: "asc" }, { createdAt: "desc" }],
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        status: true,
+        category: true,
+        technologies: true,
+        thumbnailUrl: true,
+        objectives: true,
+        results: true,
+        startDate: true,
+        endDate: true,
+        featured: true,
+        orderIndex: true,
+        metaTitle: true,
+        metaDescription: true,
+        createdAt: true,
+      },
+    });
+
+    res.json({ success: true, data: projects });
+  } catch (error) {
+    console.error("[Research] Public get all error:", error);
+    res.status(500).json({ success: false, error: "Failed to fetch research projects" });
+  }
+});
+
+// Public endpoint: get single research project by slug (public only)
+router.get("/public/slug/:slug", async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+
+    const project = await prisma.researchProject.findFirst({
+      where: { slug, isPublic: true },
+    });
+
+    if (!project) {
+      return res.status(404).json({ success: false, error: "Research project not found" });
+    }
+
+    res.json({ success: true, data: project });
+  } catch (error) {
+    console.error("[Research] Public get by slug error:", error);
+    res.status(500).json({ success: false, error: "Failed to fetch research project" });
+  }
+});
+
+// ── All routes below require authentication (admin use) ─────────────────────
 router.use(authenticate);
 
-// Get all research projects
+// Get all research projects (admin — includes private)
 router.get("/", async (req: Request, res: Response) => {
   try {
     const { status, category, isPublic, featured } = req.query;

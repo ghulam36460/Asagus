@@ -244,11 +244,17 @@ export function Footer() {
         <div
           style={{
             borderBottom: "none",
+            paddingTop: 0,
             paddingBottom: 0,
+            marginTop: 0,
           }}
         >
           <motion.div
-            className={`${INNER} flex flex-col sm:flex-row items-center justify-between gap-10 py-12 lg:py-18`}
+            className={`${INNER} flex flex-col sm:flex-row items-center justify-between gap-10 pb-12 lg:pb-18`}
+            style={{
+              paddingTop: 0,
+              marginTop: 0,
+            }}
             {...anim(0.05)}
           >
             {/* Left: heading + subtext */}

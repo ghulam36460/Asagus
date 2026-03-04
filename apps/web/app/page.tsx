@@ -7,9 +7,17 @@ import { ScrollProgress } from "@/components/scroll-progress";
 import { LiveChat } from "@/components/live-chat";
 import { Footer } from "@/components/footer";
 import { fetchServices } from "@/lib/services-api";
+import { fetchResearchProjects } from "@/lib/research-api";
 
 export default async function Home() {
-  const services = await fetchServices({ active: true });
+  // Use allSettled so a down API never breaks the page render
+  const [servicesResult, researchResult] = await Promise.allSettled([
+    fetchServices({ active: true }),
+    fetchResearchProjects(),
+  ]);
+
+  const services        = servicesResult.status  === 'fulfilled' ? servicesResult.value  : [];
+  const researchProjects = researchResult.status === 'fulfilled' ? researchResult.value  : [];
 
   return (
     <main className="relative">
@@ -19,8 +27,8 @@ export default async function Home() {
       <HeroSection />
       <ProjectsSection />
       <ServicesShowcase services={services} />
-      {/* legacy research & products section; content already defined in component */}
-      <BentoServicesSection />
+      {/* Research section — cards are created/edited/deleted via Admin Panel → Research */}
+      <BentoServicesSection projects={researchProjects} />
       {/* ── Visible section-to-footer separator ─────────────────────────── */}
       <div
         aria-hidden="true"

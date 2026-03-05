@@ -11,7 +11,7 @@ const navLinks = [
   { label: 'Projects', href: '#projects' },
   { label: 'Research & News', href: '#research' },
   { label: 'Services', href: '#services' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Contact', href: '/contact' },
 ]
 
 export function FloatingNavbar({ barOffset = 44 }: { barOffset?: number }) {

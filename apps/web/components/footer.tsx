@@ -77,7 +77,7 @@ const footerLinks = {
       { label: "Careers", href: "/#careers" },
       { label: "Blog", href: "/blog" },
       { label: "Research", href: "/research-development" },
-      { label: "Contact", href: "/#contact" },
+      { label: "Contact", href: "/contact" },
     ],
   },
   resources: {
@@ -93,7 +93,7 @@ const footerLinks = {
   connect: {
     title: "Connect",
     links: [
-      { label: "Contact Us", href: "/#contact", external: false },
+      { label: "Contact Us", href: "/contact", external: false },
       { label: "LinkedIn", href: "https://linkedin.com", external: true },
       { label: "GitHub", href: "https://github.com", external: true },
       { label: "X (Twitter)", href: "https://twitter.com", external: true },
@@ -280,11 +280,11 @@ export function Footer() {
 
             {/* Right: CTAs */}
             <div className="flex items-center gap-3 flex-shrink-0">
-              <Link href="/#contact" className="footer-cta-primary">
+              <Link href="/contact" className="footer-cta-primary">
                 Start a Project
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link href="/#contact" className="footer-cta-secondary">
+              <Link href="/contact" className="footer-cta-secondary">
                 Contact Sales
               </Link>
             </div>

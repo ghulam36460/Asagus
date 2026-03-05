@@ -817,7 +817,7 @@ function CTASection() {
         </p>
         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
           <motion.a
-            href="/#contact"
+            href="/contact"
             whileHover={prefersReduced ? {} : { scale: 1.03 }}
             whileTap={prefersReduced ? {} : { scale: 0.97 }}
             style={{

@@ -57,7 +57,7 @@ export function AnnouncementBar({ visible, onDismiss }: AnnouncementBarProps) {
 
         {/* CTA */}
         <a
-          href="#contact"
+          href="/contact"
           style={{
             fontSize: "0.82rem",
             color: "#ffffff",
@@ -65,10 +65,6 @@ export function AnnouncementBar({ visible, onDismiss }: AnnouncementBarProps) {
             textDecoration: "none",
             letterSpacing: "0.01em",
             whiteSpace: "nowrap",
-          }}
-          onClick={(e) => {
-            e.preventDefault()
-            document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })
           }}
         >
           {CTA_TEXT}

@@ -199,6 +199,78 @@ h1, h2, h3, h4, h5, h6 {
   transition-duration: 150ms;
 }
 
+/* ===================================
+   Booking Page — CSS Isolation
+   Prevents global styles from leaking
+   into the booking page component.
+   =================================== */
+
+/* 1. Kill ALL inherited transitions */
+[data-booking-page],
+[data-booking-page] *,
+[data-booking-page] *::before,
+[data-booking-page] *::after {
+  transition-property: none !important;
+  transition-duration: 0s !important;
+}
+
+/* 2. Override global heading font-family — use inherit instead of azonix */
+[data-booking-page] h1,
+[data-booking-page] h2,
+[data-booking-page] h3,
+[data-booking-page] h4,
+[data-booking-page] h5,
+[data-booking-page] h6 {
+  font-family: inherit;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* 3. Override global paragraph line-height */
+[data-booking-page] p {
+  line-height: 1.6;
+}
+
+/* 4. Override global a:hover opacity */
+[data-booking-page] a,
+[data-booking-page] a:hover,
+[data-booking-page] a:focus {
+  opacity: 1 !important;
+  text-decoration: none;
+}
+
+/* 5. Reset form elements */
+[data-booking-page] input,
+[data-booking-page] textarea,
+[data-booking-page] button,
+[data-booking-page] select {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+/* 6. Kill reveal-fade leak (GSAP scroll effects) */
+[data-booking-page] .reveal-fade,
+[data-booking-page] [data-stagger-child] {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* 7. Allow framer-motion to control its own animations */
+[data-booking-page] [style*="transform"],
+[data-booking-page] [style*="opacity"] {
+  transition-property: none !important;
+}
+
+/* 8. Re-enable transitions only on elements that explicitly opt-in */
+[data-booking-page] [data-transition] {
+  transition-property: color, background-color, border-color, box-shadow, opacity !important;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-duration: 200ms !important;
+}
+
 /* Typography improvements */
 p {
   line-height: 1.75;
